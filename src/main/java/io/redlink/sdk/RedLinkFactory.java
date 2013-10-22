@@ -38,6 +38,10 @@ public class RedLinkFactory {
 		return new RedLinkAnalysisImpl(credentials);
 	}
 	
+	public static RedLink.Analysis createAnalysisClient(String apiKey) {
+		return new RedLinkAnalysisImpl(new DefaultCredentials(apiKey));
+	}
+	
 	public static RedLink.Vocabulary createVocabularyClient(String apiKey) {
 		return createVocabularyClient(new DefaultCredentials(apiKey));
 	}
