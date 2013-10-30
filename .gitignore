@@ -3,5 +3,7 @@
 .settings
 target/
 *~
+src/test/resources/api.key
 src/test/java/io/redlink/sdk/api.key
-
+.idea
+*.iml

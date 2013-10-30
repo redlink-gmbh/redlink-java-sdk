@@ -48,7 +48,7 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
 	}
 
 	private final UriBuilder getEnhanceUriBuilder() {
-		return initiateUriBuilding().path(PATH).queryParam(FORMAT, FormatHelper.getLabel(format));
+		return initiateUriBuilding().path(PATH);
 	}
 
 	private final Enhancements execEnhance(WebTarget target, String content) {

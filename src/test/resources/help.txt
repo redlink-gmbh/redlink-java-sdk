@@ -1,0 +1,2 @@
+unit tests would expect to find a file called 'api.key' in this directory
+where to read an api key for testing

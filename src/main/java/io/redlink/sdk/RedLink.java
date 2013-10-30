@@ -69,7 +69,7 @@ public interface RedLink {
 	
 		public static final String PATH = "analysis";
 		
-		public static final String FORMAT = "format";
+		public static final String FORMAT = "out";
 		
 		Enhancements enhance(String content);
 		

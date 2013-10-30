@@ -16,7 +16,7 @@ import java.io.InputStreamReader;
  */
 public class AbstractTests {
 	
-	protected static final String API_KEY_FILE = "api.key";
+	protected static final String API_KEY_FILE = "/api.key";
 	
 	protected static final String DEMO_ENDPOINT = "http://demo.api.redlink.io/api";
 	
@@ -43,6 +43,7 @@ public class AbstractTests {
 	 * @return credentials
 	 */
 	protected static final Credentials buildCredentials(Class<?> klass) {
+        //return new DefaultCredentials("hitsh2Ob6");
 		InputStream is = klass.getResourceAsStream(API_KEY_FILE);
 		if (is != null) {
 		    try {
@@ -51,11 +52,10 @@ public class AbstractTests {
 				String apiKey = br.readLine();
 				return new DefaultCredentials(apiKey);
 			} catch (IOException e) {
-				e.printStackTrace();
-				return new CustomCredentials(DEMO_ENDPOINT);
+                throw new RuntimeException("error reading api key: " + e.getMessage());
 			}
 		} else {
-			return new CustomCredentials(DEMO_ENDPOINT);
+			throw new RuntimeException("api key not found");
 		}
 	}
 

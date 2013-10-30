@@ -12,13 +12,14 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 public class CustomCredentials extends AbstractCredentials {
 	
 	public static final String DEVELOPMENT_ENDPOINT = "http://localhost:8080/api";
+
 	
 	public CustomCredentials() {
 		this(DEVELOPMENT_ENDPOINT);
 	}
 	
 	public CustomCredentials(String endpoint) {
-		super(endpoint, null, null);
+		super(endpoint, "", null);
 	}
 
 	@Override
