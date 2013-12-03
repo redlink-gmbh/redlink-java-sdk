@@ -5,6 +5,8 @@ import io.redlink.sdk.Credentials;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 
+import java.net.MalformedURLException;
+
 public abstract class AbstractCredentials implements Credentials {
 	
 	protected final String endpoint;
@@ -32,17 +34,6 @@ public abstract class AbstractCredentials implements Credentials {
 	@Override
 	public String getApiKey() {
 		return apiKey;
-	}
-	
-	@Override
-	public boolean verify() {
-		ClientRequest request = new ClientRequest(endpoint);
-		try {
-			ClientResponse<?> response = request.head();
-			return (response.getStatus() == 200);
-		} catch (Exception e) {
-			return false;
-		}
 	}
 	
 }

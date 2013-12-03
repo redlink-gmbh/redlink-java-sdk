@@ -1,7 +1,8 @@
 package io.redlink.sdk;
 
 import io.redlink.sdk.impl.DefaultCredentials;
-import junit.framework.Assert;
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -58,6 +59,7 @@ public class GenericTest {
 		}
 	}
 
+    @Test
     public void testVerifyCredentials() throws MalformedURLException {
         Credentials credentials = buildCredentials();
         Assert.assertTrue(credentials.verify());

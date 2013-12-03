@@ -13,7 +13,6 @@ public class CustomCredentials extends AbstractCredentials {
 	
 	public static final String DEVELOPMENT_ENDPOINT = "http://localhost:8080/api";
 
-	
 	public CustomCredentials() {
 		this(DEVELOPMENT_ENDPOINT);
 	}
@@ -22,7 +21,12 @@ public class CustomCredentials extends AbstractCredentials {
 		super(endpoint, "", null);
 	}
 
-	@Override
+    @Override
+    public boolean verify() throws MalformedURLException {
+        return true;
+    }
+
+    @Override
 	public WebTarget buildUrl(UriBuilder builder) throws MalformedURLException, IllegalArgumentException, UriBuilderException {
 		ResteasyClientBuilder clientBuilder = new ResteasyClientBuilder();
 		URI uri = builder.build();

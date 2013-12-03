@@ -41,7 +41,7 @@ public interface Credentials {
 	 * 
 	 * @return
 	 */
-	boolean verify();
+	boolean verify() throws MalformedURLException;
 	
 	/**
 	 * 

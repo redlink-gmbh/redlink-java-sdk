@@ -18,7 +18,7 @@ import org.junit.Test;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
 
-public class AnalysisTest extends AbstractTests {
+public class AnalysisTest extends GenericTest {
 	
 	private static RedLink.Analysis redlink;
 	private static String STANBOL_TEXT_TO_ENHANCE = "The Open Source Project Apache Stanbol provides different "
