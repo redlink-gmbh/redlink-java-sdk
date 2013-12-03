@@ -20,9 +20,9 @@ public class RedLinkSearchImpl extends RedLinkAbstractImpl implements RedLink.Se
 	}
 	
 	@Override
-	public SearchResults search(String query) {
+	public SearchResults search(String query, String core) {
 		try {
-			String service = credentials.buildUrl(getSearchUriBuilder(query)).toString();
+			String service = credentials.buildUrl(getSearchUriBuilder(query, core)).toString();
 			return execSearch(service);
 		} catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
 			throw new RuntimeException(e);
@@ -30,21 +30,21 @@ public class RedLinkSearchImpl extends RedLinkAbstractImpl implements RedLink.Se
 	}
 
 	@Override
-	public SearchResults search(String query, int start, int results, boolean facet) {
+	public SearchResults search(String query, String core, int start, int results, boolean facet) {
 		try {
-			String service = credentials.buildUrl(getSearchUriBuilder(query, start, results, facet)).toString();
+			String service = credentials.buildUrl(getSearchUriBuilder(query, core, start, results, facet)).toString();
 			return execSearch(service);
 		} catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
 			throw new RuntimeException(e);
 		}
 	}
 	
-	private final UriBuilder getSearchUriBuilder(String query) {
-		return initiateUriBuilding().path(PATH).queryParam(QUERY, query);
+	private final UriBuilder getSearchUriBuilder(String query, String core) {
+		return initiateUriBuilding().path(PATH).path(core).queryParam(QUERY, query);
 	}
 	
-	private final UriBuilder getSearchUriBuilder(String query, int start, int results, boolean facet) {
-		return getSearchUriBuilder(query).
+	private final UriBuilder getSearchUriBuilder(String query, String core, int start, int results, boolean facet) {
+		return getSearchUriBuilder(query, core).
 				queryParam(START, start).
 				queryParam(RESULTS, results).
 				queryParam(FACET, facet);

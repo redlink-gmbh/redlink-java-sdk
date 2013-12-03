@@ -6,7 +6,6 @@ import io.redlink.sdk.impl.RedLinkAbstractImpl;
 import io.redlink.sdk.impl.analysis.model.Enhancements;
 import io.redlink.sdk.impl.analysis.model.EnhancementsParser;
 import io.redlink.sdk.impl.analysis.model.EnhancementsParserFactory;
-import io.redlink.sdk.util.FormatHelper;
 
 import java.io.StringReader;
 import java.net.MalformedURLException;
@@ -38,17 +37,17 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
 	}
 
 	@Override
-	public Enhancements enhance(String content) {
+	public Enhancements enhance(String content, String analysis) {
 		try {
-			WebTarget target = credentials.buildUrl(getEnhanceUriBuilder());
+			WebTarget target = credentials.buildUrl(getEnhanceUriBuilder(analysis));
 			return execEnhance(target, content);
 		} catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	private final UriBuilder getEnhanceUriBuilder() {
-		return initiateUriBuilding().path(PATH);
+	private final UriBuilder getEnhanceUriBuilder(String analysis) {
+		return initiateUriBuilding().path(PATH).path(analysis).path(ENHANCE);
 	}
 
 	private final Enhancements execEnhance(WebTarget target, String content) {

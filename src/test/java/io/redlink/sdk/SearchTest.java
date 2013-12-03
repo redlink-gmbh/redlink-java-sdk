@@ -13,6 +13,8 @@ public class SearchTest {
 	
 	private static RedLink.Search redlink;
 
+    private static final String TEST_CORE = "test";
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		Credentials credentials = new CustomCredentials();
@@ -27,7 +29,7 @@ public class SearchTest {
 	
 	@Test
 	public void search() {
-		SearchResults results = redlink.search("example");
+		SearchResults results = redlink.search("example", TEST_CORE);
 		Assert.assertNotNull(results);
 		//Assert.assertTrue(results.hasNext());
 		int n = 0;

@@ -43,7 +43,7 @@ public class GenericTest {
 	 * @return credentials
 	 */
 	protected static final Credentials buildCredentials(Class<?> klass) {
-        //return new DefaultCredentials("hitsh2Ob6");
+        //return new DefaultCredentials("********");
 		InputStream is = klass.getResourceAsStream(API_KEY_FILE);
 		if (is != null) {
 		    try {

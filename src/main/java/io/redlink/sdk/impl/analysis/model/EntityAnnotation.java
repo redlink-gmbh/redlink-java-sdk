@@ -2,8 +2,6 @@ package io.redlink.sdk.impl.analysis.model;
 
 import java.util.Collection;
 
-import io.redlink.sdk.impl.vocabulary.model.Entity;
-
 /**
  * Entity annotation, suggested/linked entities recognized within the text
  * 

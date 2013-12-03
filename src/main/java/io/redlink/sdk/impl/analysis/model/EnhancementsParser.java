@@ -1,7 +1,5 @@
 package io.redlink.sdk.impl.analysis.model;
 
-import io.redlink.sdk.impl.vocabulary.model.Entity;
-
 import java.util.Collection;
 
 /**

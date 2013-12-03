@@ -1,10 +1,6 @@
 package io.redlink.sdk;
 
-import io.redlink.sdk.impl.analysis.model.Enhancement;
-import io.redlink.sdk.impl.analysis.model.Enhancements;
-import io.redlink.sdk.impl.analysis.model.EntityAnnotation;
-import io.redlink.sdk.impl.analysis.model.TextAnnotation;
-import io.redlink.sdk.impl.vocabulary.model.Entity;
+import io.redlink.sdk.impl.analysis.model.*;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -21,7 +17,10 @@ import org.openrdf.model.vocabulary.RDFS;
 public class AnalysisTest extends GenericTest {
 	
 	private static RedLink.Analysis redlink;
-	private static String STANBOL_TEXT_TO_ENHANCE = "The Open Source Project Apache Stanbol provides different "
+
+    private static final String TEST_ANALYSIS = "test";
+
+	private static final String STANBOL_TEXT_TO_ENHANCE = "The Open Source Project Apache Stanbol provides different "
                 + "features that facilitate working with linked data, in the netlabs.org early adopter proposal VIE "
                 + "I wanted to try features which were not much used before, like the Ontology Manager and the Rules component. "
                 + "The News of the project can be found on the website! Rupert Westenthaler, living in Austria, "
@@ -45,8 +44,8 @@ public class AnalysisTest extends GenericTest {
 	 * <p>Tests the empty enhancements when an empty string is sent to the API</p>
 	 */
 	@Test
-	public void testEmptyEnhacement() {
-		Enhancements enhancements = redlink.enhance("  ");
+	public void testEmptyEnhancement() {
+		Enhancements enhancements = redlink.enhance("  ", TEST_ANALYSIS);
 		Assert.assertNotNull(enhancements);
 		Assert.assertEquals(0, enhancements.getModel().size());
 		Assert.assertEquals(0, enhancements.getEnhancements().size());
@@ -59,7 +58,7 @@ public class AnalysisTest extends GenericTest {
 	 */
 	@Test
 	public void testDemoEnhancement() {
-		Enhancements enhancements = redlink.enhance(PARIS_TEXT_TO_ENHANCE);
+		Enhancements enhancements = redlink.enhance(PARIS_TEXT_TO_ENHANCE, TEST_ANALYSIS);
 		Assert.assertNotNull(enhancements);
 		Assert.assertNotEquals(0, enhancements.getModel().size());
 		int sizeE = enhancements.getEnhancements().size();
@@ -85,7 +84,7 @@ public class AnalysisTest extends GenericTest {
 	 */
 	@Test
 	public void testEnhancementProperties() {
-	    Enhancements enhancements = redlink.enhance(STANBOL_TEXT_TO_ENHANCE);
+	    Enhancements enhancements = redlink.enhance(STANBOL_TEXT_TO_ENHANCE, TEST_ANALYSIS);
 	    Assert.assertFalse(enhancements.getLanguages().isEmpty());
 	    Assert.assertFalse(enhancements.getTextAnnotations().isEmpty());
 	    Assert.assertFalse(enhancements.getEntityAnnotations().isEmpty());
@@ -127,7 +126,7 @@ public class AnalysisTest extends GenericTest {
 
     /**
      * <p>Tests the {@code EntityAnnotation} properties</p>
-     * @param en
+     * @param ea
      */
     private void testEntityAnnotationProperties(EntityAnnotation ea) {
         Assert.assertNotEquals(ea.getEntityLabel(), "");
@@ -169,7 +168,7 @@ public class AnalysisTest extends GenericTest {
      */
     @Test
     public void testFilterEntitiesByConfidenceValue() {
-    	Enhancements enhancements = redlink.enhance(STANBOL_TEXT_TO_ENHANCE);
+    	Enhancements enhancements = redlink.enhance(STANBOL_TEXT_TO_ENHANCE, TEST_ANALYSIS);
         Collection<EntityAnnotation> eas = enhancements.getEntityAnnotationsByConfidenceValue((0.9));
         Assert.assertTrue(eas.size() > 0);
     }

@@ -1,4 +1,4 @@
-package io.redlink.sdk.impl.vocabulary.model;
+package io.redlink.sdk.impl.analysis.model;
 
 import java.util.Collection;
 import java.util.Collections;

@@ -1,6 +1,5 @@
 package io.redlink.sdk.impl.analysis.model;
 
-import io.redlink.sdk.impl.vocabulary.model.Entity;
 import io.redlink.sdk.util.ModelRepository;
 
 import java.text.ParseException;
@@ -67,7 +66,7 @@ public final class OpenRDFEnhancementsParser implements EnhancementsParser {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * io.redlink.sdk.impl.enhance.model.EnhancementsParser#createEnhancements()
+	 * io.redlink.sdk.impl.analysis.model.EnhancementsParser#createEnhancements()
 	 */
 	public Enhancements createEnhancements() throws EnhancementParserException {
 		Enhancements enhancements = new Enhancements(model);
@@ -80,7 +79,7 @@ public final class OpenRDFEnhancementsParser implements EnhancementsParser {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * io.redlink.sdk.impl.enhance.model.EnhancementsParser#parseLanguages()
+	 * io.redlink.sdk.impl.analysis.model.EnhancementsParser#parseLanguages()
 	 */
 	public Collection<String> parseLanguages() throws EnhancementParserException {
 
@@ -128,7 +127,7 @@ public final class OpenRDFEnhancementsParser implements EnhancementsParser {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * io.redlink.sdk.impl.enhance.model.EnhancementsParser#parseEnhancements()
+	 * io.redlink.sdk.impl.analysis.model.EnhancementsParser#parseEnhancements()
 	 */
 	public Collection<Enhancement> parseEnhancements()
 			throws EnhancementParserException {
@@ -177,7 +176,7 @@ public final class OpenRDFEnhancementsParser implements EnhancementsParser {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * io.redlink.sdk.impl.enhance.model.EnhancementsParser#parseTextAnnotations
+	 * io.redlink.sdk.impl.analysis.model.EnhancementsParser#parseTextAnnotations
 	 * ()
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -316,7 +315,7 @@ public final class OpenRDFEnhancementsParser implements EnhancementsParser {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * io.redlink.sdk.impl.enhance.model.EnhancementsParser#parseEntityAnnotations
+	 * io.redlink.sdk.impl.analysis.model.EnhancementsParser#parseEntityAnnotations
 	 * ()
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -743,7 +742,7 @@ public final class OpenRDFEnhancementsParser implements EnhancementsParser {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * io.redlink.sdk.impl.enhance.model.EnhancementsParser#parseEntity(java
+	 * io.redlink.sdk.impl.analysis.model.EnhancementsParser#parseEntity(java
 	 * .lang.String)
 	 */
 	public Entity parseEntity(String entityUri)
