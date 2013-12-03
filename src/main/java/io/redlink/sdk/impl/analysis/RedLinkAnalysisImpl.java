@@ -27,9 +27,6 @@ import org.openrdf.rio.helpers.ParseErrorLogger;
 
 public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.Analysis {
 
-	/**
-	 * Managed Response Format
-	 */
 	private static final RDFFormat format = RDFFormat.TURTLE;
 
 	public RedLinkAnalysisImpl(Credentials credentials) {
