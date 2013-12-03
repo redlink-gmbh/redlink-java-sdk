@@ -1,24 +1,23 @@
 package io.redlink.sdk;
 
-import io.redlink.sdk.impl.CustomCredentials;
 import io.redlink.sdk.impl.DefaultCredentials;
+import junit.framework.Assert;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 
 /**
- * Abstract tests and utilities shared by other tests in the suite
+ * Generic tests and utilities shared by other tests in the suite
  * 
  * @author sergio.fernandez@redlink.co
  *
  */
-public class AbstractTests {
+public class GenericTest {
 	
 	protected static final String API_KEY_FILE = "/api.key";
-	
-	protected static final String DEMO_ENDPOINT = "http://demo.api.redlink.io/api";
 	
 	/**
 	 * Build the credentials for testing the SDK. It dynamically
@@ -29,7 +28,7 @@ public class AbstractTests {
 	 * @return credentials
 	 */
 	protected static final Credentials buildCredentials() {
-		return buildCredentials(AbstractTests.class);
+		return buildCredentials(GenericTest.class);
 	}	
 	
 	/**
@@ -58,5 +57,10 @@ public class AbstractTests {
 			throw new RuntimeException("api key not found");
 		}
 	}
+
+    public void testVerifyCredentials() throws MalformedURLException {
+        Credentials credentials = buildCredentials();
+        Assert.assertTrue(credentials.verify());
+    }
 
 }
