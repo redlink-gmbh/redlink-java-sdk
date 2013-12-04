@@ -43,6 +43,10 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
         return initiateUriBuilding().path(PATH).path(dataset).path(SPARQL).path(SELECT).queryParam(QUERY, query);
     }
 
+    private final UriBuilder getSparqlSelectUriBuilder(String query) {
+        return initiateUriBuilding().path(PATH).path(SPARQL).path(SELECT).queryParam(QUERY, query);
+    }
+
     private SPARQLResult execSelect(WebTarget target) {
         Invocation.Builder request = target.request();
         TupleQueryResultFormat format = TupleQueryResultFormat.JSON;
@@ -118,6 +122,16 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
     public SPARQLResult sparqlSelect(String query, String dataset) {
         try {
             WebTarget target = credentials.buildUrl(getSparqlSelectUriBuilder(query, dataset));
+            return execSelect(target);
+        } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public SPARQLResult sparqlSelect(String query) {
+        try {
+            WebTarget target = credentials.buildUrl(getSparqlSelectUriBuilder(query));
             return execSelect(target);
         } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
             throw new RuntimeException(e);

@@ -45,6 +45,8 @@ public interface RedLink {
 
         SPARQLResult sparqlSelect(String query, String dataset);
 
+        SPARQLResult sparqlSelect(String query);
+
 	}
 	
 	public static interface Search {
