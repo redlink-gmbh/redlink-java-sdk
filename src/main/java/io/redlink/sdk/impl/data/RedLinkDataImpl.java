@@ -44,7 +44,7 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
     }
 
     private final UriBuilder getSparqlSelectUriBuilder(String query) {
-        return initiateUriBuilding().path(PATH).path(SPARQL).path(SELECT).queryParam(QUERY, query);
+        return initiateUriBuilding().path(PATH).path(SPARQL).queryParam(QUERY, query);
     }
 
     private SPARQLResult execSelect(WebTarget target) {
