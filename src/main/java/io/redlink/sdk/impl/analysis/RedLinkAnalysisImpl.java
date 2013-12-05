@@ -2,42 +2,55 @@ package io.redlink.sdk.impl.analysis;
 
 import io.redlink.sdk.Credentials;
 import io.redlink.sdk.RedLink;
+import io.redlink.sdk.analysis.AnalysisRequest;
 import io.redlink.sdk.impl.RedLinkAbstractImpl;
 import io.redlink.sdk.impl.analysis.model.Enhancements;
 import io.redlink.sdk.impl.analysis.model.EnhancementsParser;
 import io.redlink.sdk.impl.analysis.model.EnhancementsParserFactory;
 
-import java.io.StringReader;
 import java.net.MalformedURLException;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriBuilderException;
 
-import org.openrdf.model.Model;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.rio.ParserConfig;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.Rio;
-import org.openrdf.rio.helpers.BasicParserSettings;
-import org.openrdf.rio.helpers.ParseErrorLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * 
+ * @author rafa.haro@redlink.co
+ *
+ */
 public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.Analysis {
 
-	private static final RDFFormat format = RDFFormat.TURTLE;
+	private static final Logger logger = LoggerFactory.getLogger(RedLinkAnalysisImpl.class);
 
 	public RedLinkAnalysisImpl(Credentials credentials) {
 		super(credentials);
 	}
 
 	@Override
-	public Enhancements enhance(String content, String analysis) {
+	public Enhancements enhance(AnalysisRequest request) {
 		try {
-			WebTarget target = credentials.buildUrl(getEnhanceUriBuilder(analysis));
-			return execEnhance(target, content);
+			WebTarget target = credentials.buildUrl(getEnhanceUriBuilder(request.getAnalysis()));
+			target.queryParam("in", request.getInputFormat());
+			target.queryParam("out", request.getOutputFormat());
+			target.queryParam("summary", request.getSummary());
+
+			Builder httpRequest = target.request();
+			httpRequest.accept(request.getOutputFormat());
+			MediaType type = MediaType.TEXT_PLAIN_TYPE;
+			if(!request.isContentString())
+				type = MediaType.APPLICATION_OCTET_STREAM_TYPE;
+			
+			Entity<?> entity = Entity.entity(request.getContent(), type);
+
+			return execEnhance(target.getUri().toString(), httpRequest, entity);
 		} catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
 			throw new RuntimeException(e);
 		}
@@ -47,34 +60,25 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
 		return initiateUriBuilding().path(PATH).path(analysis).path(ENHANCE);
 	}
 
-	private final Enhancements execEnhance(WebTarget target, String content) {
-		Builder request = target.request();
-		request.accept(format.getDefaultMIMEType());
+	private final Enhancements execEnhance(String uri, Builder request, Entity<?> entity) {
 		try {
-			Response response = request.post(Entity.text(content));
+			
+			logger.info("Making Request to User Endpoint " + uri);
+			long pre = System.currentTimeMillis();
+			Response response = request.post(entity);
+			long time = System.currentTimeMillis() - pre;
+			logger.info("Server Response Time " + time + " ms. Status: " + response.getStatus());
+			
 			if (response.getStatus() != 200) {
-				// TODO: improve this feedback from the sdk (400, 500, etc)
-				throw new RuntimeException("Enhancement failed: HTTP error code " + response.getStatus());
+				String message = "Enhancement failed: HTTP error code " + response.getStatus();
+				logger.error(message);
+				throw new RuntimeException(message);
 			} else {
-				String entity = response.readEntity(String.class);
-				ParserConfig config = new ParserConfig();
-				// Prevent malformed datetime values
-				// TODO review - added to prevent errors when parsing invalid dates
-				config.set(BasicParserSettings.VERIFY_DATATYPE_VALUES, false);
-				// long pre = System.currentTimeMillis();
-				Model model = Rio.parse(new StringReader(entity), target.getUri().toString(), format, config, ValueFactoryImpl.getInstance(), new ParseErrorLogger());
-				// long time = System.currentTimeMillis() - pre;
-				// System.out.println("RIO PARSE TIME: " + time + " ms");
-				// pre = System.currentTimeMillis();
-
-				// TODO Initialize Parser using strategy criteria -> Decoupled
-				// model representation (could be Jena Model or even JSON-LD)
-				EnhancementsParser parser = EnhancementsParserFactory.createDefaultParser(model);
+				pre = System.currentTimeMillis();
+				EnhancementsParser parser = EnhancementsParserFactory.createDefaultParser(response);
 				Enhancements enhancements = parser.createEnhancements();
-				// time = System.currentTimeMillis() - pre;
-				// System.out.println("ENHANCEMENTS PARSE TIME: " + time + " ms");
-				// TODO Add a Parsing Time Manager (allow users to identify
-				// problems in the Enhancer service)
+				time = System.currentTimeMillis() - pre;
+				logger.info("Response Parse Time: " + time + " ms");
 				return enhancements;
 			}
 		} catch (Exception e) {

@@ -21,12 +21,7 @@ public class CustomCredentials extends AbstractCredentials {
 		super(endpoint, "", null);
 	}
 
-    @Override
-    public boolean verify() throws MalformedURLException {
-        return true;
-    }
-
-    @Override
+	@Override
 	public WebTarget buildUrl(UriBuilder builder) throws MalformedURLException, IllegalArgumentException, UriBuilderException {
 		ResteasyClientBuilder clientBuilder = new ResteasyClientBuilder();
 		URI uri = builder.build();

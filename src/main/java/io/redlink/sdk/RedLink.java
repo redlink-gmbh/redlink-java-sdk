@@ -1,7 +1,9 @@
 package io.redlink.sdk;
 
+import io.redlink.sdk.analysis.AnalysisRequest;
 import io.redlink.sdk.impl.analysis.model.Enhancements;
 import io.redlink.sdk.impl.search.model.SearchResults;
+
 import org.apache.marmotta.client.model.sparql.SPARQLResult;
 
 /**
@@ -16,10 +18,8 @@ public interface RedLink {
         static final String PATH = "analysis";
 
         static final String ENHANCE = "enhance";
-
-        static final String FORMAT = "out";
-
-        Enhancements enhance(String content, String analysis);
+        
+        public Enhancements enhance(AnalysisRequest request);
 
     }
 	
@@ -43,9 +43,9 @@ public interface RedLink {
 
         static final String LDPATH = "ldpath";
 
-        SPARQLResult sparqlSelect(String query, String dataset);
+        public SPARQLResult sparqlSelect(String query, String dataset);
 
-        SPARQLResult sparqlSelect(String query);
+        public SPARQLResult sparqlSelect(String query);
 
 	}
 	
@@ -61,9 +61,9 @@ public interface RedLink {
 		
 		static final String FACET = "facet";
 		
-		SearchResults search(String query, String core);
+		public SearchResults search(String query, String core);
 		
-		SearchResults search(String query, String core, int start, int results, boolean facet);
+		public SearchResults search(String query, String core, int start, int results, boolean facet);
 		
 	}
 

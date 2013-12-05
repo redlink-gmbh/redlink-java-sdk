@@ -2,7 +2,6 @@ package io.redlink.sdk.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.security.KeyManagementException;
@@ -15,23 +14,11 @@ import java.security.cert.CertificateFactory;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriBuilderException;
 
-import io.redlink.sdk.impl.analysis.model.Enhancements;
-import io.redlink.sdk.impl.analysis.model.EnhancementsParser;
-import io.redlink.sdk.impl.analysis.model.EnhancementsParserFactory;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-import org.openrdf.model.Model;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.rio.ParserConfig;
-import org.openrdf.rio.Rio;
-import org.openrdf.rio.helpers.BasicParserSettings;
-import org.openrdf.rio.helpers.ParseErrorLogger;
 
 /**
  * Default credentials against the public api
@@ -52,22 +39,6 @@ public final class DefaultCredentials extends AbstractCredentials {
 		super(ENDPOINT, VERSION, apiKey);
 	}
 	
-	public boolean verify() throws MalformedURLException {
-        WebTarget target = buildUrl(UriBuilder.fromUri(getEndpoint()).path(getVersion()));
-        Invocation.Builder request = target.request();
-        request.accept("application/json");
-        try {
-            Response response = request.get();
-            if (response.getStatus() == 200) {
-                Status status = response.readEntity(Status.class);
-                return status.isAccessible();
-            } else {
-                throw new RuntimeException("Status check failed: HTTP error code " + response.getStatus());
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Status check failed: " + e.getMessage(), e);
-        }
-	}
 
 	@Override
 	public WebTarget buildUrl(UriBuilder builder) throws MalformedURLException, IllegalArgumentException, UriBuilderException {
