@@ -1,0 +1,15 @@
+<configuration>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d %logger{15}:%line{3} %level{5} %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="io.redlink.sdk" level="DEBUG" />
+
+    <root level="${root-level:-WARN}">
+        <appender-ref ref="CONSOLE" />
+    </root>
+
+</configuration>

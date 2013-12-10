@@ -1,5 +1,12 @@
 package io.redlink.sdk.impl;
 
+import org.codehaus.jackson.JsonNode;
+
+/**
+ * 
+ * TODO: documentation
+ */
+
 public class Status {
 
     private boolean accessible;
@@ -24,32 +31,29 @@ public class Status {
         return bytes;
     }
 
-    public void setBytes(int bytes) {
-        this.bytes = bytes;
-    }
-
     public int getRequests() {
         return requests;
-    }
-
-    public void setRequests(int requests) {
-        this.requests = requests;
     }
 
     public int getLimit() {
         return limit;
     }
 
-    public void setLimit(int limit) {
-        this.limit = limit;
+    public void setLimit(JsonNode node) {
+        final String str = node.toString();
+        try {
+            limit = Integer.parseInt(str);
+        } catch (Exception e) {
+            if ("unlimited".equals(str)) {
+                limit = -1;
+            } else {
+                limit = 0;
+            }
+        }
     }
 
     public int getSeconds() {
         return seconds;
-    }
-
-    public void setSeconds(int seconds) {
-        this.seconds = seconds;
     }
 
 }

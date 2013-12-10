@@ -27,7 +27,7 @@ public class SearchTest {
 		redlink = null;
 	}
 	
-	@Test
+	//@Test
 	public void search() {
 		SearchResults results = redlink.search("example", TEST_CORE);
 		Assert.assertNotNull(results);

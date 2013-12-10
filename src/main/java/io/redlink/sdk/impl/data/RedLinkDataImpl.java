@@ -17,6 +17,8 @@ import org.openrdf.query.QueryResultHandler;
 import org.openrdf.query.QueryResultHandlerException;
 import org.openrdf.query.resultio.*;
 import org.openrdf.query.resultio.helpers.QueryResultCollector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
@@ -35,31 +37,34 @@ import java.util.Map;
 
 public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data {
 
+    private static Logger log = LoggerFactory.getLogger(RedLinkDataImpl.class);
+
     public RedLinkDataImpl(Credentials credentials) {
         super(credentials);
     }
 
-    private final UriBuilder getSparqlSelectUriBuilder(String query, String dataset) {
-        return initiateUriBuilding().path(PATH).path(dataset).path(SPARQL).path(SELECT).queryParam(QUERY, query);
+    private final UriBuilder getSparqlSelectUriBuilder(String dataset) {
+        return initiateUriBuilding().path(PATH).path(dataset).path(SPARQL).path(SELECT);
     }
 
-    private final UriBuilder getSparqlSelectUriBuilder(String query) {
-        return initiateUriBuilding().path(PATH).path(SPARQL).queryParam(QUERY, query);
+    private final UriBuilder getSparqlSelectUriBuilder() {
+        return initiateUriBuilding().path(PATH).path(SPARQL);
     }
 
-    private SPARQLResult execSelect(WebTarget target) {
+    private SPARQLResult execSelect(WebTarget target, String query) {
         Invocation.Builder request = target.request();
+        log.debug("Executing SPARQL select query: {}", query.replaceAll("\\s*[\\r\\n]+\\s*", " ").trim());
         TupleQueryResultFormat format = TupleQueryResultFormat.JSON;
         request.accept(format.getDefaultMIMEType());
         try {
-            Response response = request.post(Entity.json(""));
+            Response response = request.post(Entity.text(query));
+            log.debug("Request resolved with {} status code", response.getStatus());
             if (response.getStatus() != 200) {
                 // TODO: improve this feedback from the sdk (400, 500, etc)
                 throw new RuntimeException("Query failed: HTTP error code " + response.getStatus());
             } else {
-                String entity = response.readEntity(String.class);
                 QueryResultCollector results = new QueryResultCollector();
-                parse(response.getEntity().toString(), format, results, ValueFactoryImpl.getInstance());
+                parse(response.readEntity(String.class), format, results, ValueFactoryImpl.getInstance());
                 if(!results.getHandledTuple() || results.getBindingSets().isEmpty()) {
                     return null;
                 } else {
@@ -121,8 +126,8 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
     @Override
     public SPARQLResult sparqlSelect(String query, String dataset) {
         try {
-            WebTarget target = credentials.buildUrl(getSparqlSelectUriBuilder(query, dataset));
-            return execSelect(target);
+            WebTarget target = credentials.buildUrl(getSparqlSelectUriBuilder(dataset));
+            return execSelect(target, query);
         } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
             throw new RuntimeException(e);
         }
@@ -131,8 +136,8 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
     @Override
     public SPARQLResult sparqlSelect(String query) {
         try {
-            WebTarget target = credentials.buildUrl(getSparqlSelectUriBuilder(query));
-            return execSelect(target);
+            WebTarget target = credentials.buildUrl(getSparqlSelectUriBuilder());
+            return execSelect(target, query);
         } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
             throw new RuntimeException(e);
         }

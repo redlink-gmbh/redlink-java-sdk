@@ -1,12 +1,19 @@
 package io.redlink.sdk.impl;
 
-import io.redlink.sdk.Credentials;
-
-import org.jboss.resteasy.client.ClientRequest;
-import org.jboss.resteasy.client.ClientResponse;
-
 import java.net.MalformedURLException;
 
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+
+import io.redlink.sdk.Credentials;
+
+/**
+ * 
+ * @author rafa.haro@redlink.co
+ *
+ */
 public abstract class AbstractCredentials implements Credentials {
 	
 	protected final String endpoint;
@@ -20,8 +27,8 @@ public abstract class AbstractCredentials implements Credentials {
 		this.version = version;
 		this.apiKey = apiKey;
 	}
-	
-	@Override
+
+    @Override
 	public String getEndpoint() {
 		return endpoint; 
 	}
