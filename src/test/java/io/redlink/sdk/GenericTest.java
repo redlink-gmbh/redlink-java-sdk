@@ -2,7 +2,10 @@ package io.redlink.sdk;
 
 import io.redlink.sdk.impl.DefaultCredentials;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,6 +20,8 @@ import java.net.MalformedURLException;
  *
  */
 public class GenericTest {
+
+    private static Logger log = LoggerFactory.getLogger(GenericTest.class);
 	
 	protected static final String API_KEY_FILE = "/api.key";
 	
@@ -43,7 +48,6 @@ public class GenericTest {
 	 * @return credentials
 	 */
 	protected static final Credentials buildCredentials(Class<?> klass) {
-        //return new DefaultCredentials("********");
 		InputStream is = klass.getResourceAsStream(API_KEY_FILE);
 		if (is != null) {
 		    try {
@@ -52,16 +56,19 @@ public class GenericTest {
 				String apiKey = br.readLine();
 				return new DefaultCredentials(apiKey);
 			} catch (IOException e) {
-                throw new RuntimeException("error reading api key: " + e.getMessage());
+                log.error("error reading api key file: {}", e.getMessage());
+                return null;
 			}
 		} else {
-			throw new RuntimeException("api key not found");
+            log.error("api key file not found");
+			return null;
 		}
 	}
 
     @Test
     public void testVerifyCredentials() throws MalformedURLException {
         Credentials credentials = buildCredentials();
+        Assume.assumeNotNull(credentials);
         Assert.assertTrue(credentials.verify());
     }
 

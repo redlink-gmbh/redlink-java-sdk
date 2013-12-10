@@ -4,22 +4,23 @@ import org.apache.marmotta.client.model.sparql.SPARQLResult;
 import org.junit.*;
 
 public class DataTest extends GenericTest {
-	
-	private static RedLink.Data redlink;
 
     private static final String TEST_DATASET = "foaf";
 	
-	private static String QUERY_SELECT_ALL = "SELECT * WHERE { ?s ?p ?o }";
-	
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
+	private static final String QUERY_SELECT_ALL = "SELECT * WHERE { ?s ?p ?o }";
+
+    private RedLink.Data redlink;
+
+	@Before
+	public void setUp() throws Exception {
 		Credentials credentials = buildCredentials(DataTest.class);
+        Assume.assumeNotNull(credentials);
 		Assume.assumeTrue(credentials.verify());
 		redlink = RedLinkFactory.createDataClient(credentials);
 	}
 
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
+	@After
+	public void tearDown() throws Exception {
 		redlink = null;
 	}
 
