@@ -41,8 +41,16 @@ public class DataTest extends GenericTest {
 
     @Test
     public void testImportFile() throws FileNotFoundException {
-        Assume.assumeTrue(redlink.sparqlUpdate(QUERY_CLEAN, TEST_DATASET));
-        final int initialSize = getCurrentSize(TEST_DATASET);
+        testImportFile(false);
+    }
+
+    @Test
+    public void testCleanImportFile() throws FileNotFoundException {
+        testImportFile(true);
+    }
+
+    private void testImportFile(boolean cleanBefore) throws FileNotFoundException {
+        final int initialSize = (cleanBefore ? 0 : getCurrentSize(TEST_DATASET));
         URL url = this.getClass().getResource(TEST_FILE);
         Assume.assumeNotNull(url);
         File file;
@@ -53,20 +61,24 @@ public class DataTest extends GenericTest {
         }
         Assume.assumeNotNull(file);
         Assume.assumeTrue(file.exists());
-        testImport(redlink.importDataset(file, TEST_DATASET), initialSize);
+        testImport(redlink.importDataset(file, TEST_DATASET, cleanBefore), initialSize);
     }
 
     @Test
     public void testImportStream() {
-        Assume.assumeTrue(redlink.sparqlUpdate(QUERY_CLEAN, TEST_DATASET));
-        final int initialSize = getCurrentSize(TEST_DATASET);
-        InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
-        Assume.assumeNotNull(in);
-        testImport(redlink.importDataset(in, RDFFormat.RDFXML, TEST_DATASET), initialSize);
+        testImportStream(false);
     }
 
-    private int getCurrentSize(String dataset) {
-        return redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET).size();
+    @Test
+    public void testCleanImportStream() {
+        testImportStream(true);
+    }
+
+    private void testImportStream(boolean cleanBefore) {
+        final int initialSize = (cleanBefore ? 0 : getCurrentSize(TEST_DATASET));
+        InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
+        Assume.assumeNotNull(in);
+        testImport(redlink.importDataset(in, RDFFormat.RDFXML, TEST_DATASET, cleanBefore), initialSize);
     }
 
     private void testImport(boolean imported) {
@@ -81,11 +93,15 @@ public class DataTest extends GenericTest {
         //TODO: more specific testing
     }
 
+    private int getCurrentSize(String dataset) {
+        return redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET).size();
+    }
+
     @Test
     public void testSelect() {
         final SPARQLResult result = redlink.sparqlSelect(QUERY_SELECT);
         Assert.assertNotNull(result);
-        Assert.assertTrue(result.isEmpty());
+        Assert.assertTrue(result.size() >= 0);
     }
 
     @Test
