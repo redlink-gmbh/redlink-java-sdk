@@ -43,9 +43,11 @@ public interface RedLink {
 
         static final String LDPATH = "ldpath";
 
+        SPARQLResult sparqlSelect(String query);
+
         SPARQLResult sparqlSelect(String query, String dataset);
 
-        SPARQLResult sparqlSelect(String query);
+        boolean sparqlUpdate(String query, String dataset);
 
 	}
 	

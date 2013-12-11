@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriBuilderException;
@@ -43,20 +44,54 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
         super(credentials);
     }
 
-    private final UriBuilder getSparqlSelectUriBuilder(String dataset) {
-        return initiateUriBuilding().path(PATH).path(dataset).path(SPARQL).path(SELECT);
+    @Override
+    public SPARQLResult sparqlSelect(String query) {
+        try {
+            WebTarget target = credentials.buildUrl(getSparqlSelectUriBuilder());
+            return execSelect(target, query);
+        } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public SPARQLResult sparqlSelect(String query, String dataset) {
+        try {
+            WebTarget target = credentials.buildUrl(getSparqlSelectUriBuilder(dataset));
+            return execSelect(target, query);
+        } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public boolean sparqlUpdate(String query, String dataset) {
+        try {
+            WebTarget target = credentials.buildUrl(getSparqlUpdateUriBuilder(dataset));
+            return execUpdate(target, query);
+        } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private final UriBuilder getSparqlSelectUriBuilder() {
         return initiateUriBuilding().path(PATH).path(SPARQL);
     }
 
+    private final UriBuilder getSparqlSelectUriBuilder(String dataset) {
+        return initiateUriBuilding().path(PATH).path(dataset).path(SPARQL).path(SELECT);
+    }
+
+    private final UriBuilder getSparqlUpdateUriBuilder(String dataset) {
+        return initiateUriBuilding().path(PATH).path(dataset).path(SPARQL).path(UPDATE);
+    }
+
     private SPARQLResult execSelect(WebTarget target, String query) {
         Invocation.Builder request = target.request();
-        log.debug("Executing SPARQL select query: {}", query.replaceAll("\\s*[\\r\\n]+\\s*", " ").trim());
         TupleQueryResultFormat format = TupleQueryResultFormat.JSON;
         request.accept(format.getDefaultMIMEType());
         try {
+            log.debug("Executing SPARQL select query: {}", query.replaceAll("\\s*[\\r\\n]+\\s*", " ").trim());
             Response response = request.post(Entity.text(query));
             log.debug("Request resolved with {} status code", response.getStatus());
             if (response.getStatus() != 200) {
@@ -66,7 +101,7 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
                 QueryResultCollector results = new QueryResultCollector();
                 parse(response.readEntity(String.class), format, results, ValueFactoryImpl.getInstance());
                 if(!results.getHandledTuple() || results.getBindingSets().isEmpty()) {
-                    return null;
+                    return new SPARQLResult(new LinkedHashSet<String>());
                 } else {
                     List<String> fieldNames = results.getBindingNames();
 
@@ -108,7 +143,20 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
             }
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("Query failed: " + e.getMessage(), e);
+            throw new RuntimeException("Query execution failed: " + e.getMessage(), e);
+        }
+    }
+
+    private boolean execUpdate(WebTarget target, String query) {
+        Invocation.Builder request = target.request();
+        try {
+            log.debug("Executing SPARQL update query: {}", query.replaceAll("\\s*[\\r\\n]+\\s*", " ").trim());
+            Response response = request.post(Entity.entity(query, new MediaType("application", "sparql-update")));
+            log.debug("Request resolved with {} status code", response.getStatus());
+            return (response.getStatus() == 200);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Query execution failed: " + e.getMessage(), e);
         }
     }
 
@@ -121,26 +169,6 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
 
     private void parse(String str, TupleQueryResultFormat format, QueryResultHandler handler, ValueFactory valueFactory) throws IOException, QueryResultParseException, QueryResultHandlerException, UnsupportedQueryResultFormatException {
         parse(new ByteArrayInputStream(str.getBytes("UTF-8")), format, handler, valueFactory);
-    }
-
-    @Override
-    public SPARQLResult sparqlSelect(String query, String dataset) {
-        try {
-            WebTarget target = credentials.buildUrl(getSparqlSelectUriBuilder(dataset));
-            return execSelect(target, query);
-        } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public SPARQLResult sparqlSelect(String query) {
-        try {
-            WebTarget target = credentials.buildUrl(getSparqlSelectUriBuilder());
-            return execSelect(target, query);
-        } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
-            throw new RuntimeException(e);
-        }
     }
 
 }
