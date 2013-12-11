@@ -17,6 +17,7 @@ import org.openrdf.query.QueryResultHandler;
 import org.openrdf.query.QueryResultHandlerException;
 import org.openrdf.query.resultio.*;
 import org.openrdf.query.resultio.helpers.QueryResultCollector;
+import org.openrdf.rio.RDFFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,9 +28,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriBuilderException;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -42,6 +41,28 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
 
     public RedLinkDataImpl(Credentials credentials) {
         super(credentials);
+    }
+
+    @Override
+    public boolean importDataset(File file, String dataset) throws FileNotFoundException {
+        return importDataset(new FileInputStream(file), RDFFormat.forFileName(file.getAbsolutePath()), dataset);
+    }
+
+    @Override
+    public boolean importDataset(InputStream in, RDFFormat format, String dataset) {
+        try {
+            WebTarget target = credentials.buildUrl(getImportDatasetUriBuilder(dataset));
+            Invocation.Builder request = target.request();
+            log.debug("Importing {} data into dataset {}", format.getName(), dataset);
+            //this is not safe for handling large content...
+            //but anyway with API-211 we're gonna provide an alternative to the rest api
+            Response response = request.post(Entity.entity(in, MediaType.valueOf(format.getDefaultMIMEType())));
+            log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
+            log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
+            return (response.getStatus() == 200);
+        } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -74,6 +95,10 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
         }
     }
 
+    private final UriBuilder getImportDatasetUriBuilder(String dataset) {
+        return initiateUriBuilding().path(PATH).path(dataset).path(IMPORT);
+    }
+
     private final UriBuilder getSparqlSelectUriBuilder() {
         return initiateUriBuilding().path(PATH).path(SPARQL);
     }
@@ -94,6 +119,7 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
             log.debug("Executing SPARQL select query: {}", query.replaceAll("\\s*[\\r\\n]+\\s*", " ").trim());
             Response response = request.post(Entity.text(query));
             log.debug("Request resolved with {} status code", response.getStatus());
+            log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
             if (response.getStatus() != 200) {
                 // TODO: improve this feedback from the sdk (400, 500, etc)
                 throw new RuntimeException("Query failed: HTTP error code " + response.getStatus());
@@ -105,6 +131,7 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
                 } else {
                     List<String> fieldNames = results.getBindingNames();
 
+                    //TODO: find sesame classes for removing this code
                     SPARQLResult result = new SPARQLResult(new LinkedHashSet<String>(fieldNames));
 
                     //List<?> bindings = resultMap.get("results").get("bindings");
@@ -153,6 +180,7 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
             log.debug("Executing SPARQL update query: {}", query.replaceAll("\\s*[\\r\\n]+\\s*", " ").trim());
             Response response = request.post(Entity.entity(query, new MediaType("application", "sparql-update")));
             log.debug("Request resolved with {} status code", response.getStatus());
+            log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
             return (response.getStatus() == 200);
         } catch (Exception e) {
             e.printStackTrace();

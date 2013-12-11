@@ -3,6 +3,11 @@ package io.redlink.sdk;
 import io.redlink.sdk.impl.analysis.model.Enhancements;
 import io.redlink.sdk.impl.search.model.SearchResults;
 import org.apache.marmotta.client.model.sparql.SPARQLResult;
+import org.openrdf.rio.RDFFormat;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 /**
  * 
@@ -27,6 +32,12 @@ public interface RedLink {
 		
 		static final String PATH = "data";
 
+        static final String IMPORT = "import";
+
+        static final String EXPORT = "export";
+
+        static final String RESOURCE = "resource";
+
         static final String SPARQL = "sparql";
 
         static final String SELECT = "select";
@@ -35,13 +46,11 @@ public interface RedLink {
 
         static final String UPDATE = "update";
 
-        static final String RESOURCE = "resource";
-
-        static final String IMPORT = "import";
-
-        static final String EXPORT = "export";
-
         static final String LDPATH = "ldpath";
+
+        boolean importDataset(File file, String dataset) throws FileNotFoundException;
+
+        boolean importDataset(InputStream in, RDFFormat format, String Dataset);
 
         SPARQLResult sparqlSelect(String query);
 

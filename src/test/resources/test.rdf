@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:foaf="http://xmlns.com/foaf/0.1/"
+    xmlns:dct="http://purl.org/dc/terms/"
+    xml:base="http://example.org/"
+    xml:lang="en"
+>
+
+  <foaf:Document rdf:about="">
+    <rdfs:label>example foaf document for testing</rdfs:label>
+    <foaf:maker rdf:resource="http://www.wikier.org/foaf#wikier"/>
+    <dct:created>2013-12-11</dct:created>
+  </foaf:Document>
+
+  <foaf:Person rdf:about="http://example.org/person">
+    <foaf:name xml:lang="pt">Joao Gomes Pereira</foaf:name>
+    <foaf:name xml:lang="en">John Pereira</foaf:name>
+    <foaf:gender>male</foaf:gender>
+    <foaf:nick>jackaroo</foaf:nick>
+    <foaf:homepage rdf:resource="http://redlink.co/teammembers/john-pereira/" />    
+    <foaf:workplaceHomepage rdf:resource="http://redlink.co" dct:title="Redlink GmbH"/>
+    <foaf:depiction>
+      <foaf:Image rdf:about="http://redlink.co/wp-content/uploads/2013/02/JohnPereira1.jpg">
+        <dct:format>image/jpg</dct:format>
+      </foaf:Image>
+    </foaf:depiction>
+  </foaf:Person>
+
+</rdf:RDF>
+
