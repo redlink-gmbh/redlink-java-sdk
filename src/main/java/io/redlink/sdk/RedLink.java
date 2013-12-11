@@ -3,6 +3,7 @@ package io.redlink.sdk;
 import io.redlink.sdk.impl.analysis.model.Enhancements;
 import io.redlink.sdk.impl.search.model.SearchResults;
 import org.apache.marmotta.client.model.sparql.SPARQLResult;
+import org.openrdf.model.Model;
 import org.openrdf.rio.RDFFormat;
 
 import java.io.File;
@@ -55,6 +56,8 @@ public interface RedLink {
         boolean importDataset(InputStream in, RDFFormat format, String Dataset);
 
         boolean importDataset(InputStream in, RDFFormat format, String Dataset, boolean cleanBefore);
+
+        Model exportDataset(String dataset);
 
         SPARQLResult sparqlSelect(String query);
 

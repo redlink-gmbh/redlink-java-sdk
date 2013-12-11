@@ -2,6 +2,7 @@ package io.redlink.sdk;
 
 import org.apache.marmotta.client.model.sparql.SPARQLResult;
 import org.junit.*;
+import org.openrdf.model.Model;
 import org.openrdf.rio.RDFFormat;
 
 import java.io.File;
@@ -95,6 +96,35 @@ public class DataTest extends GenericTest {
 
     private int getCurrentSize(String dataset) {
         return redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET).size();
+    }
+
+    @Test
+    public void testExport() {
+        final int size = getCurrentSize(TEST_DATASET);
+        Model model = redlink.exportDataset(TEST_DATASET);
+        Assert.assertNotNull(model);
+        Assert.assertEquals(size, model.size());
+    }
+
+    @Test
+    public void testImportExport() {
+        final int size = getCurrentSize(TEST_DATASET);
+        InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
+        Assume.assumeNotNull(in);
+        Assert.assertTrue(redlink.importDataset(in, RDFFormat.RDFXML, TEST_DATASET));
+        Model model = redlink.exportDataset(TEST_DATASET);
+        Assert.assertNotNull(model);
+        Assert.assertEquals(size + TEST_FILE_TRIPLES, model.size());
+    }
+
+    @Test
+    public void testCleanImportExport() {
+        InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
+        Assume.assumeNotNull(in);
+        Assert.assertTrue(redlink.importDataset(in, RDFFormat.RDFXML, TEST_DATASET, true));
+        Model model = redlink.exportDataset(TEST_DATASET);
+        Assert.assertNotNull(model);
+        Assert.assertEquals(TEST_FILE_TRIPLES, model.size());
     }
 
     @Test

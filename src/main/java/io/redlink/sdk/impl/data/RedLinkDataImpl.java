@@ -8,8 +8,10 @@ import org.apache.marmotta.client.model.rdf.Literal;
 import org.apache.marmotta.client.model.rdf.RDFNode;
 import org.apache.marmotta.client.model.rdf.URI;
 import org.apache.marmotta.client.model.sparql.SPARQLResult;
+import org.openrdf.model.Model;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.EmptyModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
@@ -17,7 +19,11 @@ import org.openrdf.query.QueryResultHandler;
 import org.openrdf.query.QueryResultHandlerException;
 import org.openrdf.query.resultio.*;
 import org.openrdf.query.resultio.helpers.QueryResultCollector;
+import org.openrdf.rio.ParserConfig;
 import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFParseException;
+import org.openrdf.rio.Rio;
+import org.openrdf.rio.helpers.ParseErrorLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,9 +79,32 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
                 response = request.post(Entity.entity(in, MediaType.valueOf(format.getDefaultMIMEType())));
             }
             log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
-            log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
+            //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
             return (response.getStatus() == 200);
         } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public Model exportDataset(String dataset) {
+        RDFFormat format = RDFFormat.TURTLE;
+        try {
+            WebTarget target = credentials.buildUrl(getExportDatasetUriBuilder(dataset));
+            Invocation.Builder request = target.request();
+            request.header("Accept", format.getDefaultMIMEType());
+            log.debug("Exporting {} data from dataset {}", format.getName(), dataset);
+            Response response = request.get();
+            log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
+            if (response.getStatus() == 200) {
+                ParserConfig config = new ParserConfig();
+                String entity = response.readEntity(String.class);
+                return Rio.parse(new StringReader(entity), target.getUri().toString(), format, config, ValueFactoryImpl.getInstance(), new ParseErrorLogger());
+            } else {
+                log.error("Unexpected error exporting dataset {}: request returned with {} status code", dataset, response.getStatus());
+                throw new RuntimeException("Unexpected error exporting dataset");
+            }
+        } catch (IllegalArgumentException | UriBuilderException | IOException | RDFParseException e) {
             throw new RuntimeException(e);
         }
     }
@@ -114,6 +143,10 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
         return initiateUriBuilding().path(PATH).path(dataset).path(IMPORT);
     }
 
+    private final UriBuilder getExportDatasetUriBuilder(String dataset) {
+        return initiateUriBuilding().path(PATH).path(dataset).path(EXPORT);
+    }
+
     private final UriBuilder getSparqlSelectUriBuilder() {
         return initiateUriBuilding().path(PATH).path(SPARQL);
     }
@@ -134,7 +167,7 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
             log.debug("Executing SPARQL select query: {}", query.replaceAll("\\s*[\\r\\n]+\\s*", " ").trim());
             Response response = request.post(Entity.text(query));
             log.debug("Request resolved with {} status code", response.getStatus());
-            log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
+            //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
             if (response.getStatus() != 200) {
                 // TODO: improve this feedback from the sdk (400, 500, etc)
                 throw new RuntimeException("Query failed: HTTP error code " + response.getStatus());
@@ -195,7 +228,7 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
             log.debug("Executing SPARQL update query: {}", query.replaceAll("\\s*[\\r\\n]+\\s*", " ").trim());
             Response response = request.post(Entity.entity(query, new MediaType("application", "sparql-update")));
             log.debug("Request resolved with {} status code", response.getStatus());
-            log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
+            //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
             return (response.getStatus() == 200);
         } catch (Exception e) {
             e.printStackTrace();
