@@ -45,18 +45,33 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
 
     @Override
     public boolean importDataset(File file, String dataset) throws FileNotFoundException {
-        return importDataset(new FileInputStream(file), RDFFormat.forFileName(file.getAbsolutePath()), dataset);
+        return importDataset(file, dataset, false);
+    }
+
+    @Override
+    public boolean importDataset(File file, String dataset, boolean cleanBefore) throws FileNotFoundException {
+        return importDataset(new FileInputStream(file), RDFFormat.forFileName(file.getAbsolutePath()), dataset, cleanBefore);
     }
 
     @Override
     public boolean importDataset(InputStream in, RDFFormat format, String dataset) {
+        return importDataset(in, format, dataset, false);
+    }
+
+    @Override
+    public boolean importDataset(InputStream in, RDFFormat format, String dataset, boolean cleanBefore) {
         try {
             WebTarget target = credentials.buildUrl(getImportDatasetUriBuilder(dataset));
             Invocation.Builder request = target.request();
             log.debug("Importing {} data into dataset {}", format.getName(), dataset);
             //this is not safe for handling large content...
             //but anyway with API-211 we're gonna provide an alternative to the rest api
-            Response response = request.post(Entity.entity(in, MediaType.valueOf(format.getDefaultMIMEType())));
+            Response response;
+            if (cleanBefore) {
+                response = request.put(Entity.entity(in, MediaType.valueOf(format.getDefaultMIMEType())));
+            } else {
+                response = request.post(Entity.entity(in, MediaType.valueOf(format.getDefaultMIMEType())));
+            }
             log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
             log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
             return (response.getStatus() == 200);

@@ -50,7 +50,11 @@ public interface RedLink {
 
         boolean importDataset(File file, String dataset) throws FileNotFoundException;
 
+        boolean importDataset(File file, String dataset, boolean cleanBefore) throws FileNotFoundException;
+
         boolean importDataset(InputStream in, RDFFormat format, String Dataset);
+
+        boolean importDataset(InputStream in, RDFFormat format, String Dataset, boolean cleanBefore);
 
         SPARQLResult sparqlSelect(String query);
 
