@@ -33,6 +33,7 @@ public class DataTest extends GenericTest {
         Assume.assumeNotNull(credentials);
         Assume.assumeTrue(credentials.verify());
         redlink = RedLinkFactory.createDataClient(credentials);
+        Assume.assumeTrue(redlink.sparqlUpdate(QUERY_CLEAN, TEST_DATASET));
     }
 
     @After
@@ -42,16 +43,6 @@ public class DataTest extends GenericTest {
 
     @Test
     public void testImportFile() throws FileNotFoundException {
-        testImportFile(false);
-    }
-
-    @Test
-    public void testCleanImportFile() throws FileNotFoundException {
-        testImportFile(true);
-    }
-
-    private void testImportFile(boolean cleanBefore) throws FileNotFoundException {
-        final int initialSize = (cleanBefore ? 0 : getCurrentSize(TEST_DATASET));
         URL url = this.getClass().getResource(TEST_FILE);
         Assume.assumeNotNull(url);
         File file;
@@ -62,40 +53,52 @@ public class DataTest extends GenericTest {
         }
         Assume.assumeNotNull(file);
         Assume.assumeTrue(file.exists());
-        testImport(redlink.importDataset(file, TEST_DATASET, cleanBefore), initialSize);
+        Assert.assertTrue(redlink.importDataset(file, TEST_DATASET));
+        final SPARQLResult triples = redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET);
+        Assert.assertNotNull(triples);
+        Assert.assertTrue(triples.size() >= TEST_FILE_TRIPLES);
+        //TODO: more specific testing
+    }
+
+    @Test
+    public void testImportCleaningFile() throws FileNotFoundException {
+        URL url = this.getClass().getResource(TEST_FILE);
+        Assume.assumeNotNull(url);
+        File file;
+        try {
+            file = new File(url.toURI());
+        } catch (URISyntaxException e) {
+            file = new File(url.getPath());
+        }
+        Assume.assumeNotNull(file);
+        Assume.assumeTrue(file.exists());
+        Assert.assertTrue(redlink.importDataset(file, TEST_DATASET, true));
+        final SPARQLResult triples = redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET);
+        Assert.assertNotNull(triples);
+        Assert.assertEquals(TEST_FILE_TRIPLES, triples.size());
+        //TODO: more specific testing
     }
 
     @Test
     public void testImportStream() {
-        testImportStream(false);
-    }
-
-    @Test
-    public void testCleanImportStream() {
-        testImportStream(true);
-    }
-
-    private void testImportStream(boolean cleanBefore) {
-        final int initialSize = (cleanBefore ? 0 : getCurrentSize(TEST_DATASET));
         InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
         Assume.assumeNotNull(in);
-        testImport(redlink.importDataset(in, RDFFormat.RDFXML, TEST_DATASET, cleanBefore), initialSize);
-    }
-
-    private void testImport(boolean imported) {
-        testImport(imported, 0);
-    }
-
-    private void testImport(boolean imported, int previousSize) {
-        Assert.assertTrue(imported);
+        Assert.assertTrue(redlink.importDataset(in, RDFFormat.RDFXML, TEST_DATASET));
         final SPARQLResult triples = redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET);
         Assert.assertNotNull(triples);
-        Assert.assertEquals(previousSize + TEST_FILE_TRIPLES, triples.size());
+        Assert.assertTrue(triples.size() >= TEST_FILE_TRIPLES);
         //TODO: more specific testing
     }
 
-    private int getCurrentSize(String dataset) {
-        return redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET).size();
+    @Test
+    public void testImportCleaningStream() {
+        InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
+        Assume.assumeNotNull(in);
+        Assert.assertTrue(redlink.importDataset(in, RDFFormat.RDFXML, TEST_DATASET, true));
+        final SPARQLResult triples = redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET);
+        Assert.assertNotNull(triples);
+        Assert.assertEquals(TEST_FILE_TRIPLES, triples.size());
+        //TODO: more specific testing
     }
 
     @Test
@@ -118,13 +121,19 @@ public class DataTest extends GenericTest {
     }
 
     @Test
-    public void testCleanImportExport() {
+    public void testImportCleaningExport() {
         InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
         Assume.assumeNotNull(in);
         Assert.assertTrue(redlink.importDataset(in, RDFFormat.RDFXML, TEST_DATASET, true));
         Model model = redlink.exportDataset(TEST_DATASET);
         Assert.assertNotNull(model);
         Assert.assertEquals(TEST_FILE_TRIPLES, model.size());
+    }
+
+    @Test
+    public void testDatasetClean() {
+        Assert.assertTrue(redlink.sparqlUpdate(QUERY_CLEAN, TEST_DATASET));
+        Assert.assertEquals(0, getCurrentSize(TEST_DATASET));
     }
 
     @Test
@@ -145,12 +154,11 @@ public class DataTest extends GenericTest {
     @Test
     public void testDatasetCleanImportSelect() {
         Assume.assumeTrue(redlink.sparqlUpdate(QUERY_CLEAN, TEST_DATASET));
-        final int initialSize = getCurrentSize(TEST_DATASET);
-        Assert.assertEquals(0, initialSize);
+        Assert.assertEquals(0, getCurrentSize(TEST_DATASET));
         Assert.assertTrue(redlink.sparqlUpdate(QUERY_UPDATE, TEST_DATASET));
+        Assert.assertEquals(1, getCurrentSize(TEST_DATASET));
         final SPARQLResult result = redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET);
         Assert.assertNotNull(result);
-        Assert.assertTrue(getCurrentSize(TEST_DATASET) > initialSize);
         Assert.assertFalse(result.isEmpty());
         Assert.assertTrue(result.getFieldNames().contains("s"));
         Assert.assertTrue(result.getFieldNames().contains("p"));
@@ -158,6 +166,10 @@ public class DataTest extends GenericTest {
         Assert.assertEquals("http://example.org/test", result.get(0).get("s").toString());
         Assert.assertEquals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", result.get(0).get("p").toString());
         Assert.assertEquals("http://example.org/Test", result.get(0).get("o").toString());
+    }
+
+    private int getCurrentSize(String dataset) {
+        return redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET).size();
     }
 
 }
