@@ -11,7 +11,6 @@ import org.apache.marmotta.client.model.sparql.SPARQLResult;
 import org.openrdf.model.Model;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.EmptyModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
@@ -67,7 +66,7 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
     @Override
     public boolean importDataset(InputStream in, RDFFormat format, String dataset, boolean cleanBefore) {
         try {
-            WebTarget target = credentials.buildUrl(getImportDatasetUriBuilder(dataset));
+            WebTarget target = credentials.buildUrl(getDatasetUriBuilder(dataset));
             Invocation.Builder request = target.request();
             log.debug("Importing {} data into dataset {}", format.getName(), dataset);
             //this is not safe for handling large content...
@@ -90,7 +89,7 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
     public Model exportDataset(String dataset) {
         RDFFormat format = RDFFormat.TURTLE;
         try {
-            WebTarget target = credentials.buildUrl(getExportDatasetUriBuilder(dataset));
+            WebTarget target = credentials.buildUrl(getDatasetUriBuilder(dataset));
             Invocation.Builder request = target.request();
             request.header("Accept", format.getDefaultMIMEType());
             log.debug("Exporting {} data from dataset {}", format.getName(), dataset);
@@ -105,6 +104,20 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
                 throw new RuntimeException("Unexpected error exporting dataset");
             }
         } catch (IllegalArgumentException | UriBuilderException | IOException | RDFParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public boolean cleanDataset(String dataset) {
+        try {
+            WebTarget target = credentials.buildUrl(getDatasetUriBuilder(dataset));
+            Invocation.Builder request = target.request();
+            log.debug("Cleaning data from dataset {}", dataset);
+            Response response = request.delete();
+            log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
+            return (response.getStatus() == 200);
+        } catch (IllegalArgumentException | UriBuilderException | IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -139,12 +152,8 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
         }
     }
 
-    private final UriBuilder getImportDatasetUriBuilder(String dataset) {
-        return initiateUriBuilding().path(PATH).path(dataset).path(IMPORT);
-    }
-
-    private final UriBuilder getExportDatasetUriBuilder(String dataset) {
-        return initiateUriBuilding().path(PATH).path(dataset).path(EXPORT);
+    private final UriBuilder getDatasetUriBuilder(String dataset) {
+        return initiateUriBuilding().path(PATH).path(dataset);
     }
 
     private final UriBuilder getSparqlSelectUriBuilder() {
@@ -152,11 +161,11 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
     }
 
     private final UriBuilder getSparqlSelectUriBuilder(String dataset) {
-        return initiateUriBuilding().path(PATH).path(dataset).path(SPARQL).path(SELECT);
+        return getDatasetUriBuilder(dataset).path(SPARQL).path(SELECT);
     }
 
     private final UriBuilder getSparqlUpdateUriBuilder(String dataset) {
-        return initiateUriBuilding().path(PATH).path(dataset).path(SPARQL).path(UPDATE);
+        return getDatasetUriBuilder(dataset).path(SPARQL).path(UPDATE);
     }
 
     private SPARQLResult execSelect(WebTarget target, String query) {

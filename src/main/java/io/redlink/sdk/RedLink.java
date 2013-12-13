@@ -33,10 +33,6 @@ public interface RedLink {
 		
 		static final String PATH = "data";
 
-        static final String IMPORT = "import";
-
-        static final String EXPORT = "export";
-
         static final String RESOURCE = "resource";
 
         static final String SPARQL = "sparql";
@@ -58,6 +54,8 @@ public interface RedLink {
         boolean importDataset(InputStream in, RDFFormat format, String Dataset, boolean cleanBefore);
 
         Model exportDataset(String dataset);
+
+        boolean cleanDataset(String dataset);
 
         SPARQLResult sparqlSelect(String query);
 

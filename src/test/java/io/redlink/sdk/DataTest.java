@@ -33,7 +33,7 @@ public class DataTest extends GenericTest {
         Assume.assumeNotNull(credentials);
         Assume.assumeTrue(credentials.verify());
         redlink = RedLinkFactory.createDataClient(credentials);
-        Assume.assumeTrue(redlink.sparqlUpdate(QUERY_CLEAN, TEST_DATASET));
+        Assume.assumeTrue(redlink.cleanDataset(TEST_DATASET));
     }
 
     @After
