@@ -8,35 +8,42 @@ import java.util.Collection;
  * @author rafa.haro@redlink.co
  *
  */
-public interface EnhancementsParser {
+public abstract class EnhancementsParser {
 
 	/**
 	 * 
 	 * @return
 	 * @throws EnhancementParserException
 	 */
-	public Enhancements createEnhancements() throws EnhancementParserException;
+	public final Enhancements createEnhancements() throws EnhancementParserException{
+		Enhancements enhancements = new Enhancements();
+		enhancements.setEnhancements(parseEnhancements());
+		enhancements.setLanguages(parseLanguages());
+		// Categories
+				// TODO Write classes for topic annotations
+		return enhancements;
+	}
 	
 	/**
 	 * 
 	 * @return
 	 * @throws EnhancementParserException
 	 */
-	public Collection<Enhancement> parseEnhancements() throws EnhancementParserException;
+	public abstract Collection<Enhancement> parseEnhancements() throws EnhancementParserException;
 	
 	/**
 	 * 
 	 * @return
 	 * @throws EnhancementParserException
 	 */
-	public Collection<String> parseLanguages() throws EnhancementParserException;
+	public abstract Collection<String> parseLanguages() throws EnhancementParserException;
 	
 	/**
 	 * 
 	 * @return
 	 * @throws EnhancementParserException
 	 */
-	public Collection<TextAnnotation> parseTextAnnotations() throws EnhancementParserException;
+	public abstract Collection<TextAnnotation> parseTextAnnotations() throws EnhancementParserException;
 	
 	
 	/**
@@ -44,7 +51,7 @@ public interface EnhancementsParser {
 	 * @return
 	 * @throws EnhancementParserException
 	 */
-	public Collection<EntityAnnotation> parseEntityAnnotations() throws EnhancementParserException;
+	public abstract Collection<EntityAnnotation> parseEntityAnnotations() throws EnhancementParserException;
 	
 	/**
 	 * 
@@ -52,5 +59,5 @@ public interface EnhancementsParser {
 	 * @return
 	 * @throws EnhancementParserException
 	 */
-	public Entity parseEntity(String entityUri) throws EnhancementParserException;
+	public abstract Entity parseEntity(String entityUri) throws EnhancementParserException;
 }

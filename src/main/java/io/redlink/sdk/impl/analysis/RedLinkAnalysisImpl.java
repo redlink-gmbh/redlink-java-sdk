@@ -75,7 +75,7 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
 				throw new RuntimeException(message);
 			} else {
 				pre = System.currentTimeMillis();
-				EnhancementsParser parser = EnhancementsParserFactory.createDefaultParser(response);
+				EnhancementsParser parser = EnhancementsParserFactory.createParser(response);
 				Enhancements enhancements = parser.createEnhancements();
 				time = System.currentTimeMillis() - pre;
 				logger.info("Response Parse Time: " + time + " ms");

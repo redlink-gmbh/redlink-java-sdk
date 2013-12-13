@@ -2,10 +2,7 @@ package io.redlink.sdk.impl.analysis.model;
 
 import io.redlink.sdk.util.ModelRepository;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -37,15 +34,11 @@ import com.google.common.collect.Sets;
 /**
  * 
  * 
- * @author Rafa Haro
+ * @author rafa.haro@redlink.co
  * 
  */
-public final class OpenRDFEnhancementsParser implements EnhancementsParser {
-	/**
-	 * 
-	 */
-	private Model model;
-
+public final class OpenRDFEnhancementsParser extends EnhancementsParser {
+	
 	/**
 	 * 
 	 */
@@ -53,26 +46,12 @@ public final class OpenRDFEnhancementsParser implements EnhancementsParser {
 
 	public OpenRDFEnhancementsParser(Model model)
 			throws EnhancementParserException {
-		this.model = model;
 		try {
 			this.repository = ModelRepository.create(model);
 		} catch (RepositoryException e) {
 			throw new EnhancementParserException(
 					"There was an error initializing the Enhancement Parser", e);
 		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * io.redlink.sdk.impl.analysis.model.EnhancementsParser#createEnhancements()
-	 */
-	public Enhancements createEnhancements() throws EnhancementParserException {
-		Enhancements enhancements = new Enhancements(model);
-		enhancements.setEnhancements(parseEnhancements());
-		enhancements.setLanguages(parseLanguages());
-		return enhancements;
 	}
 
 	/*
@@ -139,16 +118,8 @@ public final class OpenRDFEnhancementsParser implements EnhancementsParser {
 			try {
 				conn.begin();
 	
-				Collection<TextAnnotation> tas = parseTextAnnotations(conn, relations);
-				Collection<EntityAnnotation> eas = parseEntityAnnotations(conn, relations);
-	
-				for (Enhancement e : tas) {
-					enhancementsByUri.put(e.uri, e);
-				}
-				
-				for (Enhancement e : eas) {
-					enhancementsByUri.put(e.uri, e);
-				}
+				parseTextAnnotations(conn, relations, enhancementsByUri);
+				parseEntityAnnotations(conn, relations, enhancementsByUri);
 	
 				for (Enhancement e : relations.keys()) {
 					Collection<String> relationsUris = relations.get(e);
@@ -183,12 +154,13 @@ public final class OpenRDFEnhancementsParser implements EnhancementsParser {
 	public Collection<TextAnnotation> parseTextAnnotations()
 			throws EnhancementParserException {
 		Multimap<Enhancement, String> relations = ArrayListMultimap.create();
+		Map<String, Enhancement> enhancementsByUri = Maps.newHashMap();
 
 		try {
 			RepositoryConnection conn = repository.getConnection();
 			conn.begin();
 			Collection<TextAnnotation> tas = parseTextAnnotations(conn,
-					relations);
+					relations, enhancementsByUri);
 			Collection<TextAnnotation> result = (Collection) resolveRelations(
 					relations, conn); // Safe Casting
 			for (TextAnnotation ta : tas)
@@ -204,7 +176,9 @@ public final class OpenRDFEnhancementsParser implements EnhancementsParser {
 	}
 
 	private Collection<TextAnnotation> parseTextAnnotations(
-			RepositoryConnection conn, Multimap<Enhancement, String> relations)
+			RepositoryConnection conn, 
+			Multimap<Enhancement, String> relations,
+			Map<String, Enhancement> enhancementsByUri)
 			throws EnhancementParserException {
 
 		Collection<TextAnnotation> tas = Sets.newHashSet();
@@ -214,9 +188,6 @@ public final class OpenRDFEnhancementsParser implements EnhancementsParser {
 				+ "SELECT * { \n"
 				+ "  ?annotation a fise:TextAnnotation ; \n"
 				+ "	 fise:confidence ?confidence ; \n"
-				+ "    fise:extracted-from ?extractedFrom ; \n"
-				+ "	   dct:created ?created ; \n"
-				+ "    dct:creator ?creator . \n"
 				+ "  OPTIONAL { ?annotation dct:type ?type} \n"
 				+ "  OPTIONAL { ?annotation dct:language ?language} \n"
 				+ "  OPTIONAL { ?annotation fise:start ?start ; fise:end ?end } \n"
@@ -242,13 +213,12 @@ public final class OpenRDFEnhancementsParser implements EnhancementsParser {
 				{
 					final String uri = result.getBinding("annotation")
 							.getValue().stringValue();
-					Enhancement textAnnotation = Iterables.find(
-							relations.keys(), new Predicate<Enhancement>() {
-								@Override
-								public boolean apply(Enhancement ta) {
-									return ta.getUri().equals(uri);
-								}
-							}, new TextAnnotation(uri));
+					
+					Enhancement textAnnotation = enhancementsByUri.get(uri);
+					if(textAnnotation == null){
+						textAnnotation = new TextAnnotation();
+						enhancementsByUri.put(uri, textAnnotation);
+					}
 
 					setTextAnnotationData((TextAnnotation) textAnnotation,
 							result, relations);
@@ -278,10 +248,6 @@ public final class OpenRDFEnhancementsParser implements EnhancementsParser {
 						.getBinding("start").getValue().stringValue()));
 				textAnnotation.setEnds(Integer.parseInt(result
 						.getBinding("end").getValue().stringValue()));
-			}
-			if (result.hasBinding("type")) {
-				textAnnotation.setType(result.getBinding("type").getValue()
-						.stringValue());
 			}
 			if (result.hasBinding("relation")) {
 				String nextRelationUri = result.getBinding("relation")
@@ -322,12 +288,13 @@ public final class OpenRDFEnhancementsParser implements EnhancementsParser {
 	public Collection<EntityAnnotation> parseEntityAnnotations()
 			throws EnhancementParserException {
 		Multimap<Enhancement, String> relations = ArrayListMultimap.create();
+		Map<String, Enhancement> enhancementsByUri = Maps.newHashMap();
 
 		try {
 			RepositoryConnection conn = repository.getConnection();
 			conn.begin();
 			Collection<EntityAnnotation> eas = parseEntityAnnotations(conn,
-					relations);
+					relations, enhancementsByUri);
 			Collection<EntityAnnotation> result = (Collection) resolveRelations(
 					relations, conn); // Safe Casting
 			for (EntityAnnotation ea : eas)
@@ -343,7 +310,9 @@ public final class OpenRDFEnhancementsParser implements EnhancementsParser {
 	}
 
 	private Collection<EntityAnnotation> parseEntityAnnotations(
-			RepositoryConnection conn, Multimap<Enhancement, String> relations)
+			RepositoryConnection conn, 
+			Multimap<Enhancement, String> relations,
+			Map<String, Enhancement> enhancementsByUri)
 			throws EnhancementParserException {
 
 		Collection<EntityAnnotation> eas = Sets.newHashSet();
@@ -354,9 +323,6 @@ public final class OpenRDFEnhancementsParser implements EnhancementsParser {
 				+ "SELECT * { \n"
 				+ "  ?annotation a fise:EntityAnnotation ; \n"
 				+ "	  fise:confidence ?confidence ; \n"
-				+ "	  dct:created ?created ; \n"
-				+ "     dct:creator ?creator ; \n"
-				+ "    fise:extracted-from ?extractedFrom ; \n"
 				+ "  OPTIONAL { ?language a dct:language  } \n"
 				+ "  OPTIONAL { ?annotation dct:relation ?relation } \n"
 				+ "  OPTIONAL { ?annotation fise:entity-label ?entityLabel } \n"
@@ -372,14 +338,12 @@ public final class OpenRDFEnhancementsParser implements EnhancementsParser {
 				BindingSet result = entityAnnotationsResults.next();
 				final String uri = result.getBinding("annotation").getValue()
 						.stringValue();
-				Enhancement entityAnnotation = Iterables.find(relations.keys(),
-						new Predicate<Enhancement>() {
-							@Override
-							public boolean apply(Enhancement ta) {
-								return ta.getUri().equals(uri);
-							}
-						}, new EntityAnnotation(uri));
-
+				
+				Enhancement entityAnnotation = enhancementsByUri.get(uri);
+				if(entityAnnotation == null){
+					entityAnnotation = new EntityAnnotation();
+					enhancementsByUri.put(uri, entityAnnotation);
+				}
 				setEntityAnnotationData((EntityAnnotation) entityAnnotation,
 						result, conn, relations);
 				if (!eas.contains(entityAnnotation))
@@ -436,7 +400,7 @@ public final class OpenRDFEnhancementsParser implements EnhancementsParser {
 			entityAnnotation.setEntityTypes(types);
 
 			if (result.hasBinding("site")) {
-				entityAnnotation.setSite(result.getBinding("site").getValue()
+				entityAnnotation.setDataset(result.getBinding("site").getValue()
 						.stringValue());
 			}
 		} else {
@@ -534,21 +498,13 @@ public final class OpenRDFEnhancementsParser implements EnhancementsParser {
 			Multimap<Enhancement, String> relations)
 			throws RepositoryException, EnhancementParserException {
 
-		TextAnnotation enhancement = new TextAnnotation(taUri);
+		TextAnnotation enhancement = new TextAnnotation();
 		String textAnnotationQuery = "PREFIX fise: <http://fise.iks-project.eu/ontology/> \n"
 				+ "PREFIX dct: <http://purl.org/dc/terms/> \n"
 				+ "PREFIX entityhub: <http://stanbol.apache.org/ontology/entityhub/entityhub#> \n"
 				+ "SELECT * { \n" + "	<"
 				+ taUri
 				+ ">  fise:confidence ?confidence . \n"
-				+ "	<"
-				+ taUri
-				+ ">  dct:created ?created . \n"
-				+ "   <"
-				+ taUri
-				+ ">  dct:creator ?creator . \n"
-				+ taUri
-				+ ">  fise:extracted-from ?extractedFrom . \n"
 				+ "  OPTIONAL { <"
 				+ taUri
 				+ ">  dct:language ?language } \n"
@@ -581,10 +537,6 @@ public final class OpenRDFEnhancementsParser implements EnhancementsParser {
 								.getBinding("start").getValue().stringValue()));
 						enhancement.setEnds(Integer.parseInt(result
 								.getBinding("end").getValue().stringValue()));
-					}
-					if (result.hasBinding("type")) {
-						enhancement.setType(result.getBinding("type")
-								.getValue().stringValue());
 					}
 					if (result.hasBinding("relation")) {
 						String nextRelationUri = result.getBinding("relation")
@@ -633,24 +585,15 @@ public final class OpenRDFEnhancementsParser implements EnhancementsParser {
 			Multimap<Enhancement, String> relations)
 			throws RepositoryException, EnhancementParserException {
 
-		EntityAnnotation enhancement = new EntityAnnotation(eaUri);
+		EntityAnnotation enhancement = new EntityAnnotation();
 		String entityAnnotationsQuery = "PREFIX fise: <http://fise.iks-project.eu/ontology/> \n"
 				+ "PREFIX dct: <http://purl.org/dc/terms/> \n"
 				+ "PREFIX entityhub: <http://stanbol.apache.org/ontology/entityhub/entityhub#> \n"
 				+ "SELECT * { \n" + "	<"
 				+ eaUri
 				+ ">  fise:confidence ?confidence ; \n"
-				+ "	<"
-				+ eaUri
-				+ ">  dct:created ?created ; \n"
-				+ "   <"
-				+ eaUri
-				+ ">  dct:creator ?creator ; \n"
-				+ "   <"
 				+ eaUri
 				+ ">  dct:language ?language . \n"
-				+ eaUri
-				+ ">  fise:extracted-from ?extractedFrom . \n"
 				+ "  OPTIONAL { <"
 				+ eaUri
 				+ "> dct:relation ?relation } \n"
@@ -703,7 +646,7 @@ public final class OpenRDFEnhancementsParser implements EnhancementsParser {
 						enhancement.setEntityTypes(types);
 					}
 					if (result.hasBinding("site")) {
-						enhancement.setSite(result.getBinding("site")
+						enhancement.setDataset(result.getBinding("site")
 								.getValue().stringValue());
 					}
 				} else {
@@ -802,21 +745,7 @@ public final class OpenRDFEnhancementsParser implements EnhancementsParser {
 	private void setEnhancementData(Enhancement enhancement, BindingSet result) {
 		enhancement.setConfidence(Double.parseDouble(result
 				.getBinding("confidence").getValue().stringValue()));
-		SimpleDateFormat format = new SimpleDateFormat(
-				"yyyy-MM-dd'T'hh:mm:ss.SSS'Z'");
-		Date created;
-		try {
-			created = format.parse(result.getBinding("created").getValue()
-					.stringValue());
-		} catch (ParseException e) {
-			created = new Date();
-		}
-		enhancement.setCreated(created);
-		enhancement.setCreator(result.getBinding("creator").getValue()
-				.stringValue());
 		enhancement.setLanguage(result.getBinding("language") != null ? result
 				.getBinding("language").getValue().stringValue() : null);
-		enhancement.setExtractedFrom(result.getBinding("extractedFrom")
-				.getValue().stringValue());
 	}
 }

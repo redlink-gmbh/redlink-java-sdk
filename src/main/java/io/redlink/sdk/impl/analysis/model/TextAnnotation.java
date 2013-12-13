@@ -5,35 +5,27 @@ package io.redlink.sdk.impl.analysis.model;
  * Text annotation, selects portions parsed textual content by using the following properties
  * 
  * @author sergio.fernandez@redlink.co
+ * @author rafa.haro@redlink.co
  * @see https://stanbol.apache.org/docs/trunk/components/enhancer/enhancementstructure#fisetextannotation
  *
  */
 public final class TextAnnotation extends Enhancement {
 	
 	// properties
-	private String type = null; // http://purl.org/dc/terms/type
 	private int starts = 0; // http://fise.iks-project.eu/ontology/start
 	private int ends = 0; // http://fise.iks-project.eu/ontology/end
 	private String selectedText = null; // http://fise.iks-project.eu/ontology/selected-text
 	private String selectionContext = null; // http://fise.iks-project.eu/ontology/selection-context
 	
-	public TextAnnotation(String uri){
-		super(uri);
-	}
-
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
+	public TextAnnotation(){
+		super();
 	}
 
 	public int getStarts() {
 		return starts;
 	}
 
-	public void setStarts(int starts) {
+	void setStarts(int starts) {
 		this.starts = starts;
 	}
 
@@ -41,7 +33,7 @@ public final class TextAnnotation extends Enhancement {
 		return ends;
 	}
 
-	public void setEnds(int ends) {
+	void setEnds(int ends) {
 		this.ends = ends;
 	}
 
@@ -49,7 +41,7 @@ public final class TextAnnotation extends Enhancement {
 		return selectedText;
 	}
 
-	public void setSelectedText(String selectedText) {
+	void setSelectedText(String selectedText) {
 		this.selectedText = selectedText;
 	}
 
@@ -57,8 +49,34 @@ public final class TextAnnotation extends Enhancement {
 		return selectionContext;
 	}
 
-	public void setSelectionContext(String selectionContext) {
+	void setSelectionContext(String selectionContext) {
 		this.selectionContext = selectionContext;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ends;
+		result = prime * result + starts;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TextAnnotation other = (TextAnnotation) obj;
+		if (ends != other.ends)
+			return false;
+		if (starts != other.starts)
+			return false;
+		return true;
+	}
+	
+	
 }

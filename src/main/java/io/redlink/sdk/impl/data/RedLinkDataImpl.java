@@ -59,7 +59,7 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
             } else {
                 String entity = response.readEntity(String.class);
                 QueryResultCollector results = new QueryResultCollector();
-                parse(response.getEntity().toString(), format, results, ValueFactoryImpl.getInstance());
+                parse(entity, format, results, ValueFactoryImpl.getInstance());
                 if(!results.getHandledTuple() || results.getBindingSets().isEmpty()) {
                     return null;
                 } else {
