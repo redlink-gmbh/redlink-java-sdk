@@ -53,7 +53,7 @@ public class AnalysisTest extends GenericTest {
 				.setOutputFormat(OutputFormat.RDFXML).build();
 		Enhancements enhancements = redlink.enhance(request);
 		Assert.assertNotNull(enhancements);
-		Assert.assertEquals(0, enhancements.getModel().size());
+//		Assert.assertEquals(0, enhancements.getModel().size());
 		Assert.assertEquals(0, enhancements.getEnhancements().size());
 		Assert.assertEquals(0, enhancements.getTextAnnotations().size());
 		Assert.assertEquals(0, enhancements.getEntityAnnotations().size());
@@ -70,7 +70,7 @@ public class AnalysisTest extends GenericTest {
 				.setOutputFormat(OutputFormat.RDFXML).build();
 		Enhancements enhancements = redlink.enhance(request);
 		Assert.assertNotNull(enhancements);
-		Assert.assertNotEquals(0, enhancements.getModel().size());
+//		Assert.assertNotEquals(0, enhancements.getModel().size());
 		int sizeE = enhancements.getEnhancements().size();
 		Assert.assertNotEquals(0, sizeE);
 		int sizeTA = enhancements.getTextAnnotations().size();
@@ -105,13 +105,6 @@ public class AnalysisTest extends GenericTest {
 	    Assert.assertFalse(enhancements.getEntities().isEmpty());
 
 	    for(Enhancement en : enhancements.getEnhancements()) {
-	        Assert.assertNotEquals("", en.getUri());
-	        Assert.assertNotNull(en.getUri());
-	        Assert.assertNotEquals("", en.getCreator());
-	        Assert.assertNotNull(en.getCreator());
-	        Assert.assertNotEquals("", en.getExtractedFrom());
-	        Assert.assertNotNull(en.getExtractedFrom());
-	        Assert.assertNotNull(en.getCreated());
 	        Assert.assertNotEquals(0, en.getConfidence());
 	        Assert.assertNotNull(en.getConfidence());
 	        
@@ -147,8 +140,8 @@ public class AnalysisTest extends GenericTest {
         Assert.assertNotNull(ea.getEntityLabel());
         Assert.assertNotNull(ea.getEntityReference());
         Assert.assertNotNull(ea.getEntityTypes());
-        Assert.assertNotEquals(ea.getSite(), "");
-        Assert.assertNotNull(ea.getSite());
+        Assert.assertNotEquals(ea.getDataset(), "");
+        Assert.assertNotNull(ea.getDataset());
     }
     
     /**
@@ -211,7 +204,7 @@ public class AnalysisTest extends GenericTest {
             EntityAnnotation parisEa = enhancements.getEntityAnnotation(paris.getUri());
             Assert.assertTrue(parisEa.getEntityTypes().contains("http://dbpedia.org/ontology/Place"));
             Assert.assertEquals("Paris", parisEa.getEntityLabel());
-            Assert.assertEquals("dbpedia", parisEa.getSite());
+            Assert.assertEquals("dbpedia", parisEa.getDataset());
             Assert.assertEquals("en", parisEa.getLanguage());
         }
 

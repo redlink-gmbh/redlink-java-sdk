@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.openrdf.model.Model;
-
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ArrayListMultimap;
@@ -22,8 +20,8 @@ import com.google.common.primitives.Doubles;
 
 /**
  * 
- * @author Sergio Fernandez
- * @author Rafa Haro
+ * @author sergio.fernandez@redlink.co
+ * @author rafa.haro@redlink.co
  * 
  */
 public class Enhancements implements Iterable<Enhancement>{
@@ -39,19 +37,13 @@ public class Enhancements implements Iterable<Enhancement>{
 	private Map<String, Entity> entities;
 
 	/**
-	 * Enhancement Graph
-	 */
-	private Model model;
-
-	/**
 	 * Annotations' languages (LanguageAnnotation)
 	 */
 	private Collection<String> languages;
 
-	Enhancements(Model model) {
+	Enhancements() {
 		this.enhancements = ArrayListMultimap.create();
 		this.entities = Maps.newLinkedHashMap();
-		this.model = model;
 		languages = Sets.newHashSet();
 	}
 	
@@ -195,14 +187,6 @@ public class Enhancements implements Iterable<Enhancement>{
 					}
 
 				});
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public Model getModel() {
-		return model;
 	}
 
 	/**

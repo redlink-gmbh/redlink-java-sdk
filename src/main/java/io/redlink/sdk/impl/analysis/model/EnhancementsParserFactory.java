@@ -2,6 +2,7 @@ package io.redlink.sdk.impl.analysis.model;
 
 import io.redlink.sdk.analysis.AnalysisRequest;
 import io.redlink.sdk.analysis.AnalysisRequest.OutputFormat;
+import io.redlink.sdk.impl.analysis.model.server.FlatEnhancementStructure;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -64,9 +65,10 @@ public final class EnhancementsParserFactory {
 		OutputFormat format = OutputFormat.get(response.getMediaType().toString());
 		switch (format) {
 		case XML: // TODO XML Parser
-			return null;
-		case JSON: // JSON Parser
-			return null;
+		case JSON:
+			FlatEnhancementStructure result = 
+				response.readEntity(FlatEnhancementStructure.class);
+			return new FlatStructureParser(result);
 		default:
 			return createDefaultParser(response);
 		}
