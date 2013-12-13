@@ -38,6 +38,7 @@ public interface Credentials {
 	String getApiKey();
 	
 	/**
+	 * Verify User Current Profile
 	 * 
 	 * @return
 	 */

@@ -1,5 +1,7 @@
 package io.redlink.sdk;
 
+import io.redlink.sdk.analysis.AnalysisRequest;
+import io.redlink.sdk.analysis.AnalysisRequest.OutputFormat;
 import io.redlink.sdk.impl.analysis.model.*;
 
 import java.util.Collection;
@@ -45,7 +47,11 @@ public class AnalysisTest extends GenericTest {
 	 */
 	@Test
 	public void testEmptyEnhancement() {
-		Enhancements enhancements = redlink.enhance("  ", TEST_ANALYSIS);
+		AnalysisRequest request = AnalysisRequest.builder()
+				.setAnalysis(TEST_ANALYSIS)
+				.setContent("  ")
+				.setOutputFormat(OutputFormat.RDFXML).build();
+		Enhancements enhancements = redlink.enhance(request);
 		Assert.assertNotNull(enhancements);
 		Assert.assertEquals(0, enhancements.getModel().size());
 		Assert.assertEquals(0, enhancements.getEnhancements().size());
@@ -58,7 +64,11 @@ public class AnalysisTest extends GenericTest {
 	 */
 	@Test
 	public void testDemoEnhancement() {
-		Enhancements enhancements = redlink.enhance(PARIS_TEXT_TO_ENHANCE, TEST_ANALYSIS);
+		AnalysisRequest request = AnalysisRequest.builder()
+				.setAnalysis(TEST_ANALYSIS)
+				.setContent(PARIS_TEXT_TO_ENHANCE)
+				.setOutputFormat(OutputFormat.RDFXML).build();
+		Enhancements enhancements = redlink.enhance(request);
 		Assert.assertNotNull(enhancements);
 		Assert.assertNotEquals(0, enhancements.getModel().size());
 		int sizeE = enhancements.getEnhancements().size();
@@ -84,7 +94,11 @@ public class AnalysisTest extends GenericTest {
 	 */
 	@Test
 	public void testEnhancementProperties() {
-	    Enhancements enhancements = redlink.enhance(STANBOL_TEXT_TO_ENHANCE, TEST_ANALYSIS);
+		AnalysisRequest request = AnalysisRequest.builder()
+				.setAnalysis(TEST_ANALYSIS)
+				.setContent(STANBOL_TEXT_TO_ENHANCE)
+				.setOutputFormat(OutputFormat.RDFXML).build();
+	    Enhancements enhancements = redlink.enhance(request);
 	    Assert.assertFalse(enhancements.getLanguages().isEmpty());
 	    Assert.assertFalse(enhancements.getTextAnnotations().isEmpty());
 	    Assert.assertFalse(enhancements.getEntityAnnotations().isEmpty());
@@ -168,7 +182,11 @@ public class AnalysisTest extends GenericTest {
      */
     @Test
     public void testFilterEntitiesByConfidenceValue() {
-    	Enhancements enhancements = redlink.enhance(STANBOL_TEXT_TO_ENHANCE, TEST_ANALYSIS);
+    	AnalysisRequest request = AnalysisRequest.builder()
+				.setAnalysis(TEST_ANALYSIS)
+				.setContent(STANBOL_TEXT_TO_ENHANCE)
+				.setOutputFormat(OutputFormat.RDFXML).build();
+    	Enhancements enhancements = redlink.enhance(request);
         Collection<EntityAnnotation> eas = enhancements.getEntityAnnotationsByConfidenceValue((0.9));
         Assert.assertTrue(eas.size() > 0);
     }

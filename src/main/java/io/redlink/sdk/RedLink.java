@@ -1,7 +1,9 @@
 package io.redlink.sdk;
 
+import io.redlink.sdk.analysis.AnalysisRequest;
 import io.redlink.sdk.impl.analysis.model.Enhancements;
 import io.redlink.sdk.impl.search.model.SearchResults;
+
 import org.apache.marmotta.client.model.sparql.SPARQLResult;
 import org.openrdf.model.Model;
 import org.openrdf.rio.RDFFormat;
@@ -22,10 +24,8 @@ public interface RedLink {
         static final String PATH = "analysis";
 
         static final String ENHANCE = "enhance";
-
-        static final String FORMAT = "out";
-
-        Enhancements enhance(String content, String analysis);
+        
+        Enhancements enhance(AnalysisRequest request);
 
     }
 	
@@ -57,9 +57,9 @@ public interface RedLink {
 
         boolean cleanDataset(String dataset);
 
-        SPARQLResult sparqlSelect(String query);
-
         SPARQLResult sparqlSelect(String query, String dataset);
+
+        SPARQLResult sparqlSelect(String query);
 
         boolean sparqlUpdate(String query, String dataset);
 

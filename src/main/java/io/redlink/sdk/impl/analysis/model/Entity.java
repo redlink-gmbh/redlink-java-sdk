@@ -4,14 +4,20 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 
+/**
+ * 
+ * @author rafa.haro@redlink.co
+ *
+ */
 public class Entity {
-	private static final String NON_LANGUAGE = "NONE";
-
+	
 	/**
 	 * Entity URI
 	 */
@@ -20,7 +26,7 @@ public class Entity {
 	/**
 	 * Properties' -> <Property URI, Multimap<Language, Property Value>>
 	 */
-	private Map<String, Multimap<String, String>> properties;
+	private Map<String, Multimap<Optional<String>, String>> properties;
 
 	public Entity() {
 		this.properties = Maps.newHashMap();
@@ -53,12 +59,17 @@ public class Entity {
 	 * @param value
 	 */
 	public void addPropertyValue(String property, String value) {
-		Multimap<String, String> entry = properties.get(property);
-		if (entry == null) {
-			entry = HashMultimap.create();
-			properties.put(property, entry);
+		
+		if(property != null && value != null){
+			Multimap<Optional<String>, String> entry = properties.get(Optional.of(property));
+			
+			if (entry == null) {
+				entry = HashMultimap.create();
+				properties.put(property, entry);
+			}
+			Optional<String> nullable = Optional.absent();
+			entry.put(nullable, value);
 		}
-		entry.put(NON_LANGUAGE, value);
 	}
 
 	/**
@@ -68,12 +79,17 @@ public class Entity {
 	 * @param value
 	 */
 	public void addPropertyValue(String property, String language, String value) {
-		Multimap<String, String> entry = properties.get(property);
-		if (entry == null) {
-			entry = HashMultimap.create();
-			properties.put(property, entry);
+		if(language == null)
+			addPropertyValue(property, value);
+		
+		if(property != null && value != null){
+			Multimap<Optional<String>, String> entry = properties.get(property);
+			if (entry == null) {
+				entry = HashMultimap.create();
+				properties.put(property, entry);
+			}
+			entry.put(Optional.of(language), value);
 		}
-		entry.put(language, value);
 	}
 
 	/**
@@ -82,12 +98,29 @@ public class Entity {
 	 * @return
 	 */
 	public Collection<String> getValues(String property) {
-		Multimap<String, String> values = properties.get(property);
+		Multimap<Optional<String>, String> values = properties.get(property);
 		if (values == null) {
 			return Collections.emptyList();
 		}
 
 		return values.values();
+	}
+	
+	/**
+	 * 
+	 * @param property
+	 * @param language
+	 * @return
+	 */
+	public Multimap<String, String> getValuesByLanguage (String property){
+		Multimap<String, String> result = HashMultimap.create();
+		if(properties.containsKey(property)){
+			Multimap<Optional<String>, String> values = properties.get(property);
+			for(Entry<Optional<String>, String> entry:values.entries())
+				if(entry.getKey().isPresent())
+					result.put(entry.getKey().get(), entry.getValue());
+		}
+		return result;
 	}
 
 	/**
@@ -97,16 +130,14 @@ public class Entity {
 	 * @return
 	 */
 	public String getValue(String property, String language) {
-		Multimap<String, String> values = properties.get(property);
+		Multimap<Optional<String>, String> values = properties.get(property);
+		
 		if (values == null) {
 			return null;
 		}
 
-		if (values.containsKey(language)) {
-			return values.get(language).iterator().next();
-		} else {
-			return null;
-		}
+		Iterator<String> it = values.get(Optional.of(language)).iterator();
+		return it.hasNext() ? it.next() : null;
 	}
 
 	/**
@@ -124,9 +155,6 @@ public class Entity {
 	 */
 	public String getFirstPropertyValue(String property) {
 		Iterator<String> it = getValues(property).iterator();
-		if (it.hasNext())
-			return it.next();
-		else
-			return null;
+		return it.hasNext() ? it.next() : null;
 	}
 }

@@ -29,6 +29,24 @@ public abstract class AbstractCredentials implements Credentials {
 	}
 
     @Override
+	public boolean verify() throws MalformedURLException {
+        WebTarget target = buildUrl(UriBuilder.fromUri(getEndpoint()).path(getVersion()));
+        Invocation.Builder request = target.request();
+        request.accept("application/json");
+        try {
+            Response response = request.get();
+            if (response.getStatus() == 200) {
+                Status status = response.readEntity(Status.class);
+                return status.isAccessible();
+            } else {
+                throw new RuntimeException("Status check failed: HTTP error code " + response.getStatus());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Status check failed: " + e.getMessage(), e);
+        }
+	}
+	
+	@Override
 	public String getEndpoint() {
 		return endpoint; 
 	}

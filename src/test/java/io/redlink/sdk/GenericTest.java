@@ -43,7 +43,7 @@ public class GenericTest {
 	 * is, creating a DefaultCredentials with the API key,
 	 * CustomCredentials against the demo otherwise.
 	 * 
-	 * @param klass klass to use for classpath-based file lookup
+	 * @param klass Class to use for classpath-based file lookup
 	 * 
 	 * @return credentials
 	 */

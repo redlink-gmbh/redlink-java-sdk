@@ -4,7 +4,6 @@ import io.redlink.sdk.impl.DefaultCredentials;
 import io.redlink.sdk.impl.analysis.RedLinkAnalysisImpl;
 import io.redlink.sdk.impl.data.RedLinkDataImpl;
 import io.redlink.sdk.impl.search.RedLinkSearchImpl;
-
 /**
  * RedLink SDK Factory
  *
