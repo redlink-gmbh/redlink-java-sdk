@@ -17,7 +17,11 @@ public class DataTest extends GenericTest {
 
     private static final String TEST_FILE = "/test.rdf";
 
+    private static final String TEST_RESOURCE = "http://data.redlink.io/355/foaf/joao";
+
     public static final int TEST_FILE_TRIPLES = 15;
+
+    public static final int TEST_RESOUCE_TRIPLES = 11;
 
     private static final String QUERY_CLEAN = "DELETE WHERE { ?s ?p ?o }";
 
@@ -134,6 +138,23 @@ public class DataTest extends GenericTest {
     public void testDatasetClean() {
         Assert.assertTrue(redlink.sparqlUpdate(QUERY_CLEAN, TEST_DATASET));
         Assert.assertEquals(0, getCurrentSize(TEST_DATASET));
+    }
+
+    @Test
+    public void testResourceImported() {
+        //first import data
+        InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
+        Assume.assumeNotNull(in);
+        Assert.assertTrue(redlink.importDataset(in, RDFFormat.RDFXML, TEST_DATASET, true));
+        final SPARQLResult triples = redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET);
+        Assert.assertNotNull(triples);
+        Assert.assertEquals(TEST_FILE_TRIPLES, triples.size());
+
+        //and then the actual test
+        Model model = redlink.getResource(TEST_RESOURCE, TEST_DATASET);
+        Assert.assertNotNull(model);
+        Assert.assertTrue(model.size() < triples.size());
+        Assert.assertEquals(TEST_RESOUCE_TRIPLES, model.size());
     }
 
     @Test

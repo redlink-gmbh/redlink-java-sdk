@@ -20,7 +20,6 @@ import org.openrdf.query.resultio.*;
 import org.openrdf.query.resultio.helpers.QueryResultCollector;
 import org.openrdf.rio.*;
 import org.openrdf.rio.helpers.ParseErrorLogger;
-import org.openrdf.rio.turtle.TurtleWriterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,6 +113,7 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
             log.debug("Cleaning data from dataset {}", dataset);
             Response response = request.delete();
             log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
+            //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
             return (response.getStatus() == 200);
         } catch (IllegalArgumentException | UriBuilderException | IOException e) {
             throw new RuntimeException(e);
@@ -127,7 +127,7 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
 
     @Override
     public Model getResource(String resource, String dataset) {
-        return getResource(getResourceUriBuilder(resource, dataset));
+        return getResource(getResourceUriBuilder(dataset, resource));
     }
 
     private Model getResource(UriBuilder uriBuilder) {

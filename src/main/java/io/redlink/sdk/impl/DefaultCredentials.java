@@ -20,6 +20,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriBuilderException;
 
+import io.redlink.sdk.util.RedLinkClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 
 /**
@@ -33,7 +34,7 @@ public final class DefaultCredentials extends AbstractCredentials {
 	
 	private static final String ENDPOINT = "https://api.redlink.io";
 	
-	private static final String VERSION = "1.0-ALPHA/"; //TODO: versions align between api and sdk
+	private static final String VERSION = "1.0-ALPHA"; //TODO: versions align between api and sdk
 	
 	private static final String KEY_PARAM = "key";
 	
@@ -61,34 +62,7 @@ public final class DefaultCredentials extends AbstractCredentials {
 
 	@Override
 	public WebTarget buildUrl(UriBuilder builder) throws MalformedURLException, IllegalArgumentException, UriBuilderException {
-		// enable the ssl/tls stuff
-		SSLContext ctx = null;
-		try {
-			// load the certificate
-	        InputStream fis = this.getClass().getResourceAsStream("/redlink-CA.crt");
-	        CertificateFactory cf = CertificateFactory.getInstance("X.509");
-	        Certificate cert = cf.generateCertificate(fis);
-	
-	        // Load the keyStore that includes self-signed cert as a "trusted" entry
-	        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType()); 
-	        keyStore.load(null, null);
-	        TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-	        keyStore.setCertificateEntry("redlink-CA", cert);
-	        tmf.init(keyStore);
-	        ctx = SSLContext.getInstance("TLS");
-	        ctx.init(null, tmf.getTrustManagers(), null);
-	        //SSLSocketFactory sslFactory = ctx.getSocketFactory();
-		} catch (CertificateException | KeyStoreException | NoSuchAlgorithmException | KeyManagementException | IOException e) {
-			e.printStackTrace();
-		}
-		
-		// build the client
-		ResteasyClientBuilder clientBuilder = new ResteasyClientBuilder();
-		if (ctx == null) {
-			clientBuilder.disableTrustManager();
-		} else {
-			clientBuilder.sslContext(ctx);
-		}
+		ResteasyClientBuilder clientBuilder = new RedLinkClientBuilder();
 		URI uri = builder.queryParam(KEY_PARAM, apiKey).build();
 		return clientBuilder.build().target(uri.toString());
 	}

@@ -35,7 +35,7 @@
 
     <properties>
         <sesame.version>2.7.9</sesame.version>
-        <resteasy.version>3.0.4.Final</resteasy.version>
+        <resteasy.version>3.0.5.Final</resteasy.version>
     </properties>
 
     <build>
