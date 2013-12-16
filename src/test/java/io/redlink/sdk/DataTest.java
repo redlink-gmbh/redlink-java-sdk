@@ -27,7 +27,7 @@ public class DataTest extends GenericTest {
 
     public static final int TEST_FILE_TRIPLES = 15;
 
-    public static final int TEST_RESOUCE_TRIPLES = 11;
+    public static final int TEST_RESOUCE_TRIPLES = 8;
 
     private static final String QUERY_CLEAN = "DELETE WHERE { ?s ?p ?o }";
 
