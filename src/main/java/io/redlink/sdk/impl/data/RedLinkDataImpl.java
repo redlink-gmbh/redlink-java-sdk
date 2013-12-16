@@ -18,11 +18,9 @@ import org.openrdf.query.QueryResultHandler;
 import org.openrdf.query.QueryResultHandlerException;
 import org.openrdf.query.resultio.*;
 import org.openrdf.query.resultio.helpers.QueryResultCollector;
-import org.openrdf.rio.ParserConfig;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFParseException;
-import org.openrdf.rio.Rio;
+import org.openrdf.rio.*;
 import org.openrdf.rio.helpers.ParseErrorLogger;
+import org.openrdf.rio.turtle.TurtleWriterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,6 +121,82 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
     }
 
     @Override
+    public Model getResource(String resource) {
+        return getResource(getResourceUriBuilder(resource));
+    }
+
+    @Override
+    public Model getResource(String resource, String dataset) {
+        return getResource(getResourceUriBuilder(resource, dataset));
+    }
+
+    private Model getResource(UriBuilder uriBuilder) {
+        RDFFormat format = RDFFormat.TURTLE;
+        try {
+            WebTarget target = credentials.buildUrl(uriBuilder);
+            Invocation.Builder request = target.request();
+            request.header("Accept", format.getDefaultMIMEType());
+            log.debug("Retrieving resource as {}", format.getName());
+            Response response = request.get();
+            log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
+            if (response.getStatus() == 200) {
+                ParserConfig config = new ParserConfig();
+                String entity = response.readEntity(String.class);
+                return Rio.parse(new StringReader(entity), target.getUri().toString(), format, config, ValueFactoryImpl.getInstance(), new ParseErrorLogger());
+            } else {
+                log.error("Unexpected error retrieving resource: request returned with {} status code", response.getStatus());
+                throw new RuntimeException("Unexpected error retrieving resource");
+            }
+        } catch (IllegalArgumentException | UriBuilderException | IOException | RDFParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public boolean importResource(String resource, Model data, String dataset) {
+        return importResource(resource, data, dataset, false);
+    }
+
+    @Override
+    public boolean importResource(String resource, Model data, String dataset, boolean cleanBefore) {
+        RDFFormat format = RDFFormat.TURTLE;
+        try {
+            WebTarget target = credentials.buildUrl(getResourceUriBuilder(dataset, resource));
+            Invocation.Builder request = target.request();
+            log.debug("Importing resource {} into dataset {}", resource, dataset);
+            PipedOutputStream out = new PipedOutputStream();
+            Rio.write(data, out, format);
+            InputStream in = new PipedInputStream(out);
+            Response response;
+            if (cleanBefore) {
+                response = request.put(Entity.entity(in, MediaType.valueOf(format.getDefaultMIMEType())));
+            } else {
+                response = request.post(Entity.entity(in, MediaType.valueOf(format.getDefaultMIMEType())));
+            }
+            log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
+            //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
+            return (response.getStatus() == 200);
+        } catch (IllegalArgumentException | UriBuilderException | RDFHandlerException | IOException e) {
+            log.error("Error importing resource: {}", e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public boolean deleteResource(String resource, String dataset) {
+        try {
+            WebTarget target = credentials.buildUrl(getResourceUriBuilder(dataset, resource));
+            Invocation.Builder request = target.request();
+            log.debug("Deleting resource {} from datataset {}", resource, dataset);
+            Response response = request.delete();
+            log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
+            return (response.getStatus() == 200);
+        } catch (IllegalArgumentException | UriBuilderException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public SPARQLResult sparqlSelect(String query) {
         try {
             WebTarget target = credentials.buildUrl(getSparqlSelectUriBuilder());
@@ -154,6 +228,14 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
 
     private final UriBuilder getDatasetUriBuilder(String dataset) {
         return initiateUriBuilding().path(PATH).path(dataset);
+    }
+
+    private final UriBuilder getResourceUriBuilder(String resource) {
+        return initiateUriBuilding().path(PATH).path(RESOURCE).queryParam(RedLink.URI, resource);
+    }
+
+    private final UriBuilder getResourceUriBuilder(String dataset, String resource) {
+        return initiateUriBuilding().path(PATH).path(dataset).path(RESOURCE).queryParam(RedLink.URI, resource);
     }
 
     private final UriBuilder getSparqlSelectUriBuilder() {

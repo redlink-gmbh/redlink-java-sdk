@@ -19,6 +19,8 @@ import java.io.InputStream;
  */
 public interface RedLink {
 
+    static final String URI = "uri";
+
     public static interface Analysis {
 
         static final String PATH = "analysis";
@@ -56,6 +58,16 @@ public interface RedLink {
         Model exportDataset(String dataset);
 
         boolean cleanDataset(String dataset);
+
+        Model getResource(String resource);
+
+        Model getResource(String resource, String dataset);
+
+        boolean importResource(String resource, Model data, String dataset);
+
+        boolean importResource(String resource, Model data, String dataset, boolean cleanBefore);
+
+        boolean deleteResource(String resource, String dataset);
 
         SPARQLResult sparqlSelect(String query, String dataset);
 
