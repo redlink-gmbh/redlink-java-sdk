@@ -17,7 +17,7 @@ import java.net.URL;
 
 public class DataTest extends GenericTest {
 
-    private static final String TEST_DATASET = "foaf";
+    private static final String TEST_DATASET = "test";
 
     private static final String TEST_FILE = "/test.rdf";
 
