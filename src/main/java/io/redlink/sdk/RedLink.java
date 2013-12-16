@@ -7,9 +7,11 @@ import io.redlink.sdk.impl.search.model.SearchResults;
 import org.apache.marmotta.client.model.sparql.SPARQLResult;
 import org.openrdf.model.Model;
 import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFHandlerException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -46,6 +48,10 @@ public interface RedLink {
         static final String UPDATE = "update";
 
         static final String LDPATH = "ldpath";
+
+        boolean importDataset(Model data, String dataset) throws IOException, RDFHandlerException;
+
+        boolean importDataset(Model data, String dataset, boolean cleanBefore) throws RDFHandlerException, IOException;
 
         boolean importDataset(File file, String dataset) throws FileNotFoundException;
 

@@ -100,6 +100,11 @@
             <version>${sesame.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-rio-rdfxml</artifactId>
+            <version>${sesame.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>marmotta-client-java</artifactId>
             <version>3.1.0-incubating</version>

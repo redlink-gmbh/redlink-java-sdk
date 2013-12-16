@@ -4,9 +4,13 @@ import org.apache.marmotta.client.model.sparql.SPARQLResult;
 import org.junit.*;
 import org.openrdf.model.Model;
 import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.RDFParseException;
+import org.openrdf.rio.Rio;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -16,6 +20,8 @@ public class DataTest extends GenericTest {
     private static final String TEST_DATASET = "foaf";
 
     private static final String TEST_FILE = "/test.rdf";
+
+    private static final String TEST_BASE_URI = "http://data.redlink.io/355/foaf";
 
     private static final String TEST_RESOURCE = "http://data.redlink.io/355/foaf/joao";
 
@@ -28,6 +34,7 @@ public class DataTest extends GenericTest {
     private static final String QUERY_SELECT = "SELECT * WHERE { ?s ?p ?o }";
 
     private static final String QUERY_UPDATE = "INSERT DATA { <http://example.org/test> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/Test> }";
+    public static final RDFFormat TEST_FILE_FORMAT = RDFFormat.RDFXML;
 
     private RedLink.Data redlink;
 
@@ -43,6 +50,17 @@ public class DataTest extends GenericTest {
     @After
     public void tearDown() throws Exception {
         redlink = null;
+    }
+
+    @Test
+    public void testImport() throws IOException, RDFParseException, RDFHandlerException {
+        InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
+        final Model model = Rio.parse(in, TEST_BASE_URI, TEST_FILE_FORMAT);
+        Assert.assertTrue(redlink.importDataset(model, TEST_DATASET));
+        final SPARQLResult triples = redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET);
+        Assert.assertNotNull(triples);
+        Assert.assertTrue(triples.size() >= TEST_FILE_TRIPLES);
+        //TODO: more specific testing
     }
 
     @Test
@@ -87,7 +105,7 @@ public class DataTest extends GenericTest {
     public void testImportStream() {
         InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
         Assume.assumeNotNull(in);
-        Assert.assertTrue(redlink.importDataset(in, RDFFormat.RDFXML, TEST_DATASET));
+        Assert.assertTrue(redlink.importDataset(in, TEST_FILE_FORMAT, TEST_DATASET));
         final SPARQLResult triples = redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET);
         Assert.assertNotNull(triples);
         Assert.assertTrue(triples.size() >= TEST_FILE_TRIPLES);

@@ -46,6 +46,19 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
     }
 
     @Override
+    public boolean importDataset(Model data, String dataset) throws IOException, RDFHandlerException {
+        return importDataset(data, dataset, false);
+    }
+
+    @Override
+    public boolean importDataset(Model data, String dataset, boolean cleanBefore) throws RDFHandlerException, IOException {
+        RDFFormat format = RDFFormat.TURTLE;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        Rio.write(data, out, format);
+        return importDataset(new ByteArrayInputStream(out.toByteArray()), format, dataset, cleanBefore);
+    }
+
+    @Override
     public boolean importDataset(File file, String dataset) throws FileNotFoundException {
         return importDataset(file, dataset, false);
     }
@@ -164,9 +177,9 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
             WebTarget target = credentials.buildUrl(getResourceUriBuilder(dataset, resource));
             Invocation.Builder request = target.request();
             log.debug("Importing resource {} into dataset {}", resource, dataset);
-            PipedOutputStream out = new PipedOutputStream();
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
             Rio.write(data, out, format);
-            InputStream in = new PipedInputStream(out);
+            InputStream in = new ByteArrayInputStream(out.toByteArray());
             Response response;
             if (cleanBefore) {
                 response = request.put(Entity.entity(in, MediaType.valueOf(format.getDefaultMIMEType())));
