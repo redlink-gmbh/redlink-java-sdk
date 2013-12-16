@@ -37,14 +37,14 @@ import com.google.common.collect.Sets;
  * @author rafa.haro@redlink.co
  * 
  */
-public final class OpenRDFEnhancementsParser extends EnhancementsParser {
+final class RDFStructureParser extends EnhancementsParser {
 	
 	/**
 	 * 
 	 */
 	private ModelRepository repository;
 
-	public OpenRDFEnhancementsParser(Model model)
+	public RDFStructureParser(Model model)
 			throws EnhancementParserException {
 		try {
 			this.repository = ModelRepository.create(model);
@@ -747,5 +747,128 @@ public final class OpenRDFEnhancementsParser extends EnhancementsParser {
 				.getBinding("confidence").getValue().stringValue()));
 		enhancement.setLanguage(result.getBinding("language") != null ? result
 				.getBinding("language").getValue().stringValue() : null);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see io.redlink.sdk.impl.analysis.model.EnhancementsParser#parseTopicAnnotation()
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public Collection<TopicAnnotation> parseTopicAnnotation()
+			throws EnhancementParserException {
+		Multimap<Enhancement, String> relations = ArrayListMultimap.create();
+		Map<String, Enhancement> enhancementsByUri = Maps.newHashMap();
+
+		try {
+			RepositoryConnection conn = repository.getConnection();
+			conn.begin();
+			Collection<TopicAnnotation> tas = parseTopicAnnotations(conn,
+					relations, enhancementsByUri);
+			Collection<TopicAnnotation> result = (Collection) resolveRelations(
+					relations, conn); // Safe Casting
+			for (TopicAnnotation ta : tas)
+				if (!result.contains(ta))
+					result.add(ta);
+			conn.close();
+			return result;
+		} catch (RepositoryException e) {
+			throw new EnhancementParserException(
+					"Error querying the RDF Model obtained as Service Response",
+					e);
+		}
+	}
+
+	private Collection<TopicAnnotation> parseTopicAnnotations(
+			RepositoryConnection conn, Multimap<Enhancement, String> relations,
+			Map<String, Enhancement> enhancementsByUri) throws EnhancementParserException {
+		
+		Collection<TopicAnnotation> tas = Sets.newHashSet();
+
+		String topicAnnotationsQuery = "PREFIX fise: <http://fise.iks-project.eu/ontology/> \n"
+				+ "PREFIX dct: <http://purl.org/dc/terms/> \n"
+				+ "PREFIX entityhub: <http://stanbol.apache.org/ontology/entityhub/entityhub#> \n"
+				+ "SELECT * { \n"
+				+ "  ?annotation a fise:TopicAnnotation ; \n"
+				+ "	  fise:confidence ?confidence ; \n"
+				+ "  OPTIONAL { ?language a dct:language  } \n"
+				+ "  OPTIONAL { ?annotation dct:relation ?relation } \n"
+				+ "  OPTIONAL { ?annotation fise:entity-label ?entityLabel } \n"
+				+ "  OPTIONAL { ?annotation fise:entity-reference ?entityReference } \n"
+				+ "  OPTIONAL { ?annotation entityhub:site ?site } \n" + "}";
+
+		try {
+			TupleQueryResult topicAnnotationsResults = conn.prepareTupleQuery(
+					QueryLanguage.SPARQL, topicAnnotationsQuery).evaluate();
+
+			while (topicAnnotationsResults.hasNext()) {
+				BindingSet result = topicAnnotationsResults.next();
+				final String uri = result.getBinding("annotation").getValue()
+						.stringValue();
+				
+				Enhancement topicAnnotation = enhancementsByUri.get(uri);
+				if(topicAnnotation == null){
+					topicAnnotation = new TopicAnnotation();
+					enhancementsByUri.put(uri, topicAnnotation);
+				}
+				setTopicAnnotationData((TopicAnnotation) topicAnnotation,
+						result, conn, relations);
+				if (!tas.contains(topicAnnotation))
+					tas.add((TopicAnnotation) topicAnnotation);
+			}
+		} catch (QueryEvaluationException | MalformedQueryException e) {
+			throw new EnhancementParserException(
+					"Error parsing text annotations", e);
+		} catch (RepositoryException e) {
+			throw new EnhancementParserException(
+					"Error querying the RDF Model obtained as Service Response",
+					e);
+		}
+
+		return tas;
+	}
+
+	private void setTopicAnnotationData(TopicAnnotation topicAnnotation,
+			BindingSet result, RepositoryConnection conn,
+			Multimap<Enhancement, String> relations) {
+		
+		if (!relations.containsKey(topicAnnotation)) {
+			setEnhancementData(topicAnnotation, result);
+			if (result.hasBinding("entityLabel")) {
+				Binding entityLabel = result.getBinding("entityLabel");
+				topicAnnotation.setTopicLabel(entityLabel.getValue()
+						.stringValue());
+				if (!result.hasBinding("language")
+						&& (entityLabel.getValue() instanceof Literal))
+					topicAnnotation.setLanguage(((Literal) entityLabel
+							.getValue()).getLanguage());
+
+			}
+
+			if (result.hasBinding("entityReference")) {
+				topicAnnotation
+						.setTopicReference(result
+								.getBinding("entityReference").getValue()
+								.stringValue());
+			}
+
+			if (result.hasBinding("relation")) {
+				String nextRelationUri = result.getBinding("relation")
+						.getValue().stringValue();
+				relations.put(topicAnnotation, nextRelationUri);
+			}
+
+			if (result.hasBinding("site")) {
+				topicAnnotation.setDataset(result.getBinding("site").getValue()
+						.stringValue());
+			}
+		} else {
+			if (result.hasBinding("relation")) {
+				final String nextRelationUri = result.getBinding("relation")
+						.getValue().stringValue();
+				if (!relations.containsEntry(topicAnnotation, nextRelationUri))
+					relations.put(topicAnnotation, nextRelationUri);
+			}
+		}
 	}
 }

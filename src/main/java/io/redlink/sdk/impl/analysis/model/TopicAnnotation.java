@@ -1,6 +1,5 @@
 package io.redlink.sdk.impl.analysis.model;
 
-import java.util.Collection;
 
 /**
  * 
@@ -11,9 +10,9 @@ public class TopicAnnotation extends Enhancement {
 
 		// properties
 		private String topicLabel = null; // http://fise.iks-project.eu/ontology/entity-label
-		private Entity topicReference = null; // http://fise.iks-project.eu/ontology/entity-reference
-		private Collection<String> types = null; // http://fise.iks-project.eu/ontology/entity-type
-		private String site = null; // http://stanbol.apache.org/ontology/entityhub/entityhub#"
+		private String topicReference = null; // http://fise.iks-project.eu/ontology/entity-reference
+		private String dataset = null; // http://stanbol.apache.org/ontology/entityhub/entityhub#"
+		private String summary = null; // Entity (Concept) Description
 		
 		public String getTopicLabel() {
 			return topicLabel;
@@ -22,27 +21,54 @@ public class TopicAnnotation extends Enhancement {
 		void setTopicLabel(String topicLabel) {
 			this.topicLabel = topicLabel;
 		}
-		public Entity getTopicReference() {
+		public String getTopicReference() {
 			return topicReference;
 		}
 		
-		void setTopicReference(Entity topicReference) {
+		void setTopicReference(String topicReference) {
 			this.topicReference = topicReference;
 		}
 		
-		public Collection<String> getTypes() {
-			return types;
+		public String getDataset() {
+			return dataset;
 		}
 		
-		void setTypes(Collection<String> types) {
-			this.types = types;
+		void setDataset(String dataset) {
+			this.dataset = dataset;
 		}
-		
-		public String getSite() {
-			return site;
+
+		public String getSummary() {
+			return summary;
 		}
-		
-		void setSite(String site) {
-			this.site = site;
-		}	
+
+		void setSummary(String summary) {
+			this.summary = summary;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime
+					* result
+					+ ((topicReference == null) ? 0 : topicReference.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			TopicAnnotation other = (TopicAnnotation) obj;
+			if (topicReference == null) {
+				if (other.topicReference != null)
+					return false;
+			} else if (!topicReference.equals(other.topicReference))
+				return false;
+			return true;
+		}
 }

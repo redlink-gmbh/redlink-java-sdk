@@ -19,8 +19,6 @@ public abstract class EnhancementsParser {
 		Enhancements enhancements = new Enhancements();
 		enhancements.setEnhancements(parseEnhancements());
 		enhancements.setLanguages(parseLanguages());
-		// Categories
-				// TODO Write classes for topic annotations
 		return enhancements;
 	}
 	
@@ -29,7 +27,7 @@ public abstract class EnhancementsParser {
 	 * @return
 	 * @throws EnhancementParserException
 	 */
-	public abstract Collection<Enhancement> parseEnhancements() throws EnhancementParserException;
+	abstract Collection<Enhancement> parseEnhancements() throws EnhancementParserException;
 	
 	/**
 	 * 
@@ -52,6 +50,13 @@ public abstract class EnhancementsParser {
 	 * @throws EnhancementParserException
 	 */
 	public abstract Collection<EntityAnnotation> parseEntityAnnotations() throws EnhancementParserException;
+	
+	/**
+	 * 
+	 * @return
+	 * @throws EnhancementParserException
+	 */
+	public abstract Collection<TopicAnnotation> parseTopicAnnotation() throws EnhancementParserException;
 	
 	/**
 	 * 

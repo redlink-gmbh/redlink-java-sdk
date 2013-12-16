@@ -1,6 +1,5 @@
 package io.redlink.sdk.impl.analysis.model;
 
-import io.redlink.sdk.analysis.AnalysisRequest;
 import io.redlink.sdk.analysis.AnalysisRequest.OutputFormat;
 import io.redlink.sdk.impl.analysis.model.server.FlatEnhancementStructure;
 
@@ -48,7 +47,7 @@ public final class EnhancementsParserFactory {
 					format, config, 
 					ValueFactoryImpl.getInstance(), 
 					new ParseErrorLogger());
-			return new OpenRDFEnhancementsParser(model);
+			return new RDFStructureParser(model);
 		} catch (RDFParseException | UnsupportedRDFormatException | IOException e) {
 			throw new EnhancementParserException("Error Parsing Enhancement Structure", e);
 		}

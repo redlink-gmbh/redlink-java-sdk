@@ -1,26 +1,16 @@
 package io.redlink.sdk.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
+import io.redlink.sdk.util.RedLinkClientBuilder;
+
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriBuilderException;
 
-import io.redlink.sdk.util.RedLinkClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 
 /**

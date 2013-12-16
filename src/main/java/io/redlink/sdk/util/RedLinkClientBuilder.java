@@ -1,11 +1,5 @@
 package io.redlink.sdk.util;
 
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyManagementException;
@@ -17,6 +11,11 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
+
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+
 /**
  * Extended implementation of the ResteasyClientBuilder
  *
@@ -24,7 +23,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class RedLinkClientBuilder extends ResteasyClientBuilder {
 
-    private static Logger log = LoggerFactory.getLogger(RedLinkClientBuilder.class);
+    //private static Logger log = LoggerFactory.getLogger(RedLinkClientBuilder.class);
 
     public static final int DEFAULT_TIMEOUT = 10;
 

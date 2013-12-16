@@ -31,10 +31,22 @@ public class Category {
 	private String reference;
 	
 	/*
+	 * Concept's RedLink Dataset (Site)
+	 */
+	@XmlElement
+	private String dataset;
+	
+	/*
 	 * Concept Summary/Description
 	 */
 	@XmlElement
 	private String summary;
+	
+	/**
+	 * Concept Language
+	 */
+	@XmlElement
+	private String language;
 	
 	/**
 	 * Topic Assignment Confidence
@@ -44,14 +56,6 @@ public class Category {
 	
 	public Category(){
 		
-	}
-
-	public Category(String label, String reference, String summary,
-			Double confidence) {
-		this.label = label;
-		this.reference = reference;
-		this.summary = summary;
-		this.confidence = confidence;
 	}
 
 	public String getLabel() {
@@ -84,5 +88,21 @@ public class Category {
 
 	public void setConfidence(Double confidence) {
 		this.confidence = confidence;
+	}
+
+	public String getLanguage() {
+		return language;
+	}
+
+	public void setLanguage(String language) {
+		this.language = language;
+	}
+
+	public String getDataset() {
+		return dataset;
+	}
+
+	public void setDataset(String dataset) {
+		this.dataset = dataset;
 	}
 }

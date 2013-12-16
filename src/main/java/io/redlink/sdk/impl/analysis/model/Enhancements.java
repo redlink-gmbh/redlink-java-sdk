@@ -213,4 +213,32 @@ public class Enhancements implements Iterable<Enhancement>{
 		this.languages.add(language);
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public Collection<TopicAnnotation> getCategories(){
+		Collection<? extends Enhancement> result = enhancements .get(TopicAnnotation.class);
+		return (Collection<TopicAnnotation>) result; // Should be safe. Needs to be tested
+	}
+	
+	/**
+	 * 
+	 * @param conceptURI
+	 * @return
+	 */
+	public boolean hasCategory(final String conceptURI){
+		return Iterables.any(getCategories(),
+				new Predicate<TopicAnnotation>() {
+
+					@Override
+					public boolean apply(TopicAnnotation ta) {
+						return ta.getTopicReference().
+								equals(conceptURI);
+					}
+
+				});
+	}
+	
 }
