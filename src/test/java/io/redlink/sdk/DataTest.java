@@ -42,6 +42,7 @@ public class DataTest extends GenericTest {
     public void setUp() throws Exception {
         Credentials credentials = buildCredentials(DataTest.class);
         Assume.assumeNotNull(credentials);
+        Assume.assumeNotNull(credentials.getVersion());
         Assume.assumeTrue(credentials.verify());
         redlink = RedLinkFactory.createDataClient(credentials);
         Assume.assumeTrue(redlink.cleanDataset(TEST_DATASET));

@@ -1,6 +1,7 @@
 package io.redlink.sdk;
 
 import io.redlink.sdk.impl.DefaultCredentials;
+import io.redlink.sdk.util.ApiHelper;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
@@ -54,7 +55,7 @@ public class GenericTest {
 				InputStreamReader isr = new InputStreamReader(is);
 			    BufferedReader br = new BufferedReader(isr);
 				String apiKey = br.readLine();
-				return new DefaultCredentials(apiKey);
+				return new DefaultCredentials(apiKey, getVersion());
 			} catch (IOException e) {
                 log.error("error reading api key file: {}", e.getMessage());
                 return null;
@@ -65,10 +66,15 @@ public class GenericTest {
 		}
 	}
 
+    private static String getVersion() {
+        return ApiHelper.getApiVersion(System.getProperty("projectVersion"));
+    }
+
     @Test
     public void testVerifyCredentials() throws MalformedURLException {
         Credentials credentials = buildCredentials();
         Assume.assumeNotNull(credentials);
+        Assume.assumeNotNull(credentials.getVersion());
         Assert.assertTrue(credentials.verify());
     }
 
