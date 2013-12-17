@@ -2,6 +2,7 @@ package io.redlink.sdk;
 
 import io.redlink.sdk.analysis.AnalysisRequest;
 import io.redlink.sdk.impl.analysis.model.Enhancements;
+import io.redlink.sdk.impl.data.model.LDPathResult;
 import io.redlink.sdk.impl.search.model.SearchResults;
 
 import org.apache.marmotta.client.model.sparql.SPARQLResult;
@@ -80,6 +81,10 @@ public interface RedLink {
         SPARQLResult sparqlSelect(String query);
 
         boolean sparqlUpdate(String query, String dataset);
+
+        LDPathResult ldpath(String uri, String dataset, String program);
+
+        LDPathResult ldpath(String uri, String program);
 
 	}
 	
