@@ -3,14 +3,18 @@ package io.redlink.sdk.impl.data;
 import io.redlink.sdk.Credentials;
 import io.redlink.sdk.RedLink;
 import io.redlink.sdk.impl.RedLinkAbstractImpl;
+import io.redlink.sdk.impl.data.model.LDPathResult;
 import org.apache.marmotta.client.model.rdf.BNode;
 import org.apache.marmotta.client.model.rdf.Literal;
 import org.apache.marmotta.client.model.rdf.RDFNode;
 import org.apache.marmotta.client.model.rdf.URI;
 import org.apache.marmotta.client.model.sparql.SPARQLResult;
+import org.apache.marmotta.client.util.RDFJSONParser;
 import org.openrdf.model.Model;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.EmptyModel;
+import org.openrdf.model.impl.TreeModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
@@ -32,10 +36,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriBuilderException;
 import java.io.*;
 import java.net.MalformedURLException;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data {
 
@@ -156,6 +157,9 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
                 ParserConfig config = new ParserConfig();
                 String entity = response.readEntity(String.class);
                 return Rio.parse(new StringReader(entity), target.getUri().toString(), format, config, ValueFactoryImpl.getInstance(), new ParseErrorLogger());
+            } else if (response.getStatus() == 404) {
+                log.error("resource not found");
+                return new TreeModel();
             } else {
                 log.error("Unexpected error retrieving resource: request returned with {} status code", response.getStatus());
                 throw new RuntimeException("Unexpected error retrieving resource");
@@ -239,6 +243,56 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
         }
     }
 
+    @Override
+    public LDPathResult ldpath(String uri, String dataset, String program) {
+        try {
+            WebTarget target = credentials.buildUrl(getLDPathUriBuilder(dataset, uri));
+            return execLDPath(target, uri, program);
+        } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public LDPathResult ldpath(String uri, String program) {
+        try {
+            WebTarget target = credentials.buildUrl(getLDPathUriBuilder(uri));
+            return execLDPath(target, uri, program);
+        } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private LDPathResult execLDPath(WebTarget target, String uri, String program) {
+        Invocation.Builder request = target.request();
+        request.accept(MediaType.APPLICATION_JSON);
+        log.error(target.getUri().toString());
+        try {
+            log.debug("Executing LDpath program over resource {}", uri);
+            Response response = request.post(Entity.text(program));
+            log.debug("Request resolved with {} status code", response.getStatus());
+            //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
+            if (response.getStatus() != 200) {
+                // TODO: improve this feedback from the sdk (400, 500, etc)
+                throw new RuntimeException("Query failed: HTTP error code " + response.getStatus());
+            } else {
+                LDPathResult result = new LDPathResult();
+                final Map<String, List<Map<String,String>>> fields = response.readEntity(Map.class);
+                for(Map.Entry<String, List<Map<String,String>>> field : fields.entrySet()) {
+                    List<RDFNode> row = new ArrayList<RDFNode>();
+                    for(Map<String,String> node : field.getValue()) {
+                        row.add(RDFJSONParser.parseRDFJSONNode(node));
+                    }
+                    result.add(field.getKey(), row);
+                }
+                return result;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Query execution failed: " + e.getMessage(), e);
+        }
+    }
+
     private final UriBuilder getDatasetUriBuilder(String dataset) {
         return initiateUriBuilding().path(PATH).path(dataset);
     }
@@ -261,6 +315,14 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
 
     private final UriBuilder getSparqlUpdateUriBuilder(String dataset) {
         return getDatasetUriBuilder(dataset).path(SPARQL).path(UPDATE);
+    }
+
+    private final UriBuilder getLDPathUriBuilder(String uri) {
+        return initiateUriBuilding().path(PATH).path(LDPATH).queryParam(RedLink.URI, uri);
+    }
+
+    private final UriBuilder getLDPathUriBuilder(String dataset, String uri) {
+        return initiateUriBuilding().path(PATH).path(dataset).path(LDPATH).queryParam(RedLink.URI, uri);
     }
 
     private SPARQLResult execSelect(WebTarget target, String query) {
