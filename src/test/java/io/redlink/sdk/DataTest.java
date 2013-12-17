@@ -177,6 +177,12 @@ public class DataTest extends GenericTest {
     }
 
     @Test
+    public void testCleanGetResourceFail() {
+        Assert.assertTrue(redlink.cleanDataset(TEST_DATASET));
+        Assert.assertEquals(0, redlink.getResource(TEST_RESOURCE, TEST_DATASET).size());
+    }
+
+    @Test
     public void testSelect() {
         final SPARQLResult result = redlink.sparqlSelect(QUERY_SELECT);
         Assert.assertNotNull(result);

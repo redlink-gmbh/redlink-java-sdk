@@ -11,6 +11,8 @@ import org.apache.marmotta.client.model.sparql.SPARQLResult;
 import org.openrdf.model.Model;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.EmptyModel;
+import org.openrdf.model.impl.TreeModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
@@ -156,6 +158,9 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
                 ParserConfig config = new ParserConfig();
                 String entity = response.readEntity(String.class);
                 return Rio.parse(new StringReader(entity), target.getUri().toString(), format, config, ValueFactoryImpl.getInstance(), new ParseErrorLogger());
+            } else if (response.getStatus() == 404) {
+                log.error("resource not found");
+                return new TreeModel();
             } else {
                 log.error("Unexpected error retrieving resource: request returned with {} status code", response.getStatus());
                 throw new RuntimeException("Unexpected error retrieving resource");
