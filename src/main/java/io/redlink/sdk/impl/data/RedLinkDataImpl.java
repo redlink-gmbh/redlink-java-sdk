@@ -246,7 +246,7 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
     @Override
     public LDPathResult ldpath(String uri, String dataset, String program) {
         try {
-            WebTarget target = credentials.buildUrl(getLDPathUriBuilder(dataset));
+            WebTarget target = credentials.buildUrl(getLDPathUriBuilder(dataset, uri));
             return execLDPath(target, uri, program);
         } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
             throw new RuntimeException(e);
@@ -256,7 +256,7 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
     @Override
     public LDPathResult ldpath(String uri, String program) {
         try {
-            WebTarget target = credentials.buildUrl(getLDPathUriBuilder());
+            WebTarget target = credentials.buildUrl(getLDPathUriBuilder(uri));
             return execLDPath(target, uri, program);
         } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
             throw new RuntimeException(e);
@@ -265,6 +265,8 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
 
     private LDPathResult execLDPath(WebTarget target, String uri, String program) {
         Invocation.Builder request = target.request();
+        request.accept(MediaType.APPLICATION_JSON);
+        log.error(target.getUri().toString());
         try {
             log.debug("Executing LDpath program over resource {}", uri);
             Response response = request.post(Entity.text(program));
@@ -315,12 +317,12 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
         return getDatasetUriBuilder(dataset).path(SPARQL).path(UPDATE);
     }
 
-    private final UriBuilder getLDPathUriBuilder() {
-        return initiateUriBuilding().path(LDPATH);
+    private final UriBuilder getLDPathUriBuilder(String uri) {
+        return initiateUriBuilding().path(PATH).path(LDPATH).queryParam(RedLink.URI, uri);
     }
 
-    private final UriBuilder getLDPathUriBuilder(String dataset) {
-        return initiateUriBuilding().path(dataset).path(LDPATH);
+    private final UriBuilder getLDPathUriBuilder(String dataset, String uri) {
+        return initiateUriBuilding().path(PATH).path(dataset).path(LDPATH).queryParam(RedLink.URI, uri);
     }
 
     private SPARQLResult execSelect(WebTarget target, String query) {

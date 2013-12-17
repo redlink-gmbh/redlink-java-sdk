@@ -35,4 +35,8 @@ public class LDPathResult {
         return result.get(field);
     }
 
+    public int size() {
+        return result.keySet().size();
+    }
+
 }

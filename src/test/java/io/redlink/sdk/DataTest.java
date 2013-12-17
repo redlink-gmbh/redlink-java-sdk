@@ -1,5 +1,6 @@
 package io.redlink.sdk;
 
+import io.redlink.sdk.impl.data.model.LDPathResult;
 import org.apache.marmotta.client.model.sparql.SPARQLResult;
 import org.junit.*;
 import org.openrdf.model.Model;
@@ -212,6 +213,20 @@ public class DataTest extends GenericTest {
         Assert.assertEquals("http://example.org/test", result.get(0).get("s").toString());
         Assert.assertEquals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", result.get(0).get("p").toString());
         Assert.assertEquals("http://example.org/Test", result.get(0).get("o").toString());
+    }
+
+    @Test
+    @Ignore
+    public void testLDPath() {
+        InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
+        Assume.assumeNotNull(in);
+        Assert.assertTrue(redlink.importDataset(in, RDFFormat.RDFXML, TEST_DATASET, true));
+        final LDPathResult results = redlink.ldpath(TEST_RESOURCE, TEST_DATASET, "name = foaf:name[@en] :: xsd:string ;");
+        Assert.assertNotNull(results);
+        Assert.assertTrue(results.size() > 0);
+        Assert.assertTrue(results.getFields().contains("name"));
+        Assert.assertTrue(results.getResults("name").size() > 0);
+        Assert.assertEquals("John Pereira", results.getResults("name").get(0));
     }
 
     private int getCurrentSize(String dataset) {
