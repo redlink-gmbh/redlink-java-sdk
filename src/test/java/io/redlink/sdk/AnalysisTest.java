@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openrdf.model.vocabulary.RDF;
@@ -33,7 +34,9 @@ public class AnalysisTest extends GenericTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		Credentials credentials = buildCredentials(AnalysisTest.class);
-		//Assume.assumeTrue(credentials.verify());
+		Assume.assumeNotNull(credentials);
+        Assume.assumeNotNull(credentials.getVersion());
+        Assume.assumeTrue(credentials.verify());
 		redlink = RedLinkFactory.createAnalysisClient(credentials);
 	}
 
