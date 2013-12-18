@@ -4,6 +4,30 @@ import io.redlink.sdk.Credentials;
 import io.redlink.sdk.RedLink;
 import io.redlink.sdk.impl.RedLinkAbstractImpl;
 import io.redlink.sdk.impl.data.model.LDPathResult;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriBuilderException;
+
 import org.apache.marmotta.client.model.rdf.BNode;
 import org.apache.marmotta.client.model.rdf.Literal;
 import org.apache.marmotta.client.model.rdf.RDFNode;
@@ -13,30 +37,26 @@ import org.apache.marmotta.client.util.RDFJSONParser;
 import org.openrdf.model.Model;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.EmptyModel;
 import org.openrdf.model.impl.TreeModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.QueryResultHandler;
 import org.openrdf.query.QueryResultHandlerException;
-import org.openrdf.query.resultio.*;
+import org.openrdf.query.resultio.QueryResultIO;
+import org.openrdf.query.resultio.QueryResultParseException;
+import org.openrdf.query.resultio.QueryResultParser;
+import org.openrdf.query.resultio.TupleQueryResultFormat;
+import org.openrdf.query.resultio.UnsupportedQueryResultFormatException;
 import org.openrdf.query.resultio.helpers.QueryResultCollector;
-import org.openrdf.rio.*;
+import org.openrdf.rio.ParserConfig;
+import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.RDFParseException;
+import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.ParseErrorLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriBuilderException;
-import java.io.*;
-import java.net.MalformedURLException;
-import java.util.*;
 
 public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data {
 

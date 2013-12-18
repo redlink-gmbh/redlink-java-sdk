@@ -39,8 +39,10 @@ public abstract class AbstractCredentials implements Credentials {
                 Status status = response.readEntity(Status.class);
                 return status.isAccessible();
             } else {
+            	StatusError error = response.readEntity(StatusError.class);
             	throw new RuntimeException("Status check failed: HTTP error code " 
-                		+ response.getStatus() + ". Endpoint: " + target.getUri().toString());
+                		+ error.getError() + "\n Endpoint: " + target.getUri().toString()
+                		+ "\n Message: " + error.getMessage());
             }
         } catch (Exception e) {
             throw new RuntimeException("Status check failed: " + e.getMessage(), e);

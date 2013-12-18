@@ -68,9 +68,10 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
 			Response response = request.post(entity);
 			long time = System.currentTimeMillis() - pre;
 			logger.info("Server Response Time " + time + " ms. Status: " + response.getStatus());
-			
+
 			if (response.getStatus() != 200) {
-				String message = "Enhancement failed: HTTP error code " + response.getStatus();
+				String message = "Enhancement failed: HTTP error code " 
+						+ response.getStatus() + ". Message: " + response.getStatusInfo().getReasonPhrase();
 				logger.error(message);
 				throw new RuntimeException(message);
 			} else {
