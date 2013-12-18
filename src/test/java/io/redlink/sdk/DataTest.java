@@ -1,8 +1,10 @@
 package io.redlink.sdk;
 
+import com.google.code.tempusfugit.concurrency.ConcurrentTestRunner;
 import io.redlink.sdk.impl.data.model.LDPathResult;
 import org.apache.marmotta.client.model.sparql.SPARQLResult;
 import org.junit.*;
+import org.junit.runner.RunWith;
 import org.openrdf.model.Model;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
@@ -13,6 +15,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -37,21 +40,20 @@ public class DataTest extends GenericTest {
     private static final String QUERY_UPDATE = "INSERT DATA { <http://example.org/test> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/Test> }";
     public static final RDFFormat TEST_FILE_FORMAT = RDFFormat.RDFXML;
 
-    private RedLink.Data redlink;
+    private static RedLink.Data redlink;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeClass
+    public static void verifyConnection() throws MalformedURLException {
         Credentials credentials = buildCredentials(DataTest.class);
         Assume.assumeNotNull(credentials);
         Assume.assumeNotNull(credentials.getVersion());
         Assume.assumeTrue(credentials.verify());
         redlink = RedLinkFactory.createDataClient(credentials);
-        Assume.assumeTrue(redlink.cleanDataset(TEST_DATASET));
     }
 
-    @After
-    public void tearDown() throws Exception {
-        redlink = null;
+    @Before
+    public void setUp() throws Exception {
+        Assume.assumeTrue(redlink.cleanDataset(TEST_DATASET));
     }
 
     @Test
@@ -231,6 +233,14 @@ public class DataTest extends GenericTest {
 
     private int getCurrentSize(String dataset) {
         return redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET).size();
+    }
+
+    @Test
+    public void testVerifyCredentials() throws MalformedURLException {
+        Credentials credentials = buildCredentials();
+        Assume.assumeNotNull(credentials);
+        Assume.assumeNotNull(credentials.getVersion());
+        Assert.assertTrue(credentials.verify());
     }
 
 }

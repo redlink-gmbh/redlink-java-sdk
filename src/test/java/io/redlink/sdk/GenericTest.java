@@ -70,12 +70,5 @@ public class GenericTest {
         return ApiHelper.getApiVersion(System.getProperty("projectVersion"));
     }
 
-    @Test
-    public void testVerifyCredentials() throws MalformedURLException {
-        Credentials credentials = buildCredentials();
-        Assume.assumeNotNull(credentials);
-        Assume.assumeNotNull(credentials.getVersion());
-        Assert.assertTrue(credentials.verify());
-    }
 
 }
