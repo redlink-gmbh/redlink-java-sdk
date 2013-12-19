@@ -5,6 +5,7 @@ import io.redlink.sdk.impl.analysis.model.server.FlatEnhancementStructure;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.UUID;
 
 import javax.ws.rs.core.Response;
 
@@ -26,7 +27,7 @@ import org.openrdf.rio.helpers.ParseErrorLogger;
  */
 public final class EnhancementsParserFactory {
 	
-	private static final RDFFormat format = RDFFormat.TURTLE;
+	private static final String REDLINK = "X-Redlink-Instance";
 
 	/**
 	 * 
@@ -41,10 +42,15 @@ public final class EnhancementsParserFactory {
 		// Prevent malformed datetime values
 		// TODO review - added to prevent errors when parsing invalid dates
 		config.set(BasicParserSettings.VERIFY_DATATYPE_VALUES, false);
+		String uri = response.getHeaderString(REDLINK);
+		if(uri == null
+				|| uri.isEmpty())
+			uri = UUID.randomUUID().toString();
 		try {
 			Model model = Rio.parse(new StringReader(result), 
-					response.getLocation().toString(), 
-					format, config, 
+					uri, 
+					RDFFormat.forMIMEType(response.getMediaType().toString()), 
+					config, 
 					ValueFactoryImpl.getInstance(), 
 					new ParseErrorLogger());
 			return new RDFStructureParser(model);
@@ -63,7 +69,7 @@ public final class EnhancementsParserFactory {
 	public static final EnhancementsParser createParser(Response response) throws EnhancementParserException{
 		OutputFormat format = OutputFormat.get(response.getMediaType().toString());
 		switch (format) {
-		case XML: // TODO XML Parser
+		case XML: 
 		case JSON:
 			FlatEnhancementStructure result = 
 				response.readEntity(FlatEnhancementStructure.class);

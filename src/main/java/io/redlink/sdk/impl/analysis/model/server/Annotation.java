@@ -43,7 +43,7 @@ public class Annotation {
 	private String dataset;
 	
 	/*
-	 * Label of the Type 
+	 * Types of the Label 
 	 */
 	@XmlElementWrapper(name="types")
 	@XmlElement(name="type")
