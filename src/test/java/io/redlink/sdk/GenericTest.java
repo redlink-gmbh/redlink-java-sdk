@@ -2,17 +2,14 @@ package io.redlink.sdk;
 
 import io.redlink.sdk.impl.DefaultCredentials;
 import io.redlink.sdk.util.ApiHelper;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Generic tests and utilities shared by other tests in the suite

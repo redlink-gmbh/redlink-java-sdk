@@ -41,9 +41,10 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
 			target.queryParam("in", request.getInputFormat());
 			target.queryParam("out", request.getOutputFormat());
 			target.queryParam("summary", request.getSummary());
+			target.queryParam("thumbnail", request.getThumbnail());
 
 			Builder httpRequest = target.request();
-			httpRequest.accept(request.getOutputFormat());
+			httpRequest.accept(request.getOutputMediaType());
 			MediaType type = MediaType.TEXT_PLAIN_TYPE;
 			if(!request.isContentString())
 				type = MediaType.APPLICATION_OCTET_STREAM_TYPE;

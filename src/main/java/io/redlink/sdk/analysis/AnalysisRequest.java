@@ -9,7 +9,6 @@ import java.io.InputStream;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.io.IOUtils;
-import org.openrdf.rio.RDFFormat;
 
 import com.google.common.base.Optional;
 
@@ -23,19 +22,19 @@ public class AnalysisRequest{
 	/**
 	 * Accepted Input Formats
 	 */
-	public enum InputFormat{
-		TEXT(MediaType.TEXT_PLAIN),
-		HTML(MediaType.TEXT_HTML),
-		PDF(new MediaType("application", "pdf").toString()),
-		OFFICE(new MediaType("application", "doc").toString());
+	public static enum InputFormat{
+		TEXT(MediaType.TEXT_PLAIN_TYPE),
+		HTML(MediaType.TEXT_HTML_TYPE),
+		PDF(new MediaType("application", "pdf")),
+		OFFICE(new MediaType("application", "doc"));
 		
-		private final String type;
+		private final MediaType type;
 		
-		private InputFormat(String type) {
+		private InputFormat(MediaType type) {
 			this.type = type;
 		}
 		
-		public String value(){
+		public MediaType value(){
 			return type;
 		}
 	}
@@ -43,29 +42,29 @@ public class AnalysisRequest{
 	/**
 	 * Accepted Output Formats
 	 */
-	public enum OutputFormat{
-		XML(MediaType.APPLICATION_ATOM_XML),
-		JSON(MediaType.APPLICATION_JSON),
-		JSONLD(RDFFormat.JSONLD.getDefaultMIMEType()),
-		RDFXML(RDFFormat.RDFXML.getDefaultMIMEType()),
-		RDFJSON(RDFFormat.RDFJSON.getDefaultMIMEType()),
-		TURTLE(RDFFormat.TURTLE.getDefaultMIMEType()),
-		NT(RDFFormat.N3.getDefaultMIMEType());
+	public static enum OutputFormat{
+		XML(MediaType.APPLICATION_ATOM_XML_TYPE),
+		JSON(MediaType.APPLICATION_JSON_TYPE),
+		JSONLD(new MediaType("application", "ld+json")),
+		RDFXML(new MediaType("application", "rdf+xml")),
+		RDFJSON(new MediaType("application", "rdf+json")),
+		TURTLE(new MediaType("text", "turtle")),
+		NT(new MediaType("text", "rdf+n3"));
 		
 		
-		private final String type;
+		private final MediaType type;
 		
-		private OutputFormat(String type) {
+		private OutputFormat(MediaType type) {
 			this.type = type;
 		}
 		
-		public String value(){
+		public MediaType value(){
 			return type;
 		}
 		
 		public static OutputFormat get(String type){
 			for(OutputFormat of:OutputFormat.values())
-				if(of.type.equals(type))
+				if(of.type.toString().equals(type))
 					return of;
 			return null;
 		}
@@ -79,7 +78,7 @@ public class AnalysisRequest{
 	/**
 	 * Default Output Format
 	 */
-	private OutputFormat outputFormat = OutputFormat.RDFXML;
+	private OutputFormat outputFormat = OutputFormat.TURTLE;
 	
 	/**
 	 * Stream to Analyze
@@ -94,7 +93,12 @@ public class AnalysisRequest{
 	/**
 	 * Request Content Summary
 	 */
-	private boolean summary = false;
+	private boolean summary = true;
+	
+	/**
+	 * Request Entities' thumnails/depiction
+	 */
+	private boolean thumbnail = true;
 	
 	/**
 	 * true -> Content is a String
@@ -103,10 +107,18 @@ public class AnalysisRequest{
 	private boolean isContentString = true;
 
 	public String getInputFormat(){
-		return inputFormat.value();
+		return inputFormat.name();
+	}
+	
+	public MediaType getInputMediaType(){
+		return inputFormat.type;
 	}
 	
 	public String getOutputFormat(){
+		return outputFormat.name();
+	}
+	
+	public MediaType getOutputMediaType(){
 		return outputFormat.type;
 	}
 	
@@ -120,6 +132,10 @@ public class AnalysisRequest{
 	
 	public boolean getSummary(){
 		return summary;
+	}
+	
+	public boolean getThumbnail(){
+		return thumbnail;
 	}
 	
 	public boolean isContentString(){
@@ -147,8 +163,13 @@ public class AnalysisRequest{
 			return this;
 		}
 		
-		public AnalysisRequestBuilder setSummary(boolean summary){
+		public AnalysisRequestBuilder setSummaries(boolean summary){
 			this.request.summary = summary;
+			return this;
+		}
+		
+		public AnalysisRequestBuilder setThumbnails(boolean thumbnail){
+			this.request.thumbnail = thumbnail;
 			return this;
 		}
 		
