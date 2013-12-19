@@ -102,8 +102,8 @@ public class DataConcurrencyTest extends GenericTest {
 
 
     @Test
-    @Concurrent(count = 5)
-    @Repeating(repetition = 10)
+    @Concurrent(count = 10)
+    @Repeating(repetition = 50)
     public void testConcurrently() throws IOException, RDFHandlerException {
         Model model = new TreeModel();
 
