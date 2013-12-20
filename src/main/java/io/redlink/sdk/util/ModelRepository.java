@@ -28,10 +28,7 @@ public class ModelRepository extends SailRepository {
 		repo.initialize();
 		RepositoryConnection conn = repo.getConnection();
 		conn.begin();
-		Iterator<Statement> iter = model.iterator();
-		while (iter.hasNext()) {
-			conn.add(iter.next());
-		}
+        conn.add(model);
 		conn.commit();
 		conn.close();
 		return new ModelRepository(sail);
