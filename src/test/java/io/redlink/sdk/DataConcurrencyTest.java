@@ -105,31 +105,37 @@ public class DataConcurrencyTest extends GenericTest {
     @Concurrent(count = 10)
     @Repeating(repetition = 50)
     public void testConcurrently() throws IOException, RDFHandlerException {
-        Model model = new TreeModel();
+        try {
+            Model model = new TreeModel();
 
-        // create random triples
-        for(int i=0; i < rnd.nextInt(100); i++) {
-            model.add(new StatementImpl(randomURI(), randomURI(), randomObject()));
-        }
+            // create random triples
+            for(int i=0; i < rnd.nextInt(100); i++) {
+                model.add(new StatementImpl(randomURI(), randomURI(), randomObject()));
+            }
 
-        log.debug("created {} random triples", model.size());
+            log.debug("created {} random triples", model.size());
 
-        redlink.importDataset(model, TEST_DATASET);
+            redlink.importDataset(model, TEST_DATASET);
 
-        Model exported = redlink.exportDataset(TEST_DATASET);
+            Model exported = redlink.exportDataset(TEST_DATASET);
 
-        for(Statement stmt : model) {
-            Assert.assertTrue("triple "+stmt+" not contained in exported data", exported.contains(stmt));
-        }
+            for(Statement stmt : model) {
+                Assert.assertTrue("triple "+stmt+" not contained in exported data", exported.contains(stmt));
+            }
 
-        for(Resource r : model.subjects()) {
-            redlink.deleteResource(r.stringValue(), TEST_DATASET);
-        }
+            for(Resource r : model.subjects()) {
+                redlink.deleteResource(r.stringValue(), TEST_DATASET);
+            }
 
-        Model deleted = redlink.exportDataset(TEST_DATASET);
+            Model deleted = redlink.exportDataset(TEST_DATASET);
 
-        for(Statement stmt : model) {
-            Assert.assertFalse("triple "+stmt+" still contained in exported data", deleted.contains(stmt));
+            for(Statement stmt : model) {
+                Assert.assertFalse("triple "+stmt+" still contained in exported data", deleted.contains(stmt));
+            }
+        } catch (RuntimeException ex) {
+            log.error("exception: ",ex);
+
+            Assert.fail(ex.getMessage());
         }
     }
 
