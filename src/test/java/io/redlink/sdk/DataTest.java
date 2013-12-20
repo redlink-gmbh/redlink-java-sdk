@@ -1,15 +1,6 @@
 package io.redlink.sdk;
 
-import com.google.code.tempusfugit.concurrency.ConcurrentTestRunner;
 import io.redlink.sdk.impl.data.model.LDPathResult;
-import org.apache.marmotta.client.model.sparql.SPARQLResult;
-import org.junit.*;
-import org.junit.runner.RunWith;
-import org.openrdf.model.Model;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFParseException;
-import org.openrdf.rio.Rio;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -18,6 +9,19 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+
+import org.apache.marmotta.client.model.sparql.SPARQLResult;
+import org.junit.Assert;
+import org.junit.Assume;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.openrdf.model.Model;
+import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.RDFParseException;
+import org.openrdf.rio.Rio;
 
 public class DataTest extends GenericTest {
 
