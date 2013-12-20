@@ -20,6 +20,7 @@ import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQueryResult;
+import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 
@@ -42,7 +43,7 @@ final class RDFStructureParser extends EnhancementsParser {
 	/**
 	 * 
 	 */
-	private ModelRepository repository;
+	private Repository repository;
 
 	public RDFStructureParser(Model model)
 			throws EnhancementParserException {
@@ -54,12 +55,16 @@ final class RDFStructureParser extends EnhancementsParser {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * io.redlink.sdk.impl.analysis.model.EnhancementsParser#parseLanguages()
-	 */
+    public RDFStructureParser(Repository repository) {
+        this.repository = repository;
+    }
+
+    /*
+         * (non-Javadoc)
+         *
+         * @see
+         * io.redlink.sdk.impl.analysis.model.EnhancementsParser#parseLanguages()
+         */
 	public Collection<String> parseLanguages() throws EnhancementParserException {
 
 		Collection<String> languages = Sets.newHashSet();

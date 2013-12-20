@@ -11,13 +11,15 @@ import javax.ws.rs.core.Response;
 
 import org.openrdf.model.Model;
 import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.rio.ParserConfig;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFParseException;
-import org.openrdf.rio.Rio;
-import org.openrdf.rio.UnsupportedRDFormatException;
+import org.openrdf.repository.Repository;
+import org.openrdf.repository.RepositoryConnection;
+import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.sail.SailRepository;
+import org.openrdf.repository.util.RDFInserter;
+import org.openrdf.rio.*;
 import org.openrdf.rio.helpers.BasicParserSettings;
 import org.openrdf.rio.helpers.ParseErrorLogger;
+import org.openrdf.sail.memory.MemoryStore;
 
 /**
  * 
@@ -47,18 +49,31 @@ public final class EnhancementsParserFactory {
 				|| uri.isEmpty())
 			uri = UUID.randomUUID().toString();
 		try {
-			Model model = Rio.parse(new StringReader(result), 
-					uri, 
-					RDFFormat.forMIMEType(response.getMediaType().toString()), 
-					config, 
-					ValueFactoryImpl.getInstance(), 
-					new ParseErrorLogger());
-			return new RDFStructureParser(model);
-		} catch (RDFParseException | UnsupportedRDFormatException | IOException e) {
+            Repository repository = new SailRepository(new MemoryStore());
+            repository.initialize();
+
+            RepositoryConnection con = repository.getConnection();
+            try {
+                con.begin();
+
+                RDFParser p = Rio.createParser(RDFFormat.forMIMEType(response.getMediaType().toString()), repository.getValueFactory());
+                p.setRDFHandler(new RDFInserter(con));
+                p.setParserConfig(config);
+                p.parse(new StringReader(result), uri);
+
+                con.commit();
+            } catch(RDFHandlerException | RepositoryException ex) {
+                con.rollback();
+            } finally {
+                con.close();
+            }
+
+            return new RDFStructureParser(repository);
+		} catch (RepositoryException | RDFParseException | UnsupportedRDFormatException | IOException e) {
 			throw new EnhancementParserException("Error Parsing Enhancement Structure", e);
-		}
-		
-	}
+        }
+
+    }
 	
 	/**
 	 * 
