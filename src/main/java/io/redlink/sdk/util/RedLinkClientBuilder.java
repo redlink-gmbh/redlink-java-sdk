@@ -44,6 +44,7 @@ public class RedLinkClientBuilder extends ResteasyClientBuilder {
     public RedLinkClientBuilder(long timeout) {
         super();
         this.establishConnectionTimeout(timeout, TimeUnit.SECONDS);
+        this.connectionPoolSize(5);
 
         //ssl/tls stuff
         SSLContext ctx = null;
