@@ -103,7 +103,7 @@ public class DataConcurrencyTest extends GenericTest {
 
     @Test
     @Concurrent(count = 5)
-    @Repeating(repetition = 10)
+    @Repeating(repetition = 20)
     public void testConcurrently() throws IOException, RDFHandlerException, InterruptedException {
         try {
             Model model = new TreeModel();
@@ -115,9 +115,14 @@ public class DataConcurrencyTest extends GenericTest {
 
             log.debug("created {} random triples", model.size());
 
-            redlink.importDataset(model, TEST_DATASET);
+            synchronized (redlink) {
+                redlink.importDataset(model, TEST_DATASET);
+            }
 
-            Model exported = redlink.exportDataset(TEST_DATASET);
+            Model exported;
+            synchronized (redlink) {
+                exported = redlink.exportDataset(TEST_DATASET);
+            }
 
             Assert.assertFalse(exported.isEmpty());
 
@@ -126,10 +131,15 @@ public class DataConcurrencyTest extends GenericTest {
             }
 
             for(Resource r : model.subjects()) {
-                redlink.deleteResource(r.stringValue(), TEST_DATASET);
+                synchronized (redlink) {
+                    redlink.deleteResource(r.stringValue(), TEST_DATASET);
+                }
             }
 
-            Model deleted = redlink.exportDataset(TEST_DATASET);
+            Model deleted;
+            synchronized (redlink) {
+                deleted = redlink.exportDataset(TEST_DATASET);
+            }
 
             for(Statement stmt : model) {
                 Assert.assertFalse("triple "+stmt+" still contained in exported data", deleted.contains(stmt));
