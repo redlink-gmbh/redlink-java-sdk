@@ -12,6 +12,7 @@ import java.security.cert.CertificateFactory;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
@@ -60,7 +61,7 @@ public class RedLinkClientBuilder extends ResteasyClientBuilder {
             TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             keyStore.setCertificateEntry("redlink-CA", cert);
             tmf.init(keyStore);
-            ctx = SSLContext.getInstance("TLS");
+            ctx = SSLContext.getInstance("SSLv3");
             ctx.init(null, tmf.getTrustManagers(), null);
             //SSLSocketFactory sslFactory = ctx.getSocketFactory();
         } catch (CertificateException | KeyStoreException | NoSuchAlgorithmException | KeyManagementException | IOException e) {
