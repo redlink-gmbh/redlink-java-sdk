@@ -109,7 +109,7 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
                 response = request.post(Entity.entity(in, MediaType.valueOf(format.getDefaultMIMEType())));
             }
             log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
-            //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
+            log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
             return (response.getStatus() == 200);
         } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
             throw new RuntimeException(e);
@@ -211,7 +211,7 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
                 response = request.post(Entity.entity(in, MediaType.valueOf(format.getDefaultMIMEType())));
             }
             log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
-            //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
+            log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
             return (response.getStatus() == 200);
         } catch (IllegalArgumentException | UriBuilderException | RDFHandlerException | IOException e) {
             log.error("Error importing resource: {}", e.getMessage());
@@ -414,7 +414,7 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
             log.debug("Executing SPARQL update query: {}", query.replaceAll("\\s*[\\r\\n]+\\s*", " ").trim());
             Response response = request.post(Entity.entity(query, new MediaType("application", "sparql-update")));
             log.debug("Request resolved with {} status code", response.getStatus());
-            //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
+            log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
             return (response.getStatus() == 200);
         } catch (Exception e) {
             e.printStackTrace();
