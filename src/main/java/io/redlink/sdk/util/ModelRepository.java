@@ -1,9 +1,6 @@
 package io.redlink.sdk.util;
 
-import java.util.Iterator;
-
 import org.openrdf.model.Model;
-import org.openrdf.model.Statement;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;

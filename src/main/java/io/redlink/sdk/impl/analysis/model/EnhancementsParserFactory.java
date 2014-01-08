@@ -1,7 +1,6 @@
 package io.redlink.sdk.impl.analysis.model;
 
 import io.redlink.sdk.analysis.AnalysisRequest.OutputFormat;
-import io.redlink.sdk.impl.analysis.model.server.FlatEnhancementStructure;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -9,16 +8,19 @@ import java.util.UUID;
 
 import javax.ws.rs.core.Response;
 
-import org.openrdf.model.Model;
-import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.repository.util.RDFInserter;
-import org.openrdf.rio.*;
+import org.openrdf.rio.ParserConfig;
+import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.RDFParseException;
+import org.openrdf.rio.RDFParser;
+import org.openrdf.rio.Rio;
+import org.openrdf.rio.UnsupportedRDFormatException;
 import org.openrdf.rio.helpers.BasicParserSettings;
-import org.openrdf.rio.helpers.ParseErrorLogger;
 import org.openrdf.sail.memory.MemoryStore;
 
 /**
@@ -82,13 +84,14 @@ public final class EnhancementsParserFactory {
 	 * @throws EnhancementParserException 
 	 */
 	public static final EnhancementsParser createParser(Response response) throws EnhancementParserException{
-		OutputFormat format = OutputFormat.get(response.getMediaType().toString());
+		OutputFormat format = 
+				OutputFormat.get(response.getMediaType().toString());
 		switch (format) {
-		case XML: 
-		case JSON:
-			FlatEnhancementStructure result = 
-				response.readEntity(FlatEnhancementStructure.class);
-			return new FlatStructureParser(result);
+//		case XML: 
+//		case JSON:
+////			FlatEnhancementStructure result = 
+////				response.readEntity(FlatEnhancementStructure.class);
+////			return new FlatStructureParser(result);
 		default:
 			return createDefaultParser(response);
 		}
