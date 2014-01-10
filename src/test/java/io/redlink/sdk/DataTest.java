@@ -222,7 +222,6 @@ public class DataTest extends GenericTest {
     }
 
     @Test
-    @Ignore
     public void testLDPath() {
         InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
         Assume.assumeNotNull(in);
@@ -232,7 +231,7 @@ public class DataTest extends GenericTest {
         Assert.assertTrue(results.size() > 0);
         Assert.assertTrue(results.getFields().contains("name"));
         Assert.assertTrue(results.getResults("name").size() > 0);
-        Assert.assertEquals("John Pereira", results.getResults("name").get(0));
+        Assert.assertEquals("John Pereira", results.getResults("name").get(0).toString());
     }
 
     private int getCurrentSize(String dataset) {
