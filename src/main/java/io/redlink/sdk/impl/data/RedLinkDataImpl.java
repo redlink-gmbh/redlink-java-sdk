@@ -286,7 +286,6 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
     private LDPathResult execLDPath(WebTarget target, String uri, String program) {
         Invocation.Builder request = target.request();
         request.accept(MediaType.APPLICATION_JSON);
-        log.error(target.getUri().toString());
         try {
             log.debug("Executing LDpath program over resource {}", uri);
             Response response = request.post(Entity.text(program));
