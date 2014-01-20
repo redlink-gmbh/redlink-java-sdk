@@ -234,6 +234,19 @@ public class DataTest extends GenericTest {
         Assert.assertEquals("John Pereira", results.getResults("name").get(0).toString());
     }
 
+    @Test
+    public void testLDPathNoDataset() {
+        InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
+        Assume.assumeNotNull(in);
+        Assert.assertTrue(redlink.importDataset(in, RDFFormat.RDFXML, TEST_DATASET, true));
+        final LDPathResult results = redlink.ldpath(TEST_RESOURCE, "name = foaf:name[@en] :: xsd:string ;");
+        Assert.assertNotNull(results);
+        Assert.assertTrue(results.size() > 0);
+        Assert.assertTrue(results.getFields().contains("name"));
+        Assert.assertTrue(results.getResults("name").size() > 0);
+        Assert.assertEquals("John Pereira", results.getResults("name").get(0).toString());
+    }
+
     private int getCurrentSize(String dataset) {
         return redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET).size();
     }
