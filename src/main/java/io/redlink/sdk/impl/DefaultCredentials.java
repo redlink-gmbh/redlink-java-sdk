@@ -17,33 +17,34 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Default credentials against the public api
- * 
- * @author sergiofernandez@redlink.co
- * @author jakob.frank@redlink.co
  *
+ * @author sergio.fernandez@redlink.co
+ * @author jakob.frank@redlink.co
  */
 public final class DefaultCredentials extends AbstractCredentials {
 
     private static Logger log = LoggerFactory.getLogger(DefaultCredentials.class);
-	
-	private static final String ENDPOINT = "https://api.redlink.io";
-	
-	private static final String KEY_PARAM = "key";
-	
-	public DefaultCredentials(String apiKey){
-		this(apiKey, ApiHelper.getApiVersion());
-	}
+
+    private static final String ENDPOINT = "https://api.redlink.io";
+
+    private static final String KEY_PARAM = "key";
+
+    private final ResteasyClientBuilder clientBuilder;
+
+    public DefaultCredentials(String apiKey) {
+        this(apiKey, ApiHelper.getApiVersion());
+    }
 
     public DefaultCredentials(String apiKey, String version) {
         super(ENDPOINT, version, apiKey);
+        clientBuilder = new RedLinkClientBuilder();
         log.debug("created credentials over {}/{}", ENDPOINT, version);
     }
 
     @Override
-	public WebTarget buildUrl(UriBuilder builder) throws MalformedURLException, IllegalArgumentException, UriBuilderException {
-		ResteasyClientBuilder clientBuilder = new RedLinkClientBuilder();
-		URI uri = builder.queryParam(KEY_PARAM, apiKey).build();
-		return clientBuilder.build().target(uri.toString());
-	}
-	
+    public WebTarget buildUrl(UriBuilder builder) throws MalformedURLException, IllegalArgumentException, UriBuilderException {
+        URI uri = builder.queryParam(KEY_PARAM, apiKey).build();
+        return clientBuilder.build().target(uri.toString());
+    }
+
 }

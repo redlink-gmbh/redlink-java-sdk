@@ -4,6 +4,10 @@ import io.redlink.sdk.impl.DefaultCredentials;
 import io.redlink.sdk.impl.analysis.RedLinkAnalysisImpl;
 import io.redlink.sdk.impl.data.RedLinkDataImpl;
 import io.redlink.sdk.impl.search.RedLinkSearchImpl;
+
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * RedLink SDK Factory
  *
@@ -11,8 +15,20 @@ import io.redlink.sdk.impl.search.RedLinkSearchImpl;
  */
 public class RedLinkFactory {
 
+    private static Map<String, Credentials> credentials = new HashMap<String, Credentials>();
+
+    private static Credentials getCredentials(String key) {
+        if (credentials.containsKey(key)) {
+            return credentials.get(key);
+        }  else {
+            Credentials c = new DefaultCredentials(key);
+            credentials.put(key, c);
+            return c;
+        }
+    }
+
     public static RedLink.Analysis createAnalysisClient(String apiKey) {
-        return createAnalysisClient(new DefaultCredentials(apiKey));
+        return createAnalysisClient(getCredentials(apiKey));
     }
 
     public static RedLink.Analysis createAnalysisClient(Credentials credentials) {
@@ -20,7 +36,7 @@ public class RedLinkFactory {
     }
 
     public static RedLink.Data createDataClient(String apiKey) {
-        return createDataClient(new DefaultCredentials(apiKey));
+        return createDataClient(getCredentials(apiKey));
     }
 
     public static RedLink.Data createDataClient(Credentials credentials) {
