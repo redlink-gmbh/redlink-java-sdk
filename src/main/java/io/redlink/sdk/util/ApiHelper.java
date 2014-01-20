@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
  */
 public class ApiHelper {
 
-    public static final Pattern VERSION_PATTERN= Pattern.compile("(\\d)+\\.(\\d)+(\\.\\d+)?\\-([A-Z]+)(\\-SNAPSHOT)?");
+    public static final Pattern VERSION_PATTERN = Pattern.compile("(\\d)+\\.(\\d)+(\\.\\d+)?\\-([A-Z]+)(\\-SNAPSHOT)?");
 
     /**
      * Build a proper api version from the artifact version
@@ -21,7 +21,8 @@ public class ApiHelper {
      * @see <a href="http://dev.redlink.io/sdk#introduction">api/sdk versioning</a>
      */
     public static String getApiVersion() {
-        return getApiVersion(ApiHelper.class.getPackage().getImplementationVersion());
+        String version = getApiVersion(ApiHelper.class.getPackage().getImplementationVersion());
+        return (version != null ? version : "1.0-ALPHA"); //FIXME
     }
 
     /**
