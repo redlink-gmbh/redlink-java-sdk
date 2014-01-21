@@ -4,6 +4,8 @@ import io.redlink.sdk.impl.DefaultCredentials;
 import io.redlink.sdk.impl.analysis.RedLinkAnalysisImpl;
 import io.redlink.sdk.impl.data.RedLinkDataImpl;
 import io.redlink.sdk.impl.search.RedLinkSearchImpl;
+import org.openrdf.query.parser.QueryParserRegistry;
+import org.openrdf.query.parser.sparql.SPARQLParserFactory;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.RDFParserFactory;
 import org.openrdf.rio.RDFParserRegistry;
@@ -35,6 +37,9 @@ public class RedLinkFactory {
         }
         registry.add(new TurtleParserFactory());
         registry.add(new RDFXMLParserFactory());
+
+        QueryParserRegistry registry2 = QueryParserRegistry.getInstance();
+        registry2.add(new SPARQLParserFactory());
     }
 
     public synchronized static RedLinkFactory getInstance() {
