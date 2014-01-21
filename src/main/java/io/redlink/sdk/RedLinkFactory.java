@@ -4,8 +4,11 @@ import io.redlink.sdk.impl.DefaultCredentials;
 import io.redlink.sdk.impl.analysis.RedLinkAnalysisImpl;
 import io.redlink.sdk.impl.data.RedLinkDataImpl;
 import io.redlink.sdk.impl.search.RedLinkSearchImpl;
+import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.RDFParserFactory;
 import org.openrdf.rio.RDFParserRegistry;
+import org.openrdf.rio.rdfxml.RDFXMLParserFactory;
+import org.openrdf.rio.turtle.TurtleParserFactory;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -24,13 +27,14 @@ public class RedLinkFactory {
     private static Map<String, Credentials> credentials = new HashMap<String, Credentials>();
 
     private  RedLinkFactory() {
-        final ServiceLoader<RDFParserFactory> serviceLoader = ServiceLoader.load(RDFParserFactory.class, this.getClass().getClassLoader());
-        Iterator<RDFParserFactory> iter = serviceLoader.iterator();
+        Iterator<RDFParserFactory> iter = ServiceLoader.load(RDFParserFactory.class, this.getClass().getClassLoader()).iterator();
         RDFParserRegistry registry = RDFParserRegistry.getInstance();
         while (iter.hasNext()) {
             final RDFParserFactory factory = iter.next();
             registry.add(factory);
         }
+        registry.add(new TurtleParserFactory());
+        registry.add(new RDFXMLParserFactory());
     }
 
     public synchronized static RedLinkFactory getInstance() {
