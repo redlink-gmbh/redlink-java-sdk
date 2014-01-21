@@ -52,7 +52,7 @@ public class DataTest extends GenericTest {
         Assume.assumeNotNull(credentials);
         Assume.assumeNotNull(credentials.getVersion());
         Assume.assumeTrue(credentials.verify());
-        redlink = RedLinkFactory.createDataClient(credentials);
+        redlink = RedLinkFactory.getInstance().createDataClient(credentials);
     }
 
     @Before

@@ -19,7 +19,7 @@ public class SearchTest {
 	public static void setUpBeforeClass() throws Exception {
 		Credentials credentials = new CustomCredentials();
 		Assume.assumeTrue(credentials.verify());
-		redlink = RedLinkFactory.createSearchClient(credentials);
+		redlink = RedLinkFactory.getInstance().createSearchClient(credentials);
 	}
 
 	@AfterClass

@@ -33,14 +33,14 @@ public class RedLinkFactory {
         }
     }
 
-    public synchronized RedLinkFactory getInstance() {
+    public synchronized static RedLinkFactory getInstance() {
         if (instance == null) {
             instance = new RedLinkFactory();
         }
         return instance;
     }
 
-    private static Credentials getCredentials(String key) {
+    private Credentials getCredentials(String key) {
         if (credentials.containsKey(key)) {
             return credentials.get(key);
         }  else {
@@ -50,27 +50,27 @@ public class RedLinkFactory {
         }
     }
 
-    public static RedLink.Analysis createAnalysisClient(String apiKey) {
+    public RedLink.Analysis createAnalysisClient(String apiKey) {
         return createAnalysisClient(getCredentials(apiKey));
     }
 
-    public static RedLink.Analysis createAnalysisClient(Credentials credentials) {
+    public RedLink.Analysis createAnalysisClient(Credentials credentials) {
         return new RedLinkAnalysisImpl(credentials);
     }
 
-    public static RedLink.Data createDataClient(String apiKey) {
+    public RedLink.Data createDataClient(String apiKey) {
         return createDataClient(getCredentials(apiKey));
     }
 
-    public static RedLink.Data createDataClient(Credentials credentials) {
+    public RedLink.Data createDataClient(Credentials credentials) {
         return new RedLinkDataImpl(credentials);
     }
 
-    public static RedLink.Search createSearchClient(String apiKey) {
+    public RedLink.Search createSearchClient(String apiKey) {
         return createSearchClient(new DefaultCredentials(apiKey));
     }
 
-    public static RedLink.Search createSearchClient(Credentials credentials) {
+    public RedLink.Search createSearchClient(Credentials credentials) {
         return new RedLinkSearchImpl(credentials);
     }
 
