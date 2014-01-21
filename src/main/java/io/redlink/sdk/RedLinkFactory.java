@@ -26,20 +26,9 @@ public class RedLinkFactory {
 
     private static RedLinkFactory instance;
 
-    private static Map<String, Credentials> credentials = new HashMap<String, Credentials>();
+    private Map<String, Credentials> credentials = new HashMap<String, Credentials>();
 
     private  RedLinkFactory() {
-        Iterator<RDFParserFactory> iter = ServiceLoader.load(RDFParserFactory.class, this.getClass().getClassLoader()).iterator();
-        RDFParserRegistry registry = RDFParserRegistry.getInstance();
-        while (iter.hasNext()) {
-            final RDFParserFactory factory = iter.next();
-            registry.add(factory);
-        }
-        registry.add(new TurtleParserFactory());
-        registry.add(new RDFXMLParserFactory());
-
-        QueryParserRegistry registry2 = QueryParserRegistry.getInstance();
-        registry2.add(new SPARQLParserFactory());
     }
 
     public synchronized static RedLinkFactory getInstance() {
