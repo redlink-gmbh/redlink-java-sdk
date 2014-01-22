@@ -58,6 +58,13 @@ import org.openrdf.rio.helpers.ParseErrorLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * RedLink's {@link Data} services implementation. To be instantiated, this implementation needs a valid {@link Credentials} object that
+ * must contain a RedLink API key which will be used in each request to the server. 
+ * 
+ * @author sergio.fernandez@redlink.co
+ *
+ */
 public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data {
 
     private static Logger log = LoggerFactory.getLogger(RedLinkDataImpl.class);
@@ -66,11 +73,19 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
         super(credentials);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see io.redlink.sdk.RedLink.Data#importDataset(org.openrdf.model.Model, java.lang.String)
+     */
     @Override
     public boolean importDataset(Model data, String dataset) throws IOException, RDFHandlerException {
         return importDataset(data, dataset, false);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see io.redlink.sdk.RedLink.Data#importDataset(org.openrdf.model.Model, java.lang.String, boolean)
+     */
     @Override
     public boolean importDataset(Model data, String dataset, boolean cleanBefore) throws RDFHandlerException, IOException {
         RDFFormat format = RDFFormat.TURTLE;
@@ -79,21 +94,37 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
         return importDataset(new ByteArrayInputStream(out.toByteArray()), format, dataset, cleanBefore);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see io.redlink.sdk.RedLink.Data#importDataset(java.io.File, java.lang.String)
+     */
     @Override
     public boolean importDataset(File file, String dataset) throws FileNotFoundException {
         return importDataset(file, dataset, false);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see io.redlink.sdk.RedLink.Data#importDataset(java.io.File, java.lang.String, boolean)
+     */
     @Override
     public boolean importDataset(File file, String dataset, boolean cleanBefore) throws FileNotFoundException {
         return importDataset(new FileInputStream(file), RDFFormat.forFileName(file.getAbsolutePath()), dataset, cleanBefore);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see io.redlink.sdk.RedLink.Data#importDataset(java.io.InputStream, org.openrdf.rio.RDFFormat, java.lang.String)
+     */
     @Override
     public boolean importDataset(InputStream in, RDFFormat format, String dataset) {
         return importDataset(in, format, dataset, false);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see io.redlink.sdk.RedLink.Data#importDataset(java.io.InputStream, org.openrdf.rio.RDFFormat, java.lang.String, boolean)
+     */
     @Override
     public boolean importDataset(InputStream in, RDFFormat format, String dataset, boolean cleanBefore) {
         try {
@@ -116,6 +147,10 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see io.redlink.sdk.RedLink.Data#exportDataset(java.lang.String)
+     */
     @Override
     public Model exportDataset(String dataset) {
         RDFFormat format = RDFFormat.TURTLE;
@@ -139,6 +174,10 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see io.redlink.sdk.RedLink.Data#cleanDataset(java.lang.String)
+     */
     @Override
     public boolean cleanDataset(String dataset) {
         try {
@@ -154,11 +193,19 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see io.redlink.sdk.RedLink.Data#getResource(java.lang.String)
+     */
     @Override
     public Model getResource(String resource) {
         return getResource(getResourceUriBuilder(resource));
     }
 
+    /*
+     * (non-Javadoc)
+     * @see io.redlink.sdk.RedLink.Data#getResource(java.lang.String, java.lang.String)
+     */
     @Override
     public Model getResource(String resource, String dataset) {
         return getResource(getResourceUriBuilder(dataset, resource));
@@ -189,11 +236,19 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see io.redlink.sdk.RedLink.Data#importResource(java.lang.String, org.openrdf.model.Model, java.lang.String)
+     */
     @Override
     public boolean importResource(String resource, Model data, String dataset) {
         return importResource(resource, data, dataset, false);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see io.redlink.sdk.RedLink.Data#importResource(java.lang.String, org.openrdf.model.Model, java.lang.String, boolean)
+     */
     @Override
     public boolean importResource(String resource, Model data, String dataset, boolean cleanBefore) {
         RDFFormat format = RDFFormat.TURTLE;
@@ -219,6 +274,10 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see io.redlink.sdk.RedLink.Data#deleteResource(java.lang.String, java.lang.String)
+     */
     @Override
     public boolean deleteResource(String resource, String dataset) {
         try {
@@ -233,6 +292,10 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see io.redlink.sdk.RedLink.Data#sparqlSelect(java.lang.String)
+     */
     @Override
     public SPARQLResult sparqlSelect(String query) {
         try {
@@ -243,6 +306,10 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see io.redlink.sdk.RedLink.Data#sparqlSelect(java.lang.String, java.lang.String)
+     */
     @Override
     public SPARQLResult sparqlSelect(String query, String dataset) {
         try {
@@ -253,6 +320,10 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see io.redlink.sdk.RedLink.Data#sparqlUpdate(java.lang.String, java.lang.String)
+     */
     @Override
     public boolean sparqlUpdate(String query, String dataset) {
         try {
@@ -263,6 +334,10 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see io.redlink.sdk.RedLink.Data#ldpath(java.lang.String, java.lang.String, java.lang.String)
+     */
     @Override
     public LDPathResult ldpath(String uri, String dataset, String program) {
         try {
@@ -273,6 +348,10 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see io.redlink.sdk.RedLink.Data#ldpath(java.lang.String, java.lang.String)
+     */
     @Override
     public LDPathResult ldpath(String uri, String program) {
         try {

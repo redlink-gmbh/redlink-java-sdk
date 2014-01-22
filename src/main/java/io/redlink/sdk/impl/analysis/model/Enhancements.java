@@ -19,6 +19,8 @@ import com.google.common.collect.Sets;
 import com.google.common.primitives.Doubles;
 
 /**
+ * Analysis Result API. This class eases the management of the RedLink analysis service results, providing
+ * an API that hides the complexity of the Enhancement Structure returned by the service 
  * 
  * @author sergio.fernandez@redlink.co
  * @author rafa.haro@redlink.co
@@ -52,6 +54,11 @@ public class Enhancements implements Iterable<Enhancement>{
 		return getEnhancements().iterator();
 	}
 
+	/**
+	 * Returns the {@link Collection} of all {@link Enhancement}s, including Text, Entity and Topic annotations
+	 * 
+	 * @return
+	 */
 	public Collection<Enhancement> getEnhancements() {
 		return Collections.unmodifiableCollection(enhancements.values());
 	}
@@ -72,6 +79,11 @@ public class Enhancements implements Iterable<Enhancement>{
 		}
 	}
 
+	/**
+	 * Returns the {@link Collection} of extracted {@link TextAnnotation}s
+	 * 
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public Collection<TextAnnotation> getTextAnnotations() {
 		Collection<? extends Enhancement> result = enhancements
@@ -80,23 +92,40 @@ public class Enhancements implements Iterable<Enhancement>{
 													// be tested
 	}
 
+	/**
+	 * Returns the {@link Collection} of extracted {@link EntityAnnotation}s
+	 * 
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public Collection<EntityAnnotation> getEntityAnnotations() {
 		Collection<? extends Enhancement> result = enhancements .get(EntityAnnotation.class);
 		return (Collection<EntityAnnotation>) result; // Should be safe. Needs to be tested
 	}
 
+	/**
+	 * Returns the {@link Collection} of dereferenced {@link Entity}s
+	 * 
+	 * @return
+	 */
 	public Collection<Entity> getEntities() {
 		return Collections.unmodifiableCollection(entities.values());
 	}
 
+	/**
+	 * Returns a dereferenced entity by its URI
+	 * 
+	 * @param URI
+	 * @return
+	 */
 	public Entity getEntity(String URI) {
 		return entities.get(URI);
 	}
 
 	/**
+	 * Returns a {@link Collection} of {@link EntityAnnotation}s associated to the {@link TextAnnotation} passed by parameter
 	 * 
-	 * @param ta
+	 * @param ta {@link TextAnnotation}
 	 * @return
 	 */
 	public Collection<EntityAnnotation> getEntityAnnotations(TextAnnotation ta) {
@@ -110,6 +139,13 @@ public class Enhancements implements Iterable<Enhancement>{
 		return result;
 	}
 
+	/**
+	 * Returns a {@link Collection} of {@link Entity}s for which associated {@link EntityAnnotation}s has a confidence value
+	 * greater than or equal to the value passed by parameter
+	 * 
+	 * @param confidenceValue Threshold confidence value
+	 * @return
+	 */
 	public Collection<Entity> getEntitiesByConfidenceValue(final Double confidenceValue) {
 
 		Collection<EntityAnnotation> sortedEas = getEntityAnnotationsByConfidenceValue(confidenceValue);
@@ -123,6 +159,13 @@ public class Enhancements implements Iterable<Enhancement>{
 				});
 	}
 
+	/**
+	 * Returns a {@link Collection} of {@link TextAnnotation}s which confidences values are greater than or equal
+	 * to the value passed by parameter
+	 * 
+	 * @param confidenceValue Threshold confidence value
+	 * @return
+	 */
 	public Collection<TextAnnotation> getTextAnnotationsByConfidenceValue(final Double confidenceValue) {
 		return FluentIterable.from(getTextAnnotations())
 				.filter(new Predicate<TextAnnotation>() {
@@ -134,6 +177,13 @@ public class Enhancements implements Iterable<Enhancement>{
 				}).toList();
 	}
 
+	/**
+	 * Returns a {@link Collection} of {@link EntityAnnotation}s which confidences values are greater than or equal
+	 * to the value passed by parameter
+	 * 
+	 * @param confidenceValue Threshold confidence value
+	 * @return
+	 */
 	public Collection<EntityAnnotation> getEntityAnnotationsByConfidenceValue(
 			final Double confidenceValue) {
 		return FluentIterable.from(getEntityAnnotations())
@@ -146,6 +196,11 @@ public class Enhancements implements Iterable<Enhancement>{
 				}).toList();
 	}
 
+	/**
+	 * Returns the best {@link EntityAnnotation} (the one with higher confidence value) for each extracted {@link TextAnnotation}
+	 * 
+	 * @return
+	 */
 	public Map<TextAnnotation, EntityAnnotation> getBestAnnotations() {
 		Multimap<TextAnnotation, EntityAnnotation> map = ArrayListMultimap.create();
 		Map<TextAnnotation, EntityAnnotation> result = new HashMap<TextAnnotation, EntityAnnotation>();
@@ -176,6 +231,12 @@ public class Enhancements implements Iterable<Enhancement>{
 		return result;
 	}
 
+	/**
+	 * Returns an {@link EntityAnnotation} by its associated dereferenced {@link Entity} URI
+	 * 
+	 * @param entityUri
+	 * @return
+	 */
 	public EntityAnnotation getEntityAnnotation(final String entityUri) {
 		return Iterables.find(getEntityAnnotations(),
 				new Predicate<EntityAnnotation>() {
@@ -190,6 +251,7 @@ public class Enhancements implements Iterable<Enhancement>{
 	}
 
 	/**
+	 * Returns a {@link Collection} of identified languages in the analyzed content
 	 * 
 	 * @return
 	 */
@@ -214,6 +276,7 @@ public class Enhancements implements Iterable<Enhancement>{
 	}
 	
 	/**
+	 * Returns the {@link Collection} of extracted categories (topics) for the analyzed content
 	 * 
 	 * @return
 	 */
@@ -224,8 +287,9 @@ public class Enhancements implements Iterable<Enhancement>{
 	}
 	
 	/**
+	 * Returns true if the contents has been categorized with a category identified by the URI passed by parameter
 	 * 
-	 * @param conceptURI
+	 * @param conceptURI URI of the category concept
 	 * @return
 	 */
 	public boolean hasCategory(final String conceptURI){

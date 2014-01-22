@@ -3,6 +3,9 @@ package io.redlink.sdk.impl.analysis.model;
 import java.util.Collection;
 
 /**
+ * RedLink's simplified Analysis' Annotations common schema. For more information, please visit https://stanbol.apache.org/docs/trunk/components/enhancer/enhancementstructure
+ * 
+ * @see https://stanbol.apache.org/docs/trunk/components/enhancer/enhancementstructure
  * 
  * @author sergio.fernandez@redlink.co
  * @author rafa.haro@redlink.co
@@ -20,6 +23,14 @@ public abstract class Enhancement implements Comparable<Enhancement>
         
     }
 
+    /**
+     * Get Annotation's confidence value. A confidence value will be always in the range [0,1]. For Text annotations, the confidence value 
+     * provides an estimation about how likely the matched text correspond to some entity in one of the configured datasets for the user RedLink 
+     * application and will depend of the configured analysis engines. Entity annotations' confidence values provide an estimation about how likely
+     * a Text Annotation actually refers to the entity   
+     * 
+     * @return Annotation's confidence value
+     */
     public Double getConfidence()
     {
         return confidence;
@@ -30,6 +41,11 @@ public abstract class Enhancement implements Comparable<Enhancement>
         this.confidence = confidence;
     }
 
+    /**
+     * Returns a {@link Collection} of Annotations related to the current one
+     * 
+     * @return
+     */
     public Collection<Enhancement> getRelations()
     {
         return relations;
@@ -40,6 +56,11 @@ public abstract class Enhancement implements Comparable<Enhancement>
         this.relations = relations;
     }
     
+    /**
+     * Returns the annotation language
+     * 
+     * @return
+     */
 	public String getLanguage() {
 		return language;
 	}
@@ -48,6 +69,10 @@ public abstract class Enhancement implements Comparable<Enhancement>
 		this.language = language;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
 	@Override
     public int compareTo(Enhancement o)
     {

@@ -7,7 +7,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriBuilderException;
 
 /**
- * RedLink SDK Credentials
+ * RedLink SDK Credentials. A Credential object must be used in any request to the RedLink services
  * 
  * @author sergio.fernandez@redlink.co
  * @author rafa.haro@redlink.co
@@ -45,6 +45,8 @@ public interface Credentials {
 	boolean verify() throws MalformedURLException;
 	
 	/**
+	 * JAX-RS Endpoint Builder for RedLink. This method uses the credential information and an {@link UriBuilder} to build an
+	 * endpoint client ready for performing requests to the user RedLink application services  
 	 * 
 	 * @param builder
 	 * @return

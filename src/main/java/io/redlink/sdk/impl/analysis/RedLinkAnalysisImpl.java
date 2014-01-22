@@ -3,6 +3,7 @@ package io.redlink.sdk.impl.analysis;
 import io.redlink.sdk.Credentials;
 import io.redlink.sdk.RedLink;
 import io.redlink.sdk.analysis.AnalysisRequest;
+import io.redlink.sdk.analysis.AnalysisRequest.OutputFormat;
 import io.redlink.sdk.impl.RedLinkAbstractImpl;
 import io.redlink.sdk.impl.analysis.model.Enhancements;
 import io.redlink.sdk.impl.analysis.model.EnhancementsParser;
@@ -22,6 +23,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * RedLink's {@link Analysis} Service Client implementation. The implementation follows a basic workflow: using the user
+ * {@link Credentials} and an {@link AnalysisRequest} object, build the endpoint URI, add the parameters of the service and 
+ * inject the content to be analyzed and, finally, make the request to RedLink platform. The response of the service is parsed
+ * using the proper parser for the {@link OutputFormat} selected by the user
  * 
  * @author rafa.haro@redlink.co
  *
@@ -34,15 +39,22 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
 		super(credentials);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see io.redlink.sdk.RedLink.Analysis#enhance(io.redlink.sdk.analysis.AnalysisRequest)
+	 */
 	@Override
 	public Enhancements enhance(AnalysisRequest request) {
 		try {
-			WebTarget target = credentials.buildUrl(getEnhanceUriBuilder(request.getAnalysis()));
-			target.queryParam("in", request.getInputFormat());
-			target.queryParam("out", request.getOutputFormat());
-			target.queryParam("summary", request.getSummary());
-			target.queryParam("thumbnail", request.getThumbnail());
+			
+			// Build RESTEasy Endpoint
+			WebTarget target = credentials.buildUrl(getEnhanceUriBuilder(request.getAnalysis())); // Change URI based on the analysis name
+			target.queryParam("in", request.getInputFormat()); // InputFormat parameter
+			target.queryParam("out", request.getOutputFormat()); // OutputFormat parameter
+			target.queryParam("summary", request.getSummary()); // Entities' summaries parameter
+			target.queryParam("thumbnail", request.getThumbnail()); // Entities' thumbnails parameter
 
+			// Accepted Media-Type setup
 			Builder httpRequest = target.request();
 			httpRequest.accept(request.getOutputMediaType());
 			MediaType type = MediaType.TEXT_PLAIN_TYPE;

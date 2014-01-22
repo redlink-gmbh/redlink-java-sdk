@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.UUID;
 
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.openrdf.repository.Repository;
@@ -24,7 +25,8 @@ import org.openrdf.rio.helpers.BasicParserSettings;
 import org.openrdf.sail.memory.MemoryStore;
 
 /**
- * 
+ * {@link EnhancementsParser} Factory. The RDF Enhancement Structure parser is the one used by default. JSON and XML parser can be also
+ * created. The proper parser to be returned is automatically inferred from a {@link Response} object
  * 
  * @author rafa.haro@redlink.co
  *
@@ -34,7 +36,9 @@ public final class EnhancementsParserFactory {
 	private static final String REDLINK = "X-Redlink-Instance";
 
 	/**
-	 * 
+	 * Create an {@link RDFStructureParser} as default {@link EnhancementsParser}. The method will try to parse an Enhancement Structure in
+	 * RDF format, ignoring the {@link Response} {@link MediaType}. Users need to ensure that the {@link Response} contains the Enhancement
+	 * Structure in that format
 	 * 
 	 * @param response
 	 * @return
@@ -78,6 +82,8 @@ public final class EnhancementsParserFactory {
     }
 	
 	/**
+	 * Create an {@link EnhancementsParser} depending on the {@link Response} {@link MediaType}. Supported 
+	 * {@link MediaType}s are enumerated in the class {@link OutputFormat}
 	 * 
 	 * @param response
 	 * @return

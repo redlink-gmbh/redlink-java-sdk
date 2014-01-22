@@ -1,6 +1,7 @@
 package io.redlink.sdk.impl.analysis.model;
 
 /**
+ * Enhancement Structure parsing error exception
  * 
  * @author rafa.haro@redlink.co
  *

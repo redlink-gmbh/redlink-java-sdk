@@ -2,8 +2,10 @@ package io.redlink.sdk.impl.analysis.model;
 
 
 /**
+ * TopicAnnotation are used to categorize/classify the parsed content along some categorization system
  * 
  * @author rafa.haro@redlink.co
+ * @see https://stanbol.apache.org/docs/trunk/components/enhancer/enhancementstructure#fisetopicannotation 
  *
  */
 public class TopicAnnotation extends Enhancement {
@@ -14,6 +16,11 @@ public class TopicAnnotation extends Enhancement {
 		private String dataset = null; // http://stanbol.apache.org/ontology/entityhub/entityhub#"
 		private String summary = null; // Entity (Concept) Description
 		
+		/**
+		 * Returns the category preferred label
+		 * 
+		 * @return
+		 */
 		public String getTopicLabel() {
 			return topicLabel;
 		}
@@ -21,6 +28,12 @@ public class TopicAnnotation extends Enhancement {
 		void setTopicLabel(String topicLabel) {
 			this.topicLabel = topicLabel;
 		}
+		
+		/**
+		 * Returns the URI of the category
+		 * 
+		 * @return
+		 */
 		public String getTopicReference() {
 			return topicReference;
 		}
@@ -29,6 +42,11 @@ public class TopicAnnotation extends Enhancement {
 			this.topicReference = topicReference;
 		}
 		
+		/**
+		 * Returns the name of the dataset which the category belongs to
+		 * 
+		 * @return
+		 */
 		public String getDataset() {
 			return dataset;
 		}
@@ -37,6 +55,11 @@ public class TopicAnnotation extends Enhancement {
 			this.dataset = dataset;
 		}
 
+		/**
+		 * Returns a description of the category
+		 * 
+		 * @return
+		 */
 		public String getSummary() {
 			return summary;
 		}

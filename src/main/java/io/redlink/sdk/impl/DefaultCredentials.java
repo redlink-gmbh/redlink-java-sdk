@@ -1,6 +1,7 @@
 package io.redlink.sdk.impl;
 
 
+import io.redlink.sdk.Credentials;
 import io.redlink.sdk.util.ApiHelper;
 import io.redlink.sdk.util.RedLinkClientBuilder;
 
@@ -16,7 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Default credentials against the public api
+ * Public API {@link Credentials} implementation. This implementation should be used as the most simple way to access to the RedLink public platform
+ * An user valid API key is necessary for building the credential object
  * 
  * @author sergiofernandez@redlink.co
  * @author jakob.frank@redlink.co
@@ -39,6 +41,10 @@ public final class DefaultCredentials extends AbstractCredentials {
         log.debug("created credentials over {}/{}", ENDPOINT, version);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see io.redlink.sdk.Credentials#buildUrl(javax.ws.rs.core.UriBuilder)
+     */
     @Override
 	public WebTarget buildUrl(UriBuilder builder) throws MalformedURLException, IllegalArgumentException, UriBuilderException {
 		ResteasyClientBuilder clientBuilder = new RedLinkClientBuilder();

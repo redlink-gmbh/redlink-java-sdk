@@ -23,6 +23,11 @@ public final class EntityAnnotation extends Enhancement {
 		super();
 	}
 
+	/**
+	 * Returns the preferred entity label
+	 * 
+	 * @return
+	 */
 	public String getEntityLabel() {
 		return entityLabel;
 	}
@@ -31,6 +36,11 @@ public final class EntityAnnotation extends Enhancement {
 		this.entityLabel = entityLabel;
 	}
 
+	/**
+	 * Returns the dereferenced {@link Entity} associated to the {@link EntityAnnotation}
+	 * 
+	 * @return
+	 */
 	public Entity getEntityReference() {
 		return entityReference;
 	}
@@ -39,6 +49,11 @@ public final class EntityAnnotation extends Enhancement {
 		this.entityReference = entityReference;
 	}
 
+	/**
+	 * Returns the {@link Collection} of types associated to the entity
+	 * 
+	 * @return
+	 */
 	public Collection<String> getEntityTypes() {
 		return entityTypes;
 	}
@@ -47,6 +62,11 @@ public final class EntityAnnotation extends Enhancement {
 		this.entityTypes = entityTypes;
 	}
 
+	/**
+	 * Returns the name of the dataset which the entity has been linked with
+	 * 
+	 * @return
+	 */
 	public String getDataset() {
 		return dataset;
 	}

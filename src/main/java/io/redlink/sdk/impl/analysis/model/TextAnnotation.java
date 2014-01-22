@@ -2,7 +2,7 @@ package io.redlink.sdk.impl.analysis.model;
 
 
 /**
- * Text annotation, selects portions parsed textual content by using the following properties
+ * Text annotation, selects pieces of parsed textual content by using the following properties
  * 
  * @author sergio.fernandez@redlink.co
  * @author rafa.haro@redlink.co
@@ -21,6 +21,11 @@ public final class TextAnnotation extends Enhancement {
 		super();
 	}
 
+	/**
+	 * Returns the position of the text where the annotation starts
+	 * 
+	 * @return
+	 */
 	public int getStarts() {
 		return starts;
 	}
@@ -29,6 +34,11 @@ public final class TextAnnotation extends Enhancement {
 		this.starts = starts;
 	}
 
+	/**
+	 * Returns the position of the text where the annotation ends
+	 * 
+	 * @return
+	 */
 	public int getEnds() {
 		return ends;
 	}
@@ -37,6 +47,11 @@ public final class TextAnnotation extends Enhancement {
 		this.ends = ends;
 	}
 
+	/**
+	 * Returns the matched/extracted piece of text from the analyzed content
+	 * 
+	 * @return
+	 */
 	public String getSelectedText() {
 		return selectedText;
 	}
@@ -45,6 +60,11 @@ public final class TextAnnotation extends Enhancement {
 		this.selectedText = selectedText;
 	}
 
+	/**
+	 * Returns a surrounding context of the matched text
+	 * 
+	 * @return
+	 */
 	public String getSelectionContext() {
 		return selectionContext;
 	}

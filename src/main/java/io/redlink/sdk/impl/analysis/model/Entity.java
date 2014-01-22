@@ -12,6 +12,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 
 /**
+ * Represent a Dereferenced Entity from a RedLink Dataset. Encapsulates all the entity properties
  * 
  * @author rafa.haro@redlink.co
  *
@@ -38,6 +39,7 @@ public class Entity {
 	}
 
 	/**
+	 * Returns the Entity URI
 	 * 
 	 * @return
 	 */
@@ -45,20 +47,11 @@ public class Entity {
 		return uri;
 	}
 
-	/**
-	 * 
-	 * @param uri
-	 */
-	public void setUri(String uri) {
+	void setUri(String uri) {
 		this.uri = uri;
 	}
 
-	/**
-	 * 
-	 * @param property
-	 * @param value
-	 */
-	public void addPropertyValue(String property, String value) {
+	void addPropertyValue(String property, String value) {
 		
 		if(property != null && value != null){
 			Multimap<Optional<String>, String> entry = properties.get(Optional.of(property));
@@ -72,13 +65,7 @@ public class Entity {
 		}
 	}
 
-	/**
-	 * 
-	 * @param property
-	 * @param language
-	 * @param value
-	 */
-	public void addPropertyValue(String property, String language, String value) {
+	void addPropertyValue(String property, String language, String value) {
 		if(language == null)
 			addPropertyValue(property, value);
 		
@@ -93,8 +80,9 @@ public class Entity {
 	}
 
 	/**
+	 * Get all literal values for the property passed by parameter
 	 * 
-	 * @param property
+	 * @param property Property URI
 	 * @return
 	 */
 	public Collection<String> getValues(String property) {
@@ -107,9 +95,9 @@ public class Entity {
 	}
 	
 	/**
+	 * Get a collection of pairs <language,value> for the property passed by parameter
 	 * 
-	 * @param property
-	 * @param language
+	 * @param property Property URI
 	 * @return
 	 */
 	public Multimap<String, String> getValuesByLanguage (String property){
@@ -124,9 +112,10 @@ public class Entity {
 	}
 
 	/**
+	 * Get a literal value for a property and language passed by parameters
 	 * 
-	 * @param property
-	 * @param language
+	 * @param property Property URI
+	 * @param language Language code
 	 * @return
 	 */
 	public String getValue(String property, String language) {
@@ -141,6 +130,7 @@ public class Entity {
 	}
 
 	/**
+	 * Get the {@link Collection} of entity's properties
 	 * 
 	 * @return
 	 */
@@ -149,8 +139,9 @@ public class Entity {
 	}
 
 	/**
+	 * Return the first value associated to the property passed by parameter
 	 * 
-	 * @param property
+	 * @param property Property URI
 	 * @return
 	 */
 	public String getFirstPropertyValue(String property) {

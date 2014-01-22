@@ -37,7 +37,7 @@ public class RedLinkClientBuilder extends ResteasyClientBuilder {
 
 
     /**
-     * Build a RedLink Rest Client with a custom timeout for requests
+     * Build a RedLink Rest Client with a custom timeout and certificate for requests
      *
      * @param timeout requests' timeout in seconds
      */

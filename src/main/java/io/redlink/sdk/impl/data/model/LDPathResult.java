@@ -8,7 +8,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * LDPath Result
+ * 
+ * @author sergio.fernandez@redlink.co
+ *
  */
 public class LDPathResult {
 
