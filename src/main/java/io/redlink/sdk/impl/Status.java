@@ -1,5 +1,7 @@
 package io.redlink.sdk.impl;
 
+import org.codehaus.jackson.JsonNode;
+
 
 /**
  * RedLink's user Application Status data 
@@ -54,19 +56,19 @@ public class Status {
     public int getLimit() {
         return limit;
     }
-//
-//    public void setLimit(JsonNode node) {
-//        final String str = node.toString();
-//        try {
-//            limit = Integer.parseInt(str);
-//        } catch (Exception e) {
-//            if ("unlimited".equals(str)) {
-//                limit = -1;
-//            } else {
-//                limit = 0;
-//            }
-//        }
-//    }
+
+    void setLimit(JsonNode node) {
+        final String str = node.toString();
+        try {
+            limit = Integer.parseInt(str);
+        } catch (Exception e) {
+            if ("unlimited".equals(str)) {
+                limit = -1;
+            } else {
+                limit = 0;
+            }
+        }
+    }
 
     /**
      * Returns the number of seconds that the application has been active

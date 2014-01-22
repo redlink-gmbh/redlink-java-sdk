@@ -38,7 +38,7 @@ public class AnalysisTest extends GenericTest {
 		Assume.assumeNotNull(credentials);
         Assume.assumeNotNull(credentials.getVersion());
         Assume.assumeTrue(credentials.verify());
-		redlink = RedLinkFactory.createAnalysisClient(credentials);
+		redlink = RedLinkFactory.getInstance().createAnalysisClient(credentials);
 	}
 
 	@AfterClass

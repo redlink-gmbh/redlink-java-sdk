@@ -52,7 +52,7 @@ public class DataTest extends GenericTest {
         Assume.assumeNotNull(credentials);
         Assume.assumeNotNull(credentials.getVersion());
         Assume.assumeTrue(credentials.verify());
-        redlink = RedLinkFactory.createDataClient(credentials);
+        redlink = RedLinkFactory.getInstance().createDataClient(credentials);
     }
 
     @Before
@@ -222,7 +222,6 @@ public class DataTest extends GenericTest {
     }
 
     @Test
-    @Ignore
     public void testLDPath() {
         InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
         Assume.assumeNotNull(in);
@@ -232,7 +231,20 @@ public class DataTest extends GenericTest {
         Assert.assertTrue(results.size() > 0);
         Assert.assertTrue(results.getFields().contains("name"));
         Assert.assertTrue(results.getResults("name").size() > 0);
-        Assert.assertEquals("John Pereira", results.getResults("name").get(0));
+        Assert.assertEquals("John Pereira", results.getResults("name").get(0).toString());
+    }
+
+    @Test
+    public void testLDPathNoDataset() {
+        InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
+        Assume.assumeNotNull(in);
+        Assert.assertTrue(redlink.importDataset(in, RDFFormat.RDFXML, TEST_DATASET, true));
+        final LDPathResult results = redlink.ldpath(TEST_RESOURCE, "name = foaf:name[@en] :: xsd:string ;");
+        Assert.assertNotNull(results);
+        Assert.assertTrue(results.size() > 0);
+        Assert.assertTrue(results.getFields().contains("name"));
+        Assert.assertTrue(results.getResults("name").size() > 0);
+        Assert.assertEquals("John Pereira", results.getResults("name").get(0).toString());
     }
 
     private int getCurrentSize(String dataset) {
