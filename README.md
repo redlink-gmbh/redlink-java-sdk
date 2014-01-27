@@ -15,6 +15,7 @@ Therefore, you are completelly free to use the software for any purpose, to dist
 to modify it, and to distribute modified versions of the software, including closed-source, 
 under the terms of the license, without concern for royalties.
 
-Further details at http://dev.redlink.io/sdk
+Further details at [dev.redlink.io][dev].
 
+[dev]: http://dev.redlink.io/sdk/
 [ASL2]: http://www.apache.org/licenses/LICENSE-2.0.html
