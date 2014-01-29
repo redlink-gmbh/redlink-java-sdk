@@ -22,7 +22,7 @@ public class AnalysisTest extends GenericTest {
 	
 	private static RedLink.Analysis redlink;
 
-    private static final String TEST_ANALYSIS = "test";
+    private static final String TEST_ANALYSIS = "wordlift";
 
 	private static final String STANBOL_TEXT_TO_ENHANCE = "The Open Source Project Apache Stanbol provides different "
                 + "features that facilitate working with linked data, in the netlabs.org early adopter proposal VIE "
@@ -195,22 +195,22 @@ public class AnalysisTest extends GenericTest {
     	Assert.assertFalse(enhancements.getEntities().isEmpty());
     	Entity paris = enhancements.getEntity("http://dbpedia.org/resource/Paris");
     	Assert.assertNotNull(paris);
+    	Assert.assertFalse(paris.getProperties().isEmpty());
 
-        if (!paris.getProperties().isEmpty()) {
-            //entity has been added to the analysis result
-            Assert.assertFalse(paris.getProperties().isEmpty());
-            Assert.assertFalse(paris.getValues(RDFS.LABEL.toString()).isEmpty());
-            Assert.assertEquals("Paris", paris.getValue(RDFS.LABEL.toString(), "en"));
-            Assert.assertTrue(paris.getValues(RDF.TYPE.toString()).contains("http://dbpedia.org/ontology/Place"));
-            Assert.assertTrue(Float.parseFloat(paris.getFirstPropertyValue("http://stanbol.apache.org/ontology/entityhub/entityhub#entityRank")) > 0.5f);
-            Assert.assertTrue(paris.getValues(DCTERMS.SUBJECT.toString()).contains("http://dbpedia.org/resource/Category:Capitals_in_Europe"));
+    	//entity has been added to the analysis result
+    	Assert.assertFalse(paris.getProperties().isEmpty());
+    	Assert.assertFalse(paris.getValues(RDFS.LABEL.toString()).isEmpty());
+    	Assert.assertEquals("Paris", paris.getValue(RDFS.LABEL.toString(), "en"));
+    	Assert.assertTrue(paris.getValues(RDF.TYPE.toString()).contains("http://dbpedia.org/ontology/Place"));
+    	Assert.assertTrue(Float.parseFloat(paris.getFirstPropertyValue("http://stanbol.apache.org/ontology/entityhub/entityhub#entityRank")) > 0.5f);
+    	Assert.assertTrue(paris.getValues(DCTERMS.SUBJECT.toString()).contains("http://dbpedia.org/resource/Category:Capitals_in_Europe"));
 
-            EntityAnnotation parisEa = enhancements.getEntityAnnotation(paris.getUri());
-            Assert.assertTrue(parisEa.getEntityTypes().contains("http://dbpedia.org/ontology/Place"));
-            Assert.assertEquals("Paris", parisEa.getEntityLabel());
-            Assert.assertEquals("dbpedia", parisEa.getDataset());
-            Assert.assertEquals("en", parisEa.getLanguage());
-        }
+    	EntityAnnotation parisEa = enhancements.getEntityAnnotation(paris.getUri());
+    	Assert.assertTrue(parisEa.getEntityTypes().contains("http://dbpedia.org/ontology/Place"));
+    	Assert.assertEquals("Paris", parisEa.getEntityLabel());
+    	Assert.assertEquals("dbpedia", parisEa.getDataset());
+    	Assert.assertEquals("en", parisEa.getLanguage());
+
 
 	}
     
