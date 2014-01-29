@@ -303,6 +303,19 @@ public class AnalysisRequest{
 		}
 		
 		/**
+		 * Set Request Content
+		 * 
+		 * @param stream {@link InputStream} containing the content to be analyzed
+		 * @return Current Request Builder
+		 */
+		public AnalysisRequestBuilder setContent(InputStream stream){
+			this.request.content = Optional.of(stream);
+			this.request.isContentString = false;
+			return this;
+		}
+		
+		
+		/**
 		 * Returns {@link Analysis}'s service request object 
 		 * 
 		 * @return built {@link AnalysisRequest} object 
