@@ -3,6 +3,7 @@ package io.redlink.sdk.impl.analysis;
 import io.redlink.sdk.Credentials;
 import io.redlink.sdk.RedLink;
 import io.redlink.sdk.analysis.AnalysisRequest;
+import io.redlink.sdk.analysis.AnalysisRequest.InputFormat;
 import io.redlink.sdk.analysis.AnalysisRequest.OutputFormat;
 import io.redlink.sdk.impl.RedLinkAbstractImpl;
 import io.redlink.sdk.impl.analysis.model.Enhancements;
@@ -58,7 +59,8 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
 			Builder httpRequest = target.request();
 			httpRequest.accept(request.getOutputMediaType());
 			MediaType type = MediaType.TEXT_PLAIN_TYPE;
-			if(!request.isContentString())
+			if(!request.isContentString() && 
+					!request.getInputMediaType().equals(InputFormat.TEXT.value()))
 				type = MediaType.APPLICATION_OCTET_STREAM_TYPE;
 			
 			Entity<?> entity = Entity.entity(request.getContent(), type);
