@@ -38,6 +38,19 @@
         <resteasy.version>3.0.6.Final</resteasy.version>
     </properties>
 
+    <distributionManagement>
+        <repository>
+            <id>redlink.releases</id>
+            <name>RedLink Releases</name>
+            <url>http://repo.dev.redlink.io/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>redlink.snapshots</id>
+            <name>RedLink Snapshots</name>
+            <url>http://repo.dev.redlink.io/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <build>
         <plugins>
             <plugin>
