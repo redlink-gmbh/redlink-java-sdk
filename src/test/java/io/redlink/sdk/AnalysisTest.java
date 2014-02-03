@@ -3,26 +3,21 @@ package io.redlink.sdk;
 import io.redlink.sdk.analysis.AnalysisRequest;
 import io.redlink.sdk.analysis.AnalysisRequest.OutputFormat;
 import io.redlink.sdk.impl.analysis.model.*;
+import org.junit.*;
+import org.openrdf.model.vocabulary.DCTERMS;
+import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.model.vocabulary.RDFS;
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.openrdf.model.vocabulary.DCTERMS;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.model.vocabulary.RDFS;
-
 public class AnalysisTest extends GenericTest {
 	
 	private static RedLink.Analysis redlink;
 
-    private static final String TEST_ANALYSIS = "wordlift";
+    private static final String TEST_ANALYSIS = "test";
 
 	private static final String STANBOL_TEXT_TO_ENHANCE = "The Open Source Project Apache Stanbol provides different "
                 + "features that facilitate working with linked data, in the netlabs.org early adopter proposal VIE "
