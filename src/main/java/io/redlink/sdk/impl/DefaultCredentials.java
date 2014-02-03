@@ -48,7 +48,9 @@ public final class DefaultCredentials extends AbstractCredentials {
     @Override
     public WebTarget buildUrl(UriBuilder builder) throws MalformedURLException, IllegalArgumentException, UriBuilderException {
         URI uri = builder.queryParam(KEY_PARAM, apiKey).build();
-        return clientBuilder.build().target(uri.toString());
+        synchronized (clientBuilder) {
+            return clientBuilder.build().target(uri.toString());
+        }
     }
 
 }
