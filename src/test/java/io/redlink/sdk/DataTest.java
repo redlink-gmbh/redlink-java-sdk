@@ -86,7 +86,7 @@ public class DataTest extends GenericTest {
         Assert.assertTrue(redlink.importDataset(file, TEST_DATASET));
         final SPARQLResult triples = redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET);
         Assert.assertNotNull(triples);
-        Assert.assertTrue(triples.size() >= TEST_FILE_TRIPLES);
+        Assert.assertTrue("result size was smaller than expected",triples.size() >= TEST_FILE_TRIPLES);
         //TODO: more specific testing
     }
 
