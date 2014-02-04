@@ -1,6 +1,13 @@
 package io.redlink.sdk;
 
 import io.redlink.sdk.impl.data.model.LDPathResult;
+import org.apache.marmotta.client.model.sparql.SPARQLResult;
+import org.junit.*;
+import org.openrdf.model.Model;
+import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.RDFParseException;
+import org.openrdf.rio.Rio;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -9,19 +16,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-
-import org.apache.marmotta.client.model.sparql.SPARQLResult;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.openrdf.model.Model;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFParseException;
-import org.openrdf.rio.Rio;
 
 public class DataTest extends GenericTest {
 
@@ -86,7 +80,7 @@ public class DataTest extends GenericTest {
         Assert.assertTrue(redlink.importDataset(file, TEST_DATASET));
         final SPARQLResult triples = redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET);
         Assert.assertNotNull(triples);
-        Assert.assertTrue(triples.size() >= TEST_FILE_TRIPLES);
+        Assert.assertTrue("result size was smaller than expected",triples.size() >= TEST_FILE_TRIPLES);
         //TODO: more specific testing
     }
 
@@ -116,6 +110,7 @@ public class DataTest extends GenericTest {
         Assert.assertTrue(redlink.importDataset(in, TEST_FILE_FORMAT, TEST_DATASET));
         final SPARQLResult triples = redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET);
         Assert.assertNotNull(triples);
+        Assert.assertTrue(triples.size() > 0);
         Assert.assertTrue(triples.size() >= TEST_FILE_TRIPLES);
         //TODO: more specific testing
     }
