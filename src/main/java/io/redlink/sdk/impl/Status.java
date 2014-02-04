@@ -127,9 +127,14 @@ public class Status {
      * @return analyses
      */
     public List<String> getAnalyses() {
-        return analyses;
+        return Collections.unmodifiableList(analyses);
     }
 
+    /**
+     * Set analyses
+     *
+     * @param analyses
+     */
     public void setAnalyses(List<String> analyses) {
         this.analyses = analyses;
     }
