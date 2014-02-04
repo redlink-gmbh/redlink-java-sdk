@@ -6,57 +6,57 @@ import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class SearchResults implements Iterator<SearchResult> {
-	
-	private int totalResults;
-	
-	private int startIndex;
-	
-	private int itemsPerPage;
-	
-	private Queue<SearchResult> results;
 
-	public int getTotalResults() {
-		return totalResults;
-	}
+    private int totalResults;
 
-	public void setTotalResults(int totalResults) {
-		this.totalResults = totalResults;
-	}
+    private int startIndex;
 
-	public int getStartIndex() {
-		return startIndex;
-	}
+    private int itemsPerPage;
 
-	public void setStartIndex(int startIndex) {
-		this.startIndex = startIndex;
-	}
+    private Queue<SearchResult> results;
 
-	public int getItemsPerPage() {
-		return itemsPerPage;
-	}
+    public int getTotalResults() {
+        return totalResults;
+    }
 
-	public void setItemsPerPage(int itemsPerPage) {
-		this.itemsPerPage = itemsPerPage;
-	}
+    public void setTotalResults(int totalResults) {
+        this.totalResults = totalResults;
+    }
 
-	public void setResults(List<SearchResult> results) {
-		this.results = new LinkedBlockingQueue<SearchResult>(results);
-	}
+    public int getStartIndex() {
+        return startIndex;
+    }
 
-	@Override
-	public boolean hasNext() {
-		return !results.isEmpty();
-	}
+    public void setStartIndex(int startIndex) {
+        this.startIndex = startIndex;
+    }
 
-	@Override
-	public SearchResult next() {
-		//TODO: implement next page loading if empty?
-		return results.poll();
-	}
+    public int getItemsPerPage() {
+        return itemsPerPage;
+    }
 
-	@Override
-	public void remove() {
-		results.poll();
-	}
+    public void setItemsPerPage(int itemsPerPage) {
+        this.itemsPerPage = itemsPerPage;
+    }
+
+    public void setResults(List<SearchResult> results) {
+        this.results = new LinkedBlockingQueue<SearchResult>(results);
+    }
+
+    @Override
+    public boolean hasNext() {
+        return !results.isEmpty();
+    }
+
+    @Override
+    public SearchResult next() {
+        //TODO: implement next page loading if empty?
+        return results.poll();
+    }
+
+    @Override
+    public void remove() {
+        results.poll();
+    }
 
 }

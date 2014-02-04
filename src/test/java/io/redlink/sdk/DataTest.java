@@ -1,5 +1,6 @@
 package io.redlink.sdk;
 
+import io.redlink.sdk.impl.Status;
 import io.redlink.sdk.impl.data.model.LDPathResult;
 import org.apache.marmotta.client.model.sparql.SPARQLResult;
 import org.junit.*;
@@ -23,9 +24,7 @@ public class DataTest extends GenericTest {
 
     private static final String TEST_FILE = "/test.rdf";
 
-    private static final String TEST_BASE_URI = "http://data.redlink.io/355/foaf";
-
-    private static final String TEST_RESOURCE = "http://data.redlink.io/355/foaf/joao";
+    private static final String TEST_RESOURCE = "joao";
 
     public static final int TEST_FILE_TRIPLES = 15;
 
@@ -38,15 +37,27 @@ public class DataTest extends GenericTest {
     private static final String QUERY_UPDATE = "INSERT DATA { <http://example.org/test> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/Test> }";
     public static final RDFFormat TEST_FILE_FORMAT = RDFFormat.RDFXML;
 
+    private static Credentials credentials;
+    private static Status status;
     private static RedLink.Data redlink;
 
     @BeforeClass
-    public static void verifyConnection() throws MalformedURLException {
-        Credentials credentials = buildCredentials(DataTest.class);
+    public static void beforeClass() throws MalformedURLException {
+        credentials = buildCredentials(DataTest.class);
         Assume.assumeNotNull(credentials);
         Assume.assumeNotNull(credentials.getVersion());
-        Assume.assumeTrue(credentials.verify());
+        Assume.assumeTrue("Credentials cannot be verified", credentials.verify());
+        status = credentials.getStatus();
+        Assume.assumeNotNull(status);
+        Assume.assumeTrue(TEST_DATASET + " not found", status.getDatasets().contains(TEST_DATASET));
         redlink = RedLinkFactory.getInstance().createDataClient(credentials);
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        credentials = null;
+        status = null;
+        redlink = null;
     }
 
     @Before
@@ -57,7 +68,7 @@ public class DataTest extends GenericTest {
     @Test
     public void testImport() throws IOException, RDFParseException, RDFHandlerException {
         InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
-        final Model model = Rio.parse(in, TEST_BASE_URI, TEST_FILE_FORMAT);
+        final Model model = Rio.parse(in, buildDatasetBaseUri(credentials, status.getOwner(), TEST_DATASET), TEST_FILE_FORMAT);
         Assert.assertTrue(redlink.importDataset(model, TEST_DATASET));
         final SPARQLResult triples = redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET);
         Assert.assertNotNull(triples);

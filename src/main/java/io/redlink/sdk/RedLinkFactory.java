@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * RedLink SDK Factory. This class eases the creation of the different RedLink services' clients. A single client for each 
+ * RedLink SDK Factory. This class eases the creation of the different RedLink services' clients. A single client for each
  * configured Application should be used.
  *
  * @author sergio.fernandez@redlink.co
@@ -20,7 +20,7 @@ public class RedLinkFactory {
 
     private Map<String, Credentials> credentials = new HashMap<String, Credentials>();
 
-    private  RedLinkFactory() {
+    private RedLinkFactory() {
     }
 
     public synchronized static RedLinkFactory getInstance() {
@@ -33,7 +33,7 @@ public class RedLinkFactory {
     private Credentials getCredentials(String key) {
         if (credentials.containsKey(key)) {
             return credentials.get(key);
-        }  else {
+        } else {
             Credentials c = new DefaultCredentials(key);
             credentials.put(key, c);
             return c;
@@ -42,17 +42,17 @@ public class RedLinkFactory {
 
     /**
      * Create an {@link Analysis} client associated to an user API key
-	 * 
-	 * @param apiKey RedLink valid API key
-	 * @return RedLink's {@link Analysis} service client 
-	 */
+     *
+     * @param apiKey RedLink valid API key
+     * @return RedLink's {@link Analysis} service client
+     */
     public RedLink.Analysis createAnalysisClient(String apiKey) {
         return createAnalysisClient(getCredentials(apiKey));
     }
 
     /**
      * Create an {@link Analysis} client associated to an user {@link Credentials}
-     * 
+     *
      * @param credentials RedLink valid {@link Credentials}
      * @return RedLink's {@link Analysis} service client
      */
@@ -61,18 +61,18 @@ public class RedLinkFactory {
     }
 
     /**
-	 * Create a {@link Data} client associated to an user API key
-	 * 
-	 * @param apiKey RedLink valid API key
-	 * @return RedLink's {@link Data} service client 
-	 */
+     * Create a {@link Data} client associated to an user API key
+     *
+     * @param apiKey RedLink valid API key
+     * @return RedLink's {@link Data} service client
+     */
     public RedLink.Data createDataClient(String apiKey) {
         return createDataClient(getCredentials(apiKey));
     }
 
     /**
      * Create an {@link Data} client associated to an user {@link Credentials}
-     * 
+     *
      * @param credentials RedLink valid {@link Credentials}
      * @return RedLink's {@link Data} service client
      */
@@ -87,4 +87,5 @@ public class RedLinkFactory {
     public RedLink.Search createSearchClient(Credentials credentials) {
         return new RedLinkSearchImpl(credentials);
     }
+
 }

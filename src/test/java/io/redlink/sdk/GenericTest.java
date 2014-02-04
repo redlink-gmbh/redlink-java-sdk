@@ -2,14 +2,14 @@ package io.redlink.sdk;
 
 import io.redlink.sdk.impl.DefaultCredentials;
 import io.redlink.sdk.util.ApiHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.UriBuilder;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Generic tests and utilities shared by other tests in the suite
@@ -33,7 +33,15 @@ public class GenericTest {
 	 */
 	protected static final Credentials buildCredentials() {
 		return buildCredentials(GenericTest.class);
-	}	
+	}
+
+    protected static final String buildDatasetsBaseUri(Credentials credentials, int user) {
+        return UriBuilder.fromUri(credentials.getDataHub()).path(String.valueOf(user)).build().toString() + "/";
+    }
+
+    protected static final String buildDatasetBaseUri(Credentials credentials, int user, String dataset) {
+        return UriBuilder.fromUri(credentials.getDataHub()).path(String.valueOf(user)).path(dataset).build().toString() + "/";
+    }
 	
 	/**
 	 * Build the credentials for testing the SDK. It dynamically
@@ -66,6 +74,5 @@ public class GenericTest {
     private static String getVersion() {
         return ApiHelper.getApiVersion(System.getProperty("projectVersion"));
     }
-
 
 }

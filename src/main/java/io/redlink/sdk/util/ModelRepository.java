@@ -10,29 +10,28 @@ import org.openrdf.sail.memory.MemoryStore;
 
 /**
  * Provides a simple transformation from a Model into a Repository,
- * for being able to do regular things there, such as SPARQL queries. 
- * A bit ugly, since a model is simply a collection of statements; 
+ * for being able to do regular things there, such as SPARQL queries.
+ * A bit ugly, since a model is simply a collection of statements;
  * something to discuss with the Sesame people.
- * 
- * @author sergio.fernandez@redlink.co
  *
+ * @author sergio.fernandez@redlink.co
  */
 public class ModelRepository extends SailRepository {
-	
-	public static ModelRepository create(Model model) throws RepositoryException {
-		Sail sail = new MemoryStore();
-		Repository repo = new SailRepository(sail);
-		repo.initialize();
-		RepositoryConnection conn = repo.getConnection();
-		conn.begin();
-        conn.add(model);
-		conn.commit();
-		conn.close();
-		return new ModelRepository(sail);
-	}
 
-	private ModelRepository(Sail sail) {
-		super(sail);
-	}
+    public static ModelRepository create(Model model) throws RepositoryException {
+        Sail sail = new MemoryStore();
+        Repository repo = new SailRepository(sail);
+        repo.initialize();
+        RepositoryConnection conn = repo.getConnection();
+        conn.begin();
+        conn.add(model);
+        conn.commit();
+        conn.close();
+        return new ModelRepository(sail);
+    }
+
+    private ModelRepository(Sail sail) {
+        super(sail);
+    }
 
 }

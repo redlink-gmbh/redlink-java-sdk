@@ -4,100 +4,98 @@ import java.util.Collection;
 
 /**
  * Entity annotation, suggested/linked entities recognized within the text
- * 
+ *
  * @author sergio.fernandez@redlink.co
  * @author rafa.haro@redlink.co
- * 
  * @see https://stanbol.apache.org/docs/trunk/components/enhancer/enhancementstructure#fiseentityannotation
- *
  */
 public final class EntityAnnotation extends Enhancement {
-	
-	// properties
-	private String entityLabel = null; // http://fise.iks-project.eu/ontology/entity-label
-	private Entity entityReference = null; // http://fise.iks-project.eu/ontology/entity-reference
-	private Collection<String> entityTypes = null; // http://fise.iks-project.eu/ontology/entity-type
-	private String dataset = null; // http://stanbol.apache.org/ontology/entityhub/entityhub#"
-	
-	public EntityAnnotation(){
-		super();
-	}
 
-	/**
-	 * Returns the preferred entity label
-	 * 
-	 * @return
-	 */
-	public String getEntityLabel() {
-		return entityLabel;
-	}
+    // properties
+    private String entityLabel = null; // http://fise.iks-project.eu/ontology/entity-label
+    private Entity entityReference = null; // http://fise.iks-project.eu/ontology/entity-reference
+    private Collection<String> entityTypes = null; // http://fise.iks-project.eu/ontology/entity-type
+    private String dataset = null; // http://stanbol.apache.org/ontology/entityhub/entityhub#"
 
-	void setEntityLabel(String entityLabel) {
-		this.entityLabel = entityLabel;
-	}
+    public EntityAnnotation() {
+        super();
+    }
 
-	/**
-	 * Returns the dereferenced {@link Entity} associated to the {@link EntityAnnotation}
-	 * 
-	 * @return
-	 */
-	public Entity getEntityReference() {
-		return entityReference;
-	}
+    /**
+     * Returns the preferred entity label
+     *
+     * @return
+     */
+    public String getEntityLabel() {
+        return entityLabel;
+    }
 
-	void setEntityReference(Entity entityReference) {
-		this.entityReference = entityReference;
-	}
+    void setEntityLabel(String entityLabel) {
+        this.entityLabel = entityLabel;
+    }
 
-	/**
-	 * Returns the {@link Collection} of types associated to the entity
-	 * 
-	 * @return
-	 */
-	public Collection<String> getEntityTypes() {
-		return entityTypes;
-	}
+    /**
+     * Returns the dereferenced {@link Entity} associated to the {@link EntityAnnotation}
+     *
+     * @return
+     */
+    public Entity getEntityReference() {
+        return entityReference;
+    }
 
-	void setEntityTypes(Collection<String> entityTypes) {
-		this.entityTypes = entityTypes;
-	}
+    void setEntityReference(Entity entityReference) {
+        this.entityReference = entityReference;
+    }
 
-	/**
-	 * Returns the name of the dataset which the entity has been linked with
-	 * 
-	 * @return
-	 */
-	public String getDataset() {
-		return dataset;
-	}
+    /**
+     * Returns the {@link Collection} of types associated to the entity
+     *
+     * @return
+     */
+    public Collection<String> getEntityTypes() {
+        return entityTypes;
+    }
 
-	void setDataset(String dataset) {
-		this.dataset = dataset;
-	}
+    void setEntityTypes(Collection<String> entityTypes) {
+        this.entityTypes = entityTypes;
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ ((entityReference == null) ? 0 : entityReference.hashCode());
-		return result;
-	}
+    /**
+     * Returns the name of the dataset which the entity has been linked with
+     *
+     * @return
+     */
+    public String getDataset() {
+        return dataset;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		EntityAnnotation other = (EntityAnnotation) obj;
-		if (entityReference == null) {
-			if (other.entityReference != null)
-				return false;
-		} else if (!entityReference.equals(other.entityReference))
-			return false;
-		return true;
-	}
+    void setDataset(String dataset) {
+        this.dataset = dataset;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((entityReference == null) ? 0 : entityReference.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        EntityAnnotation other = (EntityAnnotation) obj;
+        if (entityReference == null) {
+            if (other.entityReference != null)
+                return false;
+        } else if (!entityReference.equals(other.entityReference))
+            return false;
+        return true;
+    }
 }

@@ -7,10 +7,9 @@ import java.util.List;
 
 
 /**
- * RedLink's user Application Status data 
- * 
- * @author rafa.haro@redlink.co
+ * RedLink's user Application Status data
  *
+ * @author rafa.haro@redlink.co
  */
 public class Status {
 
@@ -47,8 +46,8 @@ public class Status {
 
     /**
      * Returns true if the Application is accessible
-     * 
-     * @return  
+     *
+     * @return
      */
     public boolean isAccessible() {
         return accessible;
@@ -56,7 +55,7 @@ public class Status {
 
     /**
      * Returns the number of bytes consumed by the Application
-     * 
+     *
      * @return
      */
     public int getBytes() {
@@ -65,7 +64,7 @@ public class Status {
 
     /**
      * Returns the number of request attended by the Application
-     * 
+     *
      * @return
      */
     public int getRequests() {
@@ -74,7 +73,7 @@ public class Status {
 
     /**
      * Returns the limit of the Application
-     * 
+     *
      * @return
      */
     public int getLimit() {
@@ -96,7 +95,7 @@ public class Status {
 
     /**
      * Returns the number of seconds that the application has been active
-     * 
+     *
      * @return
      */
     public int getSeconds() {

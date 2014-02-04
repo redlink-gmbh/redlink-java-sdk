@@ -4,30 +4,6 @@ import io.redlink.sdk.Credentials;
 import io.redlink.sdk.RedLink;
 import io.redlink.sdk.impl.RedLinkAbstractImpl;
 import io.redlink.sdk.impl.data.model.LDPathResult;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriBuilderException;
-
 import org.apache.marmotta.client.model.rdf.BNode;
 import org.apache.marmotta.client.model.rdf.Literal;
 import org.apache.marmotta.client.model.rdf.RDFNode;
@@ -43,27 +19,29 @@ import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.QueryResultHandler;
 import org.openrdf.query.QueryResultHandlerException;
-import org.openrdf.query.resultio.QueryResultIO;
-import org.openrdf.query.resultio.QueryResultParseException;
-import org.openrdf.query.resultio.QueryResultParser;
-import org.openrdf.query.resultio.TupleQueryResultFormat;
-import org.openrdf.query.resultio.UnsupportedQueryResultFormatException;
+import org.openrdf.query.resultio.*;
 import org.openrdf.query.resultio.helpers.QueryResultCollector;
-import org.openrdf.rio.ParserConfig;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFParseException;
-import org.openrdf.rio.Rio;
+import org.openrdf.rio.*;
 import org.openrdf.rio.helpers.ParseErrorLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriBuilderException;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.util.*;
+
 /**
  * RedLink's {@link Data} services implementation. To be instantiated, this implementation needs a valid {@link Credentials} object that
- * must contain a RedLink API key which will be used in each request to the server. 
- * 
- * @author sergio.fernandez@redlink.co
+ * must contain a RedLink API key which will be used in each request to the server.
  *
+ * @author sergio.fernandez@redlink.co
  */
 public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data {
 
@@ -375,10 +353,10 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
                 throw new RuntimeException("Query failed: HTTP error code " + response.getStatus());
             } else {
                 LDPathResult result = new LDPathResult();
-                final Map<String, List<Map<String,String>>> fields = response.readEntity(Map.class);
-                for(Map.Entry<String, List<Map<String,String>>> field : fields.entrySet()) {
+                final Map<String, List<Map<String, String>>> fields = response.readEntity(Map.class);
+                for (Map.Entry<String, List<Map<String, String>>> field : fields.entrySet()) {
                     List<RDFNode> row = new ArrayList<RDFNode>();
-                    for(Map<String,String> node : field.getValue()) {
+                    for (Map<String, String> node : field.getValue()) {
                         row.add(RDFJSONParser.parseRDFJSONNode(node));
                     }
                     result.add(field.getKey(), row);
@@ -438,7 +416,7 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
             } else {
                 QueryResultCollector results = new QueryResultCollector();
                 parse(response.readEntity(String.class), format, results, ValueFactoryImpl.getInstance());
-                if(!results.getHandledTuple() || results.getBindingSets().isEmpty()) {
+                if (!results.getHandledTuple() || results.getBindingSets().isEmpty()) {
                     return new SPARQLResult(new LinkedHashSet<String>());
                 } else {
                     List<String> fieldNames = results.getBindingNames();
@@ -447,30 +425,30 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
                     SPARQLResult result = new SPARQLResult(new LinkedHashSet<String>(fieldNames));
 
                     //List<?> bindings = resultMap.get("results").get("bindings");
-                    for(BindingSet nextRow : results.getBindingSets()) {
-                        Map<String,RDFNode> row = new HashMap<String, RDFNode>();
+                    for (BindingSet nextRow : results.getBindingSets()) {
+                        Map<String, RDFNode> row = new HashMap<String, RDFNode>();
 
-                        for(String nextBindingName : fieldNames) {
-                            if(nextRow.hasBinding(nextBindingName)) {
+                        for (String nextBindingName : fieldNames) {
+                            if (nextRow.hasBinding(nextBindingName)) {
                                 Binding nextBinding = nextRow.getBinding(nextBindingName);
                                 Value nodeDef = nextBinding.getValue();
                                 RDFNode node = null;
-                                if(nodeDef instanceof org.openrdf.model.URI) {
+                                if (nodeDef instanceof org.openrdf.model.URI) {
                                     node = new URI(nodeDef.stringValue());
-                                } else if(nodeDef instanceof org.openrdf.model.BNode) {
-                                    node = new BNode(((org.openrdf.model.BNode)nodeDef).getID());
-                                } else if(nodeDef instanceof org.openrdf.model.Literal) {
-                                    org.openrdf.model.Literal nodeLiteral = (org.openrdf.model.Literal)nodeDef;
-                                    if(nodeLiteral.getLanguage() != null) {
+                                } else if (nodeDef instanceof org.openrdf.model.BNode) {
+                                    node = new BNode(((org.openrdf.model.BNode) nodeDef).getID());
+                                } else if (nodeDef instanceof org.openrdf.model.Literal) {
+                                    org.openrdf.model.Literal nodeLiteral = (org.openrdf.model.Literal) nodeDef;
+                                    if (nodeLiteral.getLanguage() != null) {
                                         node = new Literal(nodeLiteral.getLabel(), nodeLiteral.getLanguage());
-                                    } else if(nodeLiteral.getDatatype() != null) {
+                                    } else if (nodeLiteral.getDatatype() != null) {
                                         node = new Literal(nodeLiteral.getLabel(), new URI(nodeLiteral.getDatatype().stringValue()));
                                     } else {
                                         node = new Literal(nodeLiteral.getLabel());
                                     }
                                 }
 
-                                if(node != null) {
+                                if (node != null) {
                                     row.put(nextBindingName, node);
                                 }
                             }

@@ -8,20 +8,18 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * 
  * @author sergio.fernandez@redlink.co
- *
  */
 public class LDPathResult {
 
-    private Map<String,List<RDFNode>> result;
+    private Map<String, List<RDFNode>> result;
 
     public LDPathResult() {
         this.result = new HashMap<String, List<RDFNode>>();
     }
 
-    public LDPathResult(Map<String,List<RDFNode>> result) {
-        this.result = new HashMap<String,List<RDFNode>>(result);
+    public LDPathResult(Map<String, List<RDFNode>> result) {
+        this.result = new HashMap<String, List<RDFNode>>(result);
     }
 
     public boolean add(String field, List<RDFNode> result) {

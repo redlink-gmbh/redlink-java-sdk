@@ -43,7 +43,7 @@ public class ApiHelper {
                 } else {
                     return String.format("%s.%s-%s", matcher.group(1), matcher.group(2), matcher.group(4));
                 }
-            }  else {
+            } else {
                 return null;
             }
         }
