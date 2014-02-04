@@ -4,6 +4,7 @@ import io.redlink.sdk.analysis.AnalysisRequest;
 import io.redlink.sdk.analysis.AnalysisRequest.OutputFormat;
 import io.redlink.sdk.impl.analysis.model.*;
 
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -22,7 +23,9 @@ public class AnalysisTest extends GenericTest {
 	
 	private static RedLink.Analysis redlink;
 
-    private static final String TEST_ANALYSIS = "wordlift";
+    private static final String TEST_ANALYSIS = "alfresco";
+    
+    private static final String TEST_FILE = "/willsmith.txt";
 
 	private static final String STANBOL_TEXT_TO_ENHANCE = "The Open Source Project Apache Stanbol provides different "
                 + "features that facilitate working with linked data, in the netlabs.org early adopter proposal VIE "
@@ -61,6 +64,18 @@ public class AnalysisTest extends GenericTest {
 		Assert.assertEquals(0, enhancements.getEnhancements().size());
 		Assert.assertEquals(0, enhancements.getTextAnnotations().size());
 		Assert.assertEquals(0, enhancements.getEntityAnnotations().size());
+	}
+	
+	@Test
+	public void testFile(){
+		InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
+		AnalysisRequest request = AnalysisRequest.builder()
+				.setAnalysis(TEST_ANALYSIS)
+				.setContent(in)
+				.setOutputFormat(OutputFormat.TURTLE).build();
+		Enhancements enhancements = redlink.enhance(request);
+		Assert.assertNotNull(enhancements);
+		Assert.assertFalse(enhancements.getEnhancements().isEmpty());
 	}
 	
 	/**

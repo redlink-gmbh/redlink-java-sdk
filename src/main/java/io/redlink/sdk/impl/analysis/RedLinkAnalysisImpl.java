@@ -11,6 +11,8 @@ import io.redlink.sdk.impl.analysis.model.EnhancementsParser;
 import io.redlink.sdk.impl.analysis.model.EnhancementsParserFactory;
 
 import java.net.MalformedURLException;
+import java.util.List;
+import java.util.Map.Entry;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation.Builder;
@@ -87,7 +89,12 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
 			if (response.getStatus() != 200) {
 				String message = "Enhancement failed: HTTP error code " 
 						+ response.getStatus() + ". Message: " + response.getStatusInfo().getReasonPhrase();
+				
 				logger.error(message);
+				String stackTrace = response.readEntity(String.class);
+				logger.debug("X-Redlink-Worker: " + 
+						response.getHeaderString("X-Redlink-Worker"));
+				logger.debug(stackTrace);
 				throw new RuntimeException(message);
 			} else {
 				pre = System.currentTimeMillis();
