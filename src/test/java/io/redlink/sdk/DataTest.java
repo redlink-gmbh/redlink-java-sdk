@@ -44,12 +44,7 @@ public class DataTest extends GenericTest {
     @BeforeClass
     public static void beforeClass() throws MalformedURLException {
         credentials = buildCredentials(DataTest.class);
-        Assume.assumeNotNull(credentials);
-        Assume.assumeNotNull(credentials.getVersion());
-        Assume.assumeTrue("Credentials cannot be verified", credentials.verify());
         status = credentials.getStatus();
-        Assume.assumeNotNull(status);
-        Assume.assumeTrue(TEST_DATASET + " not found", status.getDatasets().contains(TEST_DATASET));
         redlink = RedLinkFactory.getInstance().createDataClient(credentials);
     }
 
@@ -60,6 +55,17 @@ public class DataTest extends GenericTest {
         redlink = null;
     }
 
+    @Test
+    public void testVerifyKey() throws MalformedURLException {
+        Credentials credentials = buildCredentials();
+        Assert.assertNotNull(credentials);
+        Assert.assertNotNull(credentials.getVersion());
+        Assert.assertTrue("Credentials cannot be verified", credentials.verify());
+        status = credentials.getStatus();
+        Assert.assertNotNull(status);
+        Assert.assertTrue(TEST_DATASET + " not found", status.getDatasets().contains(TEST_DATASET));
+    }
+
     @Before
     public void setUp() throws Exception {
         Assume.assumeTrue(redlink.cleanDataset(TEST_DATASET));
@@ -68,6 +74,7 @@ public class DataTest extends GenericTest {
     @Test
     public void testImport() throws IOException, RDFParseException, RDFHandlerException {
         InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
+        Assume.assumeNotNull(in);
         final Model model = Rio.parse(in, buildDatasetBaseUri(credentials, status.getOwner(), TEST_DATASET), TEST_FILE_FORMAT);
         Assert.assertTrue(redlink.importDataset(model, TEST_DATASET));
         final SPARQLResult triples = redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET);
@@ -91,7 +98,7 @@ public class DataTest extends GenericTest {
         Assert.assertTrue(redlink.importDataset(file, TEST_DATASET));
         final SPARQLResult triples = redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET);
         Assert.assertNotNull(triples);
-        Assert.assertTrue("result size was smaller than expected",triples.size() >= TEST_FILE_TRIPLES);
+        Assert.assertTrue("result size was smaller than expected", triples.size() >= TEST_FILE_TRIPLES);
         //TODO: more specific testing
     }
 
@@ -110,7 +117,7 @@ public class DataTest extends GenericTest {
         Assert.assertTrue(redlink.importDataset(file, TEST_DATASET, true));
         final SPARQLResult triples = redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET);
         Assert.assertNotNull(triples);
-        Assert.assertEquals(TEST_FILE_TRIPLES, triples.size());
+        Assert.assertTrue(triples.size() > 0);
         //TODO: more specific testing
     }
 
@@ -173,26 +180,29 @@ public class DataTest extends GenericTest {
     }
 
     @Test
-    public void testResourceImported() {
+    public void testResourceImported() throws IOException, RDFParseException, RDFHandlerException {
         //first import data
         InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
         Assume.assumeNotNull(in);
-        Assert.assertTrue(redlink.importDataset(in, RDFFormat.RDFXML, TEST_DATASET, true));
+        final Model model = Rio.parse(in, buildDatasetBaseUri(credentials, status.getOwner(), TEST_DATASET), TEST_FILE_FORMAT);
+        Assert.assertTrue(redlink.importDataset(model, TEST_DATASET, true));
         final SPARQLResult triples = redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET);
         Assert.assertNotNull(triples);
         Assert.assertEquals(TEST_FILE_TRIPLES, triples.size());
 
         //and then the actual test
-        Model model = redlink.getResource(TEST_RESOURCE, TEST_DATASET);
-        Assert.assertNotNull(model);
-        Assert.assertTrue(model.size() < triples.size());
-        Assert.assertEquals(TEST_RESOUCE_TRIPLES, model.size());
+        String resource = buildDatasetBaseUri(credentials, status.getOwner(), TEST_DATASET) + TEST_RESOURCE;
+        Model resourceModel = redlink.getResource(resource, TEST_DATASET);
+        Assert.assertNotNull(resourceModel);
+        Assert.assertTrue(resourceModel.size() < triples.size());
+        Assert.assertEquals(TEST_RESOUCE_TRIPLES, resourceModel.size());
     }
 
     @Test
     public void testCleanGetResourceFail() {
         Assert.assertTrue(redlink.cleanDataset(TEST_DATASET));
-        Assert.assertEquals(0, redlink.getResource(TEST_RESOURCE, TEST_DATASET).size());
+        String resource = buildDatasetBaseUri(credentials, status.getOwner(), TEST_DATASET) + TEST_RESOURCE;
+        Assert.assertEquals(0, redlink.getResource(resource, TEST_DATASET).size());
     }
 
     @Test
@@ -228,11 +238,13 @@ public class DataTest extends GenericTest {
     }
 
     @Test
-    public void testLDPath() {
+    public void testLDPath() throws IOException, RDFParseException, RDFHandlerException {
         InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
         Assume.assumeNotNull(in);
-        Assert.assertTrue(redlink.importDataset(in, RDFFormat.RDFXML, TEST_DATASET, true));
-        final LDPathResult results = redlink.ldpath(TEST_RESOURCE, TEST_DATASET, "name = foaf:name[@en] :: xsd:string ;");
+        final Model model = Rio.parse(in, buildDatasetBaseUri(credentials, status.getOwner(), TEST_DATASET), TEST_FILE_FORMAT);
+        Assert.assertTrue(redlink.importDataset(model, TEST_DATASET, true));
+        String resource = buildDatasetBaseUri(credentials, status.getOwner(), TEST_DATASET) + TEST_RESOURCE;
+        final LDPathResult results = redlink.ldpath(resource, TEST_DATASET, "name = foaf:name[@en] :: xsd:string ;");
         Assert.assertNotNull(results);
         Assert.assertTrue(results.size() > 0);
         Assert.assertTrue(results.getFields().contains("name"));
@@ -241,11 +253,13 @@ public class DataTest extends GenericTest {
     }
 
     @Test
-    public void testLDPathNoDataset() {
+    public void testLDPathNoDataset() throws IOException, RDFParseException, RDFHandlerException {
         InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
         Assume.assumeNotNull(in);
-        Assert.assertTrue(redlink.importDataset(in, RDFFormat.RDFXML, TEST_DATASET, true));
-        final LDPathResult results = redlink.ldpath(TEST_RESOURCE, "name = foaf:name[@en] :: xsd:string ;");
+        final Model model = Rio.parse(in, buildDatasetBaseUri(credentials, status.getOwner(), TEST_DATASET), TEST_FILE_FORMAT);
+        Assert.assertTrue(redlink.importDataset(model, TEST_DATASET, true));
+        String resource = buildDatasetBaseUri(credentials, status.getOwner(), TEST_DATASET) + TEST_RESOURCE;
+        final LDPathResult results = redlink.ldpath(resource, "name = foaf:name[@en] :: xsd:string ;");
         Assert.assertNotNull(results);
         Assert.assertTrue(results.size() > 0);
         Assert.assertTrue(results.getFields().contains("name"));
@@ -255,14 +269,6 @@ public class DataTest extends GenericTest {
 
     private int getCurrentSize(String dataset) {
         return redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET).size();
-    }
-
-    @Test
-    public void testVerifyCredentials() throws MalformedURLException {
-        Credentials credentials = buildCredentials();
-        Assume.assumeNotNull(credentials);
-        Assume.assumeNotNull(credentials.getVersion());
-        Assert.assertTrue(credentials.verify());
     }
 
 }
