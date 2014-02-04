@@ -2,6 +2,9 @@ package io.redlink.sdk.impl;
 
 import org.codehaus.jackson.JsonNode;
 
+import java.util.Collections;
+import java.util.List;
+
 
 /**
  * RedLink's user Application Status data 
@@ -11,14 +14,35 @@ import org.codehaus.jackson.JsonNode;
  */
 public class Status {
 
+    private int owner;
     private boolean accessible;
     private int bytes;
     private int requests;
     private int limit;
     private int seconds;
+    private List<String> datasets;
+    private List<String> analyses;
 
     public Status() {
 
+    }
+
+    /**
+     * Returns the owner id
+     *
+     * @return owner id
+     */
+    public int getOwner() {
+        return owner;
+    }
+
+    /**
+     * Set the owner id
+     *
+     * @param owner id
+     */
+    public void setOwner(int owner) {
+        this.owner = owner;
     }
 
     /**
@@ -77,6 +101,37 @@ public class Status {
      */
     public int getSeconds() {
         return seconds;
+    }
+
+    /**
+     * Datasets bound
+     *
+     * @return
+     */
+    public List<String> getDatasets() {
+        return Collections.unmodifiableList(datasets);
+    }
+
+    /**
+     * Set datasets
+     *
+     * @param datasets
+     */
+    public void setDatasets(List<String> datasets) {
+        this.datasets = datasets;
+    }
+
+    /**
+     * Analyses bound
+     *
+     * @return analyses
+     */
+    public List<String> getAnalyses() {
+        return analyses;
+    }
+
+    public void setAnalyses(List<String> analyses) {
+        this.analyses = analyses;
     }
 
 }
