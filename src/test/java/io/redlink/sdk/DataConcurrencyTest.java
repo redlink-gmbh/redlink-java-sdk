@@ -80,7 +80,7 @@ public class DataConcurrencyTest extends GenericTest {
     @Before
     public void setupTest() throws MalformedURLException {
         Credentials credentials = buildCredentials(DataTest.class);
-        redlink = RedLinkFactory.getInstance().createDataClient(credentials);
+        redlink = RedLinkFactory.createDataClient(credentials);
 
         valueFactory = new ValueFactoryImpl();
 
@@ -95,7 +95,7 @@ public class DataConcurrencyTest extends GenericTest {
         Assume.assumeNotNull(credentials.getVersion());
         Assume.assumeTrue(credentials.verify());
 
-        RedLink.Data redlink = RedLinkFactory.getInstance().createDataClient(credentials);
+        RedLink.Data redlink = RedLinkFactory.createDataClient(credentials);
         Assume.assumeTrue(redlink.cleanDataset(TEST_DATASET));
     }
 

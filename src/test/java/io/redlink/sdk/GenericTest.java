@@ -72,6 +72,7 @@ public class GenericTest {
 	}
 
     private static String getVersion() {
+        //FIXME: this does not work
         return ApiHelper.getApiVersion(System.getProperty("projectVersion"));
     }
 

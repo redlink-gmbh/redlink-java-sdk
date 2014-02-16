@@ -3,89 +3,94 @@ package io.redlink.sdk;
 import io.redlink.sdk.impl.DefaultCredentials;
 import io.redlink.sdk.impl.analysis.RedLinkAnalysisImpl;
 import io.redlink.sdk.impl.data.RedLinkDataImpl;
-import io.redlink.sdk.impl.search.RedLinkSearchImpl;
-
-import java.util.HashMap;
-import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
- * RedLink SDK Factory. This class eases the creation of the different RedLink services' clients. A single client for each
- * configured Application should be used.
+ * RedLink SDK Factory. This class eases the creation of the different RedLink
+ * services' clients. A single client for each configured Application should
+ * be used.
  *
  * @author sergio.fernandez@redlink.co
  */
 public class RedLinkFactory {
 
-    private static RedLinkFactory instance;
-
-    private Map<String, Credentials> credentials = new HashMap<String, Credentials>();
+    private static Logger log = LoggerFactory.getLogger(RedLinkFactory.class);
 
     private RedLinkFactory() {
     }
 
+    @Deprecated
     public synchronized static RedLinkFactory getInstance() {
-        if (instance == null) {
-            instance = new RedLinkFactory();
-        }
-        return instance;
+        log.warn("This is not a singleton anymore, so you can directly call the factory methods");
+        return new RedLinkFactory();
     }
 
-    private Credentials getCredentials(String key) {
-        if (credentials.containsKey(key)) {
-            return credentials.get(key);
-        } else {
-            Credentials c = new DefaultCredentials(key);
-            credentials.put(key, c);
-            return c;
-        }
+    private static Credentials buildCredentials(String key) {
+        return new DefaultCredentials(key);
     }
 
     /**
-     * Create an {@link Analysis} client associated to an user API key
+     * Create an {@link io.redlink.sdk.RedLink.Analysis} client associated to an user API key
      *
      * @param apiKey RedLink valid API key
-     * @return RedLink's {@link Analysis} service client
+     * @return RedLink's {@link io.redlink.sdk.RedLink.Analysis} service client
      */
-    public RedLink.Analysis createAnalysisClient(String apiKey) {
-        return createAnalysisClient(getCredentials(apiKey));
+    public static RedLink.Analysis createAnalysisClient(String apiKey) {
+        return createAnalysisClient(buildCredentials(apiKey));
     }
 
     /**
-     * Create an {@link Analysis} client associated to an user {@link Credentials}
+     * Create an {@link io.redlink.sdk.RedLink.Analysis} client associated to an user {@link Credentials}
      *
      * @param credentials RedLink valid {@link Credentials}
-     * @return RedLink's {@link Analysis} service client
+     * @return RedLink's {@link io.redlink.sdk.RedLink.Analysis} service client
      */
-    public RedLink.Analysis createAnalysisClient(Credentials credentials) {
+    public static RedLink.Analysis createAnalysisClient(Credentials credentials) {
         return new RedLinkAnalysisImpl(credentials);
     }
 
     /**
-     * Create a {@link Data} client associated to an user API key
+     * Create a {@link io.redlink.sdk.RedLink.Data} client associated to an user API key
      *
      * @param apiKey RedLink valid API key
-     * @return RedLink's {@link Data} service client
+     * @return RedLink's {@link io.redlink.sdk.RedLink.Data} service client
      */
-    public RedLink.Data createDataClient(String apiKey) {
-        return createDataClient(getCredentials(apiKey));
+    public static RedLink.Data createDataClient(String apiKey) {
+        return createDataClient(buildCredentials(apiKey));
     }
 
     /**
-     * Create an {@link Data} client associated to an user {@link Credentials}
+     * Create a {@link io.redlink.sdk.RedLink.Data} client associated to an user {@link Credentials}
      *
      * @param credentials RedLink valid {@link Credentials}
-     * @return RedLink's {@link Data} service client
+     * @return RedLink's {@link io.redlink.sdk.RedLink.Data} service client
      */
-    public RedLink.Data createDataClient(Credentials credentials) {
+    public static RedLink.Data createDataClient(Credentials credentials) {
         return new RedLinkDataImpl(credentials);
     }
 
-    public RedLink.Search createSearchClient(String apiKey) {
-        return createSearchClient(new DefaultCredentials(apiKey));
+    /**
+     * Create an {@link io.redlink.sdk.RedLink.Data} client associated to an user {@link Credentials}
+     *
+     * @param apiKey RedLink valid API key
+     * @return RedLink's {@link io.redlink.sdk.RedLink.Data} service client
+     */
+    public static RedLink.Search createSearchClient(String apiKey) {
+        throw new NotImplementedException();
+        //return createSearchClient(new DefaultCredentials(apiKey));
     }
 
-    public RedLink.Search createSearchClient(Credentials credentials) {
-        return new RedLinkSearchImpl(credentials);
+    /**
+     * Create an {@link io.redlink.sdk.RedLink.Data} client associated to an user {@link Credentials}
+     *
+     * @param credentials RedLink valid {@link Credentials}
+     * @return RedLink's {@link io.redlink.sdk.RedLink.Data} service client
+     */
+    public static RedLink.Search createSearchClient(Credentials credentials) {
+        throw new NotImplementedException();
+        //return new RedLinkSearchImpl(credentials);
     }
 
 }
