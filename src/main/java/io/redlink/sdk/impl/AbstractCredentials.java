@@ -9,9 +9,11 @@ import javax.ws.rs.core.UriBuilder;
 import java.net.MalformedURLException;
 
 /**
- * {@link Credentials} template implementation. The verify method and getters are invariant for any implementation of the RedLink Credentials API
+ * {@link Credentials} template implementation. The verify method and getters are invariant
+ * for any implementation of the RedLink Credentials API
  *
  * @author rafa.haro@redlink.co
+ * @author sergio.fernandez@redlink.co
  */
 abstract class AbstractCredentials implements Credentials {
 

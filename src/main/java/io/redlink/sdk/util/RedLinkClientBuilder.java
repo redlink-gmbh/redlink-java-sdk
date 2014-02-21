@@ -33,7 +33,6 @@ public class RedLinkClientBuilder extends ResteasyClientBuilder {
         this(DEFAULT_TIMEOUT);
     }
 
-
     /**
      * Build a RedLink Rest Client with a custom timeout and certificate for requests
      *
@@ -71,4 +70,5 @@ public class RedLinkClientBuilder extends ResteasyClientBuilder {
         }
 
     }
+
 }

@@ -324,4 +324,5 @@ public class AnalysisRequest {
     public static AnalysisRequestBuilder builder() {
         return new AnalysisRequestBuilder();
     }
+
 }

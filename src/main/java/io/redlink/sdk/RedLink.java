@@ -23,6 +23,10 @@ public interface RedLink {
 
     static final String URI = "uri";
 
+    static final String IN = "in";
+
+    static final String OUT = "out";
+
     /**
      * RedLink Analysis API. Any implementation of this interface must have a constructor that receives a {@link Credentials}
      * object which will be used for each service request
@@ -32,6 +36,10 @@ public interface RedLink {
         static final String PATH = "analysis";
 
         static final String ENHANCE = "enhance";
+
+        static final String SUMMARY = "summary";
+
+        static final String THUMBNAIL = "thumbnail";
 
         /**
          * Performs an analysis of the content included in the request, getting a {@link Enhancements} object as result

@@ -45,9 +45,8 @@ public interface Credentials {
 
     /**
      * Verify the current (cached) credentials are valid
-     * (equivalent to call verify(false) internally).
      *
-     * @return valid
+     * @return valid/invalid credentials
      */
     boolean verify() throws MalformedURLException;
 
@@ -60,11 +59,11 @@ public interface Credentials {
     Status getStatus() throws MalformedURLException;
 
     /**
-     * JAX-RS Endpoint Builder for RedLink. This method uses the credential information and an {@link UriBuilder} to build an
-     * endpoint client ready for performing requests to the user RedLink application services
+     * JAX-RS Endpoint Builder for RedLink. This method uses the credential information to build an
+     * endpoint client ready for performing requests bound to the user RedLink application services
      *
-     * @param builder
-     * @return
+     * @param builder base uri builder
+     * @return {@link javax.ws.rs.client.WebTarget}
      * @throws MalformedURLException
      * @throws IllegalArgumentException
      * @throws UriBuilderException

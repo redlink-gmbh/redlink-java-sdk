@@ -21,9 +21,15 @@ public class RedLinkFactory {
     private RedLinkFactory() {
     }
 
+    /**
+     * Get a singlenton oif the factory. Deprecated,
+     * this method will me removed in upcoming versions.
+     *
+     * @return {@link io.redlink.sdk.RedLinkFactory} instance
+     */
     @Deprecated
     public synchronized static RedLinkFactory getInstance() {
-        log.warn("This is not a singleton anymore, so you can directly call the factory methods");
+        log.warn("Deprecated: this is not a singleton anymore, so you can directly call the factory methods");
         return new RedLinkFactory();
     }
 
@@ -72,10 +78,11 @@ public class RedLinkFactory {
     }
 
     /**
-     * Create an {@link io.redlink.sdk.RedLink.Data} client associated to an user {@link Credentials}
+     * Create an {@link io.redlink.sdk.RedLink.Search} client associated to an user {@link Credentials}
+     * (currently not yet implemented).
      *
      * @param apiKey RedLink valid API key
-     * @return RedLink's {@link io.redlink.sdk.RedLink.Data} service client
+     * @return RedLink's {@link io.redlink.sdk.RedLink.Search} service client
      */
     public static RedLink.Search createSearchClient(String apiKey) {
         throw new NotImplementedException();
@@ -83,10 +90,11 @@ public class RedLinkFactory {
     }
 
     /**
-     * Create an {@link io.redlink.sdk.RedLink.Data} client associated to an user {@link Credentials}
+     * Create an {@link io.redlink.sdk.RedLink.Search} client associated to an user {@link Credentials}
+     * (currently not yet implemented).
      *
      * @param credentials RedLink valid {@link Credentials}
-     * @return RedLink's {@link io.redlink.sdk.RedLink.Data} service client
+     * @return RedLink's {@link io.redlink.sdk.RedLink.Search} service client
      */
     public static RedLink.Search createSearchClient(Credentials credentials) {
         throw new NotImplementedException();
