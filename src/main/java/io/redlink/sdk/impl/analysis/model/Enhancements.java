@@ -162,7 +162,7 @@ public class Enhancements implements Iterable<Enhancement> {
                         return e.confidence.doubleValue() >= confidenceValue
                                 .doubleValue();
                     }
-                }).toList();
+                }).toImmutableList();
     }
 
     /**
@@ -181,7 +181,7 @@ public class Enhancements implements Iterable<Enhancement> {
                         return e.confidence.doubleValue() >= confidenceValue
                                 .doubleValue();
                     }
-                }).toList();
+                }).toImmutableList();
     }
 
     /**
