@@ -22,7 +22,7 @@ public class ApiHelper {
      */
     public static String getApiVersion() {
         String version = getApiVersion(ApiHelper.class.getPackage().getImplementationVersion());
-        return (version != null ? version : "1.0-ALPHA"); //FIXME
+        return (StringUtils.isBlank(version) ? "1.0-BETA" : version); //FIXME
     }
 
     /**
