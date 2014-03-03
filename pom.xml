@@ -6,7 +6,7 @@
     <groupId>io.redlink</groupId>
     <artifactId>redlink-sdk-java</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.0-BETA</version>
+    <version>1.0.1-BETA-SNAPSHOT</version>
     <name>redlink-sdk-java</name>
     <url>http://dev.redlink.io/sdk</url>
 
