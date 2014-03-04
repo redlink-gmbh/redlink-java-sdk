@@ -49,6 +49,19 @@ public interface RedLink {
          * @return Simplified RedLink Enhancement Structure
          */
         Enhancements enhance(AnalysisRequest request);
+        
+        /**
+         * Performs an analysis of the content included in the request getting as response an instance of the {@link Class}
+         * passed by parameter. Current implementation only support {@link String} and {@link Enhancements} as responseType. 
+         * If {@link Enhancements} is passed, the request will assume RDF+XML as response format, and will parse the response
+         * to create the {@link Enhancements} object. If {@link String} is passed as response type, the method will return
+         * the RAW response in the format specified at the {@link AnalysisRequest} request parameter
+         * 
+         * @param request {@link AnalysisRequest} containing the request parameters and the content to be enhanced
+         * @param responseType {@link Class} of the response. Only {@link Enhancements} and {@link String} are supported
+         * @return An instance of the class passed by parameter wrapping the Analysis Service response
+         */
+        <T> T enhance(AnalysisRequest request, Class<T> responseType);
 
     }
 

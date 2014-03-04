@@ -53,7 +53,7 @@ public class Entity {
     void addPropertyValue(String property, String value) {
 
         if (property != null && value != null) {
-            Multimap<Optional<String>, String> entry = properties.get(Optional.of(property));
+            Multimap<Optional<String>, String> entry = properties.get(property);
 
             if (entry == null) {
                 entry = HashMultimap.create();

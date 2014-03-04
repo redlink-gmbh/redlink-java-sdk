@@ -1,11 +1,18 @@
 package io.redlink.sdk.analysis;
 
-import com.google.common.base.Optional;
 import io.redlink.sdk.RedLink.Analysis;
-import org.apache.commons.io.IOUtils;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 import javax.ws.rs.core.MediaType;
-import java.io.*;
+
+import org.apache.commons.io.IOUtils;
+
+import com.google.common.base.Optional;
 
 /**
  * Represent a Request Object necessary to perform {@link Analysis} services' requests. An instance of this class contains
@@ -65,7 +72,17 @@ public class AnalysisRequest {
                     return of;
             return null;
         }
+
     }
+    
+    /**
+     * Supported Content Formats in the Builder API
+     */
+    private static enum ContentType{
+    	STRING, FILE, INPUTSTREAM, EMPTY;
+    }
+    
+    private boolean consumed = false;
 
     /**
      * Default Input Format
@@ -80,7 +97,18 @@ public class AnalysisRequest {
     /**
      * Stream to Analyze
      */
-    private Optional<InputStream> content = Optional.absent();
+    private Optional<InputStream> contentStream = Optional.absent();
+    
+    /**
+     * File to Analyze
+     */
+    private Optional<File> contentFile = Optional.absent();
+    
+    /**
+     * String to Analyze
+     */
+    private Optional<String> contentString = Optional.absent();
+    private Optional<String> contentEncoding = Optional.absent(); 
 
     /**
      * Analysis Service name
@@ -98,11 +126,10 @@ public class AnalysisRequest {
     private boolean thumbnail = true;
 
     /**
-     * true -> Content is a String
-     * false -> Content is a File
+     * Type of the Content to be analyzed
      */
-    private boolean isContentString = true;
-
+    private ContentType contentType = ContentType.EMPTY;
+    
     /**
      * Return current request {@link InputFormat} name. The input format should be used to specify the format
      * of the content that is sent to analyze
@@ -149,7 +176,39 @@ public class AnalysisRequest {
      * @return {@link InputStream} containing the content that is going to be analyzed
      */
     public InputStream getContent() {
-        return content.get();
+        switch(contentType){
+        case EMPTY:
+        	throw new RuntimeException("There is not Content available to analyze");
+        case FILE:
+        	if(consumed)
+				try {
+					contentStream = Optional.of((InputStream) new FileInputStream(contentFile.get()));
+				} catch (FileNotFoundException e) {
+					throw new RuntimeException(e);
+				}
+        	break;
+        case STRING:
+        	if(consumed){
+        		if(contentEncoding.isPresent())
+					try {
+						contentStream = Optional.of(IOUtils.toInputStream(contentString.get(), contentEncoding.get()));
+					} catch (IOException e) {
+						throw new RuntimeException(e);
+					}
+				else
+        			contentStream = Optional.of(IOUtils.toInputStream(contentString.get()));
+        	}
+        	break;
+        case INPUTSTREAM:
+        	if(consumed)
+        		throw new RuntimeException("The Content Stream to be analyzed has been already consumed");
+        	break;
+		default:
+			break;
+        }
+        
+        consumed = true;
+        return contentStream.get();
     }
 
     /**
@@ -177,15 +236,6 @@ public class AnalysisRequest {
      */
     public boolean getThumbnail() {
         return thumbnail;
-    }
-
-    /**
-     * Return true if current request content is a {@link String} instance
-     *
-     * @return Flag indicating if the content that will be analyzed is a {@link String}
-     */
-    public boolean isContentString() {
-        return isContentString;
     }
 
     /**
@@ -261,8 +311,9 @@ public class AnalysisRequest {
          */
         public AnalysisRequestBuilder setContent(String content) {
             // Assuming UTF-8
-            this.request.content = Optional.of(IOUtils.toInputStream(content));
-            this.request.isContentString = true;
+            this.request.contentStream = Optional.of(IOUtils.toInputStream(content));
+            this.request.contentString = Optional.of(content);
+            this.request.contentType = ContentType.STRING;
             return this;
         }
 
@@ -275,8 +326,10 @@ public class AnalysisRequest {
          * @throws IOException
          */
         public AnalysisRequestBuilder setContent(String content, String encoding) throws IOException {
-            this.request.content = Optional.of(IOUtils.toInputStream(content, encoding));
-            this.request.isContentString = true;
+            this.request.contentStream = Optional.of(IOUtils.toInputStream(content, encoding));
+            this.request.contentString = Optional.of(content);
+            this.request.contentEncoding = Optional.of(encoding);
+            this.request.contentType = ContentType.STRING;
             return this;
         }
 
@@ -288,8 +341,9 @@ public class AnalysisRequest {
          * @throws FileNotFoundException
          */
         public AnalysisRequestBuilder setContent(File file) throws FileNotFoundException {
-            this.request.content = Optional.of((InputStream) new FileInputStream(file));
-            this.request.isContentString = false;
+            this.request.contentStream = Optional.of((InputStream) new FileInputStream(file));
+            this.request.contentFile = Optional.of(file);
+            this.request.contentType = ContentType.FILE;
             return this;
         }
 
@@ -300,8 +354,8 @@ public class AnalysisRequest {
          * @return Current Request Builder
          */
         public AnalysisRequestBuilder setContent(InputStream stream) {
-            this.request.content = Optional.of(stream);
-            this.request.isContentString = false;
+            this.request.contentStream = Optional.of(stream);
+            this.request.contentType = ContentType.INPUTSTREAM;
             return this;
         }
 
