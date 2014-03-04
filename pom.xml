@@ -40,14 +40,14 @@
 
     <distributionManagement>
         <repository>
-            <id>redlink.releases</id>
+            <id>redlink.public.releases</id>
             <name>RedLink Releases</name>
-            <url>http://repo.dev.redlink.io/content/repositories/releases/</url>
+            <url>http://repo.dev.redlink.io/content/repositories/public-releases</url>
         </repository>
         <snapshotRepository>
-            <id>redlink.snapshots</id>
+            <id>redlink.public.snapshots</id>
             <name>RedLink Snapshots</name>
-            <url>http://repo.dev.redlink.io/content/repositories/snapshots/</url>
+            <url>http://repo.dev.redlink.io/content/repositories/public-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 
