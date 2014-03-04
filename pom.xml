@@ -6,7 +6,7 @@
     <groupId>io.redlink</groupId>
     <artifactId>redlink-sdk-java</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.0-BETA-SNAPSHOT</version>
+    <version>1.0.1-BETA-SNAPSHOT</version>
     <name>redlink-sdk-java</name>
     <url>http://dev.redlink.io/sdk</url>
 
@@ -40,14 +40,14 @@
 
     <distributionManagement>
         <repository>
-            <id>redlink.releases</id>
+            <id>redlink.public.releases</id>
             <name>RedLink Releases</name>
-            <url>http://repo.dev.redlink.io/content/repositories/releases/</url>
+            <url>http://repo.dev.redlink.io/content/repositories/public-releases</url>
         </repository>
         <snapshotRepository>
-            <id>redlink.snapshots</id>
+            <id>redlink.public.snapshots</id>
             <name>RedLink Snapshots</name>
-            <url>http://repo.dev.redlink.io/content/repositories/snapshots/</url>
+            <url>http://repo.dev.redlink.io/content/repositories/public-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 
@@ -110,7 +110,9 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
+                <version>2.2.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -136,7 +138,9 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.8.1</version>
                 <executions>
                     <execution>
                         <id>deploy</id>
