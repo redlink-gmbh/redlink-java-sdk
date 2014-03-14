@@ -183,6 +183,22 @@ public class Enhancements implements Iterable<Enhancement> {
                     }
                 }).toImmutableList();
     }
+    
+    public Multimap<TextAnnotation, EntityAnnotation> getEntityAnnotationsByTextAnnotation(){
+    	Multimap<TextAnnotation, EntityAnnotation> map = ArrayListMultimap.create();
+        
+    	Collection<EntityAnnotation> eas = getEntityAnnotations();
+        for (EntityAnnotation ea : eas) {
+            if (ea.relations != null) {
+                for (Enhancement e : ea.relations) {
+                    if (e instanceof TextAnnotation) {
+                        map.put((TextAnnotation) e, ea);
+                    }
+                }
+            }
+        }
+    	return map;
+    }
 
     /**
      * Returns the best {@link EntityAnnotation} (the one with higher confidence value) for each extracted {@link TextAnnotation}

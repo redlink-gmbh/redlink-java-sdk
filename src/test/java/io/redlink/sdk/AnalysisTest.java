@@ -19,7 +19,6 @@ import java.util.Map.Entry;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.commons.io.IOUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.junit.AfterClass;
@@ -31,6 +30,8 @@ import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
 import org.xml.sax.InputSource;
+
+import com.google.common.collect.Multimap;
 
 public class AnalysisTest extends GenericTest {
 
@@ -46,6 +47,10 @@ public class AnalysisTest extends GenericTest {
             + "is the main developer of Stanbol. The System is well integrated with many CMS like Drupal and Alfresco.";
 
     private static String PARIS_TEXT_TO_ENHANCE = "Paris is the capital of France";
+    
+    private static final String DEFERENCING_TEXT = "Roberto Baggio is a retired Italian football forward and attacking midfielder/playmaker"
+    		+ " who was the former President of the Technical Sector of the FIGC. Widely regarded as one of the greatest footballers of all time, "
+    		+ "he came fourth in the FIFA Player of the Century Internet poll, and was chosen as a member of the FIFA World Cup Dream Team";
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -242,6 +247,40 @@ public class AnalysisTest extends GenericTest {
     	Enhancements rdfResponse = redlink.enhance(builder.build(), Enhancements.class);
     	Assert.assertFalse(rdfResponse.getEnhancements().isEmpty());
     	testEntityProperties(rdfResponse);
+    	
+    }
+    
+    @Test
+    public void testDereferencing(){
+    	
+    	// Dereferencing Fields
+    	AnalysisRequest request = AnalysisRequest.builder()
+                .setAnalysis(TEST_ANALYSIS)
+                .setContent(DEFERENCING_TEXT)
+                .addDereferencingField("fb:people.person.height_meters")
+                .addDereferencingField("fb:people.person.date_of_birth")
+                .addDereferencingField("dct:subject")
+                .addDereferencingField("dbp:totalgoals")
+                .setOutputFormat(OutputFormat.RDFXML).build();
+    	Enhancements enhancements = redlink.enhance(request);
+    	
+    	Entity baggio = enhancements.getEntity("http://rdf.freebase.com/ns/m.06d6f");
+    	Assert.assertEquals(baggio.getFirstPropertyValue(
+    			"http://rdf.freebase.com/ns/people.person.height_meters"), 
+    			"1.74");
+    	Assert.assertEquals(baggio.getFirstPropertyValue(
+    			"http://rdf.freebase.com/ns/people.person.date_of_birth"), 
+    			"1967-02-18");
+    	
+    	Entity baggioDBP = enhancements.getEntity("http://dbpedia.org/resource/Roberto_Baggio");
+    	Assert.assertEquals(baggioDBP.getFirstPropertyValue(
+    			"http://purl.org/dc/terms/subject"), 
+    			"http://dbpedia.org/resource/Category:Men");
+    	Assert.assertEquals(baggioDBP.getFirstPropertyValue(
+    			"http://dbpedia.org/property/totalgoals"), 
+    			"221");
+    	
+    	//LdPath
     	
     }
 

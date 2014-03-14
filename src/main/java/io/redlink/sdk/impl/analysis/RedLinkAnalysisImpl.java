@@ -12,6 +12,7 @@ import io.redlink.sdk.impl.analysis.model.EnhancementsParser;
 import io.redlink.sdk.impl.analysis.model.EnhancementsParserFactory;
 
 import java.net.MalformedURLException;
+import java.util.Iterator;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation.Builder;
@@ -54,7 +55,14 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
             target = target.queryParam(RedLink.IN, request.getInputFormat()) // InputFormat parameter
             		.queryParam(RedLink.OUT, request.getOutputFormat()) // OutputFormat parameter
             		.queryParam(SUMMARY, request.getSummary()) // Entities' summaries parameter;
-            		.queryParam(THUMBNAIL, request.getThumbnail()); // Entities' thumbnails parameter  
+            		.queryParam(THUMBNAIL, request.getThumbnail()) // Entities' thumbnails parameter
+            		.queryParam(LDPATH, request.getLDpathProgram()); // LDpath program for dereferencing
+            if(!request.getFieldsToDereference().isEmpty()){
+            	Iterator<String> it = request.getFieldsToDereference().iterator();
+            	while(it.hasNext())
+            		target = target.queryParam(DEREF_FIELDS, it.next()); // Fields to be dereferenced
+            }
+            		   
             
             // Accepted Media-Type setup
             Builder httpRequest = target.request();

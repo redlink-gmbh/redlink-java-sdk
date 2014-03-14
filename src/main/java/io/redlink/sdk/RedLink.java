@@ -40,6 +40,10 @@ public interface RedLink {
         static final String SUMMARY = "summary";
 
         static final String THUMBNAIL = "thumbnail";
+        
+        static final String DEREF_FIELDS = "enhancer.engines.dereference.fields";
+        
+        static final String LDPATH = "enhancer.engines.dereference.ldpath";
 
         /**
          * Performs an analysis of the content included in the request, getting a {@link Enhancements} object as result

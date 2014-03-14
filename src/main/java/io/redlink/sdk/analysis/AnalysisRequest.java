@@ -7,12 +7,14 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.io.IOUtils;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Sets;
 
 /**
  * Represent a Request Object necessary to perform {@link Analysis} services' requests. An instance of this class contains
@@ -131,6 +133,16 @@ public class AnalysisRequest {
     private ContentType contentType = ContentType.EMPTY;
     
     /**
+     * List of Fields to be dereferenced
+     */
+    private Collection<String> dereferencedFields = Sets.newHashSet();
+    
+    /**
+     * LDPath to be executed for dereferencing
+     */
+    private Optional<String> ldpath = Optional.absent();
+    
+    /**
      * Return current request {@link InputFormat} name. The input format should be used to specify the format
      * of the content that is sent to analyze
      *
@@ -217,7 +229,7 @@ public class AnalysisRequest {
      * @return User's RedLink Application Analysis name for the current request
      */
     public String getAnalysis() {
-        return analysis.get();
+        return analysis.orNull();
     }
 
     /**
@@ -236,6 +248,14 @@ public class AnalysisRequest {
      */
     public boolean getThumbnail() {
         return thumbnail;
+    }
+    
+    public Collection<String> getFieldsToDereference(){
+    	return dereferencedFields;
+    }
+    
+    public String getLDpathProgram(){
+    	return ldpath.orNull();
     }
 
     /**
@@ -357,6 +377,16 @@ public class AnalysisRequest {
             this.request.contentStream = Optional.of(stream);
             this.request.contentType = ContentType.INPUTSTREAM;
             return this;
+        }
+        
+        public AnalysisRequestBuilder setLDpathProgram(String ldpathProgram){
+        	this.request.dereferencedFields.add(ldpathProgram);
+        	return this;
+        }
+        
+        public AnalysisRequestBuilder addDereferencingField(String field){
+        	this.request.dereferencedFields.add(field);
+        	return this;
         }
 
 
