@@ -31,13 +31,11 @@ import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
 import org.xml.sax.InputSource;
 
-import com.google.common.collect.Multimap;
-
 public class AnalysisTest extends GenericTest {
 
     private static RedLink.Analysis redlink;
     private static final String TEST_FILE = "/willsmith.txt";
-    private static final String TEST_ANALYSIS = "alfresco";
+    private static final String TEST_ANALYSIS = "test";
 
 
     private static final String STANBOL_TEXT_TO_ENHANCE = "The Open Source Project Apache Stanbol provides different "
