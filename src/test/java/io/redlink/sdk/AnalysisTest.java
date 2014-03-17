@@ -48,7 +48,7 @@ public class AnalysisTest extends GenericTest {
 
     private static String PARIS_TEXT_TO_ENHANCE = "Paris is the capital of France";
     
-    private static final String DEFERENCING_TEXT = "Roberto Baggio is a retired Italian football forward and attacking midfielder/playmaker"
+    private static final String DEREFERENCING_TEXT = "Roberto Baggio is a retired Italian football forward and attacking midfielder/playmaker"
     		+ " who was the former President of the Technical Sector of the FIGC. Widely regarded as one of the greatest footballers of all time, "
     		+ "he came fourth in the FIFA Player of the Century Internet poll, and was chosen as a member of the FIFA World Cup Dream Team";
 
@@ -256,7 +256,7 @@ public class AnalysisTest extends GenericTest {
     	// Dereferencing Fields
     	AnalysisRequest request = AnalysisRequest.builder()
                 .setAnalysis(TEST_ANALYSIS)
-                .setContent(DEFERENCING_TEXT)
+                .setContent(DEREFERENCING_TEXT)
                 .addDereferencingField("fb:people.person.height_meters")
                 .addDereferencingField("fb:people.person.date_of_birth")
                 .addDereferencingField("dct:subject")
@@ -281,6 +281,26 @@ public class AnalysisTest extends GenericTest {
     			"221");
     	
     	//LdPath
+    	String date = "@prefix fb: <http://rdf.freebase.com/ns/>;"
+    			+ "@prefix custom :<http://io.redlink/custom/freebase/>"
+    			+ "custom:date = fb:people.person.date_of_birth :: xsd:string;"
+    			+ "custom:nationality = fb:people.person.nationality/fb:location.location.adjectival_form :: xsd:string;" ;
+    	request = AnalysisRequest.builder()
+                .setAnalysis(TEST_ANALYSIS)
+                .setContent(DEREFERENCING_TEXT)
+                .setLDpathProgram(date)
+                .setOutputFormat(OutputFormat.RDFXML).build();
+    	enhancements = redlink.enhance(request);
+    	baggio = enhancements.getEntity("http://rdf.freebase.com/ns/m.06d6f");
+    	String dateV = baggio.getFirstPropertyValue(
+    			"http://rdf.freebase.com/ns/people.person.date_of_birth");
+    	String dateCustomV = baggio.getFirstPropertyValue(
+    			"http://io.redlink/custom/freebase/date");
+    	Assert.assertEquals(dateV,dateCustomV);
+    	Assert.assertTrue(baggio.getValues(
+    			"http://io.redlink/custom/freebase/nationality")
+    			.contains("Italian"));
+    	
     	
     }
 

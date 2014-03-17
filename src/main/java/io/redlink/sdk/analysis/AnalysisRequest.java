@@ -380,7 +380,7 @@ public class AnalysisRequest {
         }
         
         public AnalysisRequestBuilder setLDpathProgram(String ldpathProgram){
-        	this.request.dereferencedFields.add(ldpathProgram);
+        	this.request.ldpath = Optional.of(ldpathProgram);
         	return this;
         }
         
