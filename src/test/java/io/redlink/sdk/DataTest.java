@@ -34,6 +34,8 @@ public class DataTest extends GenericTest {
 
     private static final String QUERY_SELECT = "SELECT * WHERE { ?s ?p ?o }";
 
+    private static final String QUERY_CONSTRUCT = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }";
+
     private static final String QUERY_UPDATE = "INSERT DATA { <http://example.org/test> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/Test> }";
     public static final RDFFormat TEST_FILE_FORMAT = RDFFormat.RDFXML;
 
@@ -77,7 +79,7 @@ public class DataTest extends GenericTest {
         Assume.assumeNotNull(in);
         final Model model = Rio.parse(in, buildDatasetBaseUri(credentials, status.getOwner(), TEST_DATASET), TEST_FILE_FORMAT);
         Assert.assertTrue(redlink.importDataset(model, TEST_DATASET));
-        final SPARQLResult triples = redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET);
+        final SPARQLResult triples = redlink.sparqlTupleQuery(QUERY_SELECT, TEST_DATASET);
         Assert.assertNotNull(triples);
         Assert.assertTrue(triples.size() >= TEST_FILE_TRIPLES);
         //TODO: more specific testing
@@ -96,7 +98,7 @@ public class DataTest extends GenericTest {
         Assume.assumeNotNull(file);
         Assume.assumeTrue(file.exists());
         Assert.assertTrue(redlink.importDataset(file, TEST_DATASET));
-        final SPARQLResult triples = redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET);
+        final SPARQLResult triples = redlink.sparqlTupleQuery(QUERY_SELECT, TEST_DATASET);
         Assert.assertNotNull(triples);
         Assert.assertTrue("result size was smaller than expected", triples.size() >= TEST_FILE_TRIPLES);
         //TODO: more specific testing
@@ -115,7 +117,7 @@ public class DataTest extends GenericTest {
         Assume.assumeNotNull(file);
         Assume.assumeTrue(file.exists());
         Assert.assertTrue(redlink.importDataset(file, TEST_DATASET, true));
-        final SPARQLResult triples = redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET);
+        final SPARQLResult triples = redlink.sparqlTupleQuery(QUERY_SELECT, TEST_DATASET);
         Assert.assertNotNull(triples);
         Assert.assertTrue(triples.size() > 0);
         //TODO: more specific testing
@@ -126,7 +128,7 @@ public class DataTest extends GenericTest {
         InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
         Assume.assumeNotNull(in);
         Assert.assertTrue(redlink.importDataset(in, TEST_FILE_FORMAT, TEST_DATASET));
-        final SPARQLResult triples = redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET);
+        final SPARQLResult triples = redlink.sparqlTupleQuery(QUERY_SELECT, TEST_DATASET);
         Assert.assertNotNull(triples);
         Assert.assertTrue(triples.size() > 0);
         Assert.assertTrue(triples.size() >= TEST_FILE_TRIPLES);
@@ -138,7 +140,7 @@ public class DataTest extends GenericTest {
         InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
         Assume.assumeNotNull(in);
         Assert.assertTrue(redlink.importDataset(in, RDFFormat.RDFXML, TEST_DATASET, true));
-        final SPARQLResult triples = redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET);
+        final SPARQLResult triples = redlink.sparqlTupleQuery(QUERY_SELECT, TEST_DATASET);
         Assert.assertNotNull(triples);
         Assert.assertEquals(TEST_FILE_TRIPLES, triples.size());
         //TODO: more specific testing
@@ -186,7 +188,7 @@ public class DataTest extends GenericTest {
         Assume.assumeNotNull(in);
         final Model model = Rio.parse(in, buildDatasetBaseUri(credentials, status.getOwner(), TEST_DATASET), TEST_FILE_FORMAT);
         Assert.assertTrue(redlink.importDataset(model, TEST_DATASET, true));
-        final SPARQLResult triples = redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET);
+        final SPARQLResult triples = redlink.sparqlTupleQuery(QUERY_SELECT, TEST_DATASET);
         Assert.assertNotNull(triples);
         Assert.assertEquals(TEST_FILE_TRIPLES, triples.size());
 
@@ -207,7 +209,7 @@ public class DataTest extends GenericTest {
 
     @Test
     public void testSelect() {
-        final SPARQLResult result = redlink.sparqlSelect(QUERY_SELECT);
+        final SPARQLResult result = redlink.sparqlTupleQuery(QUERY_SELECT);
         Assert.assertNotNull(result);
         Assert.assertTrue(result.size() >= 0);
     }
@@ -215,7 +217,7 @@ public class DataTest extends GenericTest {
     @Test
     public void testDatasetSelect() {
         Assume.assumeTrue(redlink.sparqlUpdate(QUERY_CLEAN, TEST_DATASET));
-        final SPARQLResult result = redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET);
+        final SPARQLResult result = redlink.sparqlTupleQuery(QUERY_SELECT, TEST_DATASET);
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isEmpty());
     }
@@ -226,7 +228,7 @@ public class DataTest extends GenericTest {
         Assert.assertEquals(0, getCurrentSize(TEST_DATASET));
         Assert.assertTrue(redlink.sparqlUpdate(QUERY_UPDATE, TEST_DATASET));
         Assert.assertEquals(1, getCurrentSize(TEST_DATASET));
-        final SPARQLResult result = redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET);
+        final SPARQLResult result = redlink.sparqlTupleQuery(QUERY_SELECT, TEST_DATASET);
         Assert.assertNotNull(result);
         Assert.assertFalse(result.isEmpty());
         Assert.assertTrue(result.getFieldNames().contains("s"));
@@ -235,6 +237,18 @@ public class DataTest extends GenericTest {
         Assert.assertEquals("http://example.org/test", result.get(0).get("s").toString());
         Assert.assertEquals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", result.get(0).get("p").toString());
         Assert.assertEquals("http://example.org/Test", result.get(0).get("o").toString());
+    }
+
+    @Test
+    public void testDatasetCleanImportConstruct() {
+        Assume.assumeTrue(redlink.sparqlUpdate(QUERY_CLEAN, TEST_DATASET));
+        Assert.assertEquals(0, getCurrentSize(TEST_DATASET));
+        Assert.assertTrue(redlink.sparqlUpdate(QUERY_UPDATE, TEST_DATASET));
+        Assert.assertEquals(1, getCurrentSize(TEST_DATASET));
+        final Model result = redlink.sparqlGraphQuery(QUERY_CONSTRUCT, TEST_DATASET);
+        Assert.assertNotNull(result);
+        Assert.assertFalse(result.isEmpty());
+        Assert.assertEquals(1, result.size());
     }
 
     @Test
@@ -268,7 +282,7 @@ public class DataTest extends GenericTest {
     }
 
     private int getCurrentSize(String dataset) {
-        return redlink.sparqlSelect(QUERY_SELECT, TEST_DATASET).size();
+        return redlink.sparqlTupleQuery(QUERY_SELECT, TEST_DATASET).size();
     }
 
 }

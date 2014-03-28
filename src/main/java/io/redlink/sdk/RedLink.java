@@ -243,6 +243,10 @@ public interface RedLink {
          */
         SPARQLResult sparqlTupleQuery(String query, String dataset);
 
+        /**
+         * use sparqlTupleQuery() instead
+         *
+         */
         @Deprecated
         SPARQLResult sparqlSelect(String query, String dataset);
 
@@ -254,6 +258,10 @@ public interface RedLink {
          */
         SPARQLResult sparqlTupleQuery(String query);
 
+        /**
+         * use sparqlTupleQuery() instead
+         *
+         */
         @Deprecated
         SPARQLResult sparqlSelect(String query);
 
