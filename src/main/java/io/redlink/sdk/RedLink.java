@@ -234,22 +234,46 @@ public interface RedLink {
         boolean deleteResource(String resource, String dataset);
 
         /**
-         * Execute a SPARQL query using the dataset passed by paramater as context. The Dataset must exist at the user RedLink account and
+         * Execute a SPARQL tuple query using the dataset passed by paramater as context. The Dataset must exist at the user RedLink account and
          * must be configured for the user's RedLink application used in the request
          *
-         * @param query   SPARQL query to be executed
+         * @param query   SPARQL tuple query to be executed
          * @param dataset Name of the dataset at user's RedLink application where the query will be executed
          * @return Result of the query as {@link SPARQLResult} object
          */
+        SPARQLResult sparqlTupleQuery(String query, String dataset);
+
+        @Deprecated
         SPARQLResult sparqlSelect(String query, String dataset);
 
         /**
-         * Execute a SPARQL query using as context all the configured datasets at user's RedLink application
+         * Execute a SPARQL tuple query using as context all the configured datasets at user's RedLink application
          *
-         * @param query SPARQL query to be executed
+         * @param query SPARQL tuple query to be executed
          * @return Result of the query as {@link SPARQLResult} object
          */
+        SPARQLResult sparqlTupleQuery(String query);
+
+        @Deprecated
         SPARQLResult sparqlSelect(String query);
+
+        /**
+         * Execute a SPARQL graph query using the dataset passed by paramater as context. The Dataset must exist at the user RedLink account and
+         * must be configured for the user's RedLink application used in the request
+         *
+         * @param query SPARQL graph query to be executed
+         * @param dataset ame of the dataset at user's RedLink application where the query will be executed
+         * @return Result of the query as {@link org.openrdf.model.Model} object
+         */
+        Model sparqlGraphQuery(String query, String dataset);
+
+        /**
+         * Execute a SPARQL graph query using as context all the configured datasets at user's RedLink application
+         *
+         * @param query SPARQL graph query to be executed
+         * @return Result of the query as {@link org.openrdf.model.Model} object
+         */
+        Model sparqlGraphQuery(String query);
 
         /**
          * Update dataset's resources using an SPARQL update query. The Dataset must exist at the user RedLink account and

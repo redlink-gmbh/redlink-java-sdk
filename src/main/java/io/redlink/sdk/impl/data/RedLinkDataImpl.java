@@ -219,20 +219,52 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
     }
 
     @Override
-    public SPARQLResult sparqlSelect(String query) {
+    public SPARQLResult sparqlTupleQuery(String query) {
         try {
             WebTarget target = credentials.buildUrl(getSparqlSelectUriBuilder());
-            return execSelect(target, query);
+            return execTupleQuery(target, query);
         } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public SPARQLResult sparqlSelect(String query, String dataset) {
+    @Deprecated
+    public SPARQLResult sparqlSelect(String query) {
+        return sparqlTupleQuery(query);
+    }
+
+    @Override
+    public SPARQLResult sparqlTupleQuery(String query, String dataset) {
         try {
             WebTarget target = credentials.buildUrl(getSparqlSelectUriBuilder(dataset));
-            return execSelect(target, query);
+            return execTupleQuery(target, query);
+        } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    @Deprecated
+    public SPARQLResult sparqlSelect(String query, String dataset) {
+        return sparqlTupleQuery(query, dataset);
+    }
+
+    @Override
+    public Model sparqlGraphQuery(String query) {
+        try {
+            WebTarget target = credentials.buildUrl(getSparqlSelectUriBuilder());
+            return execGraphQuery(target, query);
+        } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public Model sparqlGraphQuery(String query, String dataset) {
+        try {
+            WebTarget target = credentials.buildUrl(getSparqlSelectUriBuilder(dataset));
+            return execGraphQuery(target, query);
         } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
             throw new RuntimeException(e);
         }
@@ -329,12 +361,12 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
         return initiateUriBuilding().path(PATH).path(dataset).path(LDPATH).queryParam(RedLink.URI, uri);
     }
 
-    private SPARQLResult execSelect(WebTarget target, String query) {
+    private SPARQLResult execTupleQuery(WebTarget target, String query) {
         Invocation.Builder request = target.request();
         TupleQueryResultFormat format = TupleQueryResultFormat.JSON;
         request.accept(format.getDefaultMIMEType());
         try {
-            log.debug("Executing SPARQL select query: {}", query.replaceAll("\\s*[\\r\\n]+\\s*", " ").trim());
+            log.debug("Executing SPARQL tuple query: {}", query.replaceAll("\\s*[\\r\\n]+\\s*", " ").trim());
             Response response = request.post(Entity.text(query));
             log.debug("Request resolved with {} status code", response.getStatus());
             //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
@@ -384,6 +416,29 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
                     }
                     return result;
                 }
+            }
+        } catch (Exception e) {
+            //e.printStackTrace();
+            throw new RuntimeException("Query execution failed: " + e.getMessage(), e);
+        }
+    }
+
+    private Model execGraphQuery(WebTarget target, String query) {
+        Invocation.Builder request = target.request();
+        RDFFormat format = RDFFormat.TURTLE;
+        request.accept(format.getDefaultMIMEType());
+        try {
+            log.debug("Executing SPARQL graph query: {}", query.replaceAll("\\s*[\\r\\n]+\\s*", " ").trim());
+            Response response = request.post(Entity.text(query));
+            log.debug("Request resolved with {} status code", response.getStatus());
+            //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
+            if (response.getStatus() != 200) {
+                // TODO: improve this feedback from the sdk (400, 500, etc)
+                throw new RuntimeException("Query failed: HTTP error code " + response.getStatus());
+            } else {
+                ParserConfig config = new ParserConfig();
+                String entity = response.readEntity(String.class);
+                return Rio.parse(new StringReader(entity), target.getUri().toString(), format, config, ValueFactoryImpl.getInstance(), new ParseErrorLogger());
             }
         } catch (Exception e) {
             //e.printStackTrace();
