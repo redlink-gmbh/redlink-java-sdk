@@ -431,7 +431,7 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
             log.debug("Executing SPARQL graph query: {}", query.replaceAll("\\s*[\\r\\n]+\\s*", " ").trim());
             Response response = request.post(Entity.text(query));
             log.debug("Request resolved with {} status code", response.getStatus());
-            //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
+            //log.error("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
             if (response.getStatus() != 200) {
                 // TODO: improve this feedback from the sdk (400, 500, etc)
                 throw new RuntimeException("Query failed: HTTP error code " + response.getStatus());

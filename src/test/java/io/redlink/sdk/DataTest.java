@@ -252,6 +252,24 @@ public class DataTest extends GenericTest {
     }
 
     @Test
+    public void testDatasetCleanImportDescribe() throws IOException, RDFParseException, RDFHandlerException {
+        Assume.assumeTrue(redlink.sparqlUpdate(QUERY_CLEAN, TEST_DATASET));
+        Assert.assertEquals(0, getCurrentSize(TEST_DATASET));
+        InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
+        Assume.assumeNotNull(in);
+
+        String dataset = buildDatasetBaseUri(credentials, status.getOwner(), TEST_DATASET);
+        final Model model = Rio.parse(in, dataset, TEST_FILE_FORMAT);
+        Assert.assertTrue(redlink.importDataset(model, TEST_DATASET));
+
+        String resource = dataset + TEST_RESOURCE;
+        final Model result = redlink.sparqlGraphQuery("DESCRIBE <" + resource + ">", TEST_DATASET);
+        Assert.assertNotNull(result);
+        Assert.assertFalse(result.isEmpty());
+        Assert.assertEquals(8, result.size());
+    }
+
+    @Test
     public void testLDPath() throws IOException, RDFParseException, RDFHandlerException {
         InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
         Assume.assumeNotNull(in);
