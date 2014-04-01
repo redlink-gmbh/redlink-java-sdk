@@ -34,6 +34,7 @@
     </developers>
 
     <properties>
+        <skipTests>true</skipTests>
         <sesame.version>2.7.10</sesame.version>
         <resteasy.version>3.0.6.Final</resteasy.version>
     </properties>
@@ -67,8 +68,8 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.17</version>
                 <configuration>
-                    <skipTests>true</skipTests>
                     <systemProperties>
+                        <skipTests>${skipTests}</skipTests>
                         <property>
                             <name>projectVersion</name>
                             <value>${project.version}</value>
