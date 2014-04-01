@@ -144,7 +144,8 @@ public class Enhancements implements Iterable<Enhancement> {
                     public Entity apply(final EntityAnnotation ea) {
                         return ea.getEntityReference();
                     }
-                });
+                }
+        );
     }
 
     /**
@@ -183,31 +184,9 @@ public class Enhancements implements Iterable<Enhancement> {
                     }
                 }).toImmutableList();
     }
-    
-    public Multimap<TextAnnotation, EntityAnnotation> getEntityAnnotationsByTextAnnotation(){
-    	Multimap<TextAnnotation, EntityAnnotation> map = ArrayListMultimap.create();
-        
-    	Collection<EntityAnnotation> eas = getEntityAnnotations();
-        for (EntityAnnotation ea : eas) {
-            if (ea.relations != null) {
-                for (Enhancement e : ea.relations) {
-                    if (e instanceof TextAnnotation) {
-                        map.put((TextAnnotation) e, ea);
-                    }
-                }
-            }
-        }
-    	return map;
-    }
 
-    /**
-     * Returns the best {@link EntityAnnotation} (the one with higher confidence value) for each extracted {@link TextAnnotation}
-     *
-     * @return
-     */
-    public Map<TextAnnotation, EntityAnnotation> getBestAnnotations() {
+    public Multimap<TextAnnotation, EntityAnnotation> getEntityAnnotationsByTextAnnotation() {
         Multimap<TextAnnotation, EntityAnnotation> map = ArrayListMultimap.create();
-        Map<TextAnnotation, EntityAnnotation> result = new HashMap<TextAnnotation, EntityAnnotation>();
 
         Collection<EntityAnnotation> eas = getEntityAnnotations();
         for (EntityAnnotation ea : eas) {
@@ -219,6 +198,15 @@ public class Enhancements implements Iterable<Enhancement> {
                 }
             }
         }
+        return map;
+    }
+
+    /**
+     * Returns the best {@link EntityAnnotation}s (those with the highest confidence value) for each extracted {@link TextAnnotation}
+     *
+     * @return best annotations
+     */
+    public Multimap<TextAnnotation, EntityAnnotation> getBestAnnotations() {
 
         Ordering<EntityAnnotation> o = new Ordering<EntityAnnotation>() {
             @Override
@@ -227,9 +215,21 @@ public class Enhancements implements Iterable<Enhancement> {
             }
         };
 
-        for (TextAnnotation ta : map.keys()) {
-            eas = map.get(ta);
-            result.put(ta, o.max(eas));
+        Multimap<TextAnnotation, EntityAnnotation> result = ArrayListMultimap.create();
+        for (TextAnnotation ta : getTextAnnotations()) {
+            List<EntityAnnotation> eas = o.sortedCopy(getEntityAnnotations(ta));
+            if (!eas.isEmpty()) {
+                Collection<EntityAnnotation> highest = new HashSet<>();
+                Double confidence = eas.get(0).getConfidence();
+                for (EntityAnnotation ea : eas) {
+                    if (ea.confidence < confidence) {
+                        break;
+                    } else {
+                        highest.add(ea);
+                    }
+                }
+                result.putAll(ta, highest);
+            }
         }
 
         return result;
@@ -251,7 +251,8 @@ public class Enhancements implements Iterable<Enhancement> {
                                 .equals(entityUri);
                     }
 
-                });
+                }
+        );
     }
 
     /**
@@ -304,7 +305,8 @@ public class Enhancements implements Iterable<Enhancement> {
                                 equals(conceptURI);
                     }
 
-                });
+                }
+        );
     }
 
 }
