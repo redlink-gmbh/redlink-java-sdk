@@ -1,5 +1,8 @@
 package io.redlink.sdk;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Multimap;
 import io.redlink.sdk.analysis.AnalysisRequest;
 import io.redlink.sdk.analysis.AnalysisRequest.AnalysisRequestBuilder;
 import io.redlink.sdk.analysis.AnalysisRequest.OutputFormat;
@@ -18,6 +21,7 @@ import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.soap.Text;
 
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -184,16 +188,21 @@ public class AnalysisTest extends GenericTest {
      * <p>Tests the best annotations method</p>
      */
     private void testEnhancementBestAnnotations(Enhancements enhancements) {
-        Map<TextAnnotation, EntityAnnotation> bestAnnotations = enhancements.getBestAnnotations();
+        Multimap<TextAnnotation, EntityAnnotation> bestAnnotations = enhancements.getBestAnnotations();
         Assert.assertNotEquals(0, bestAnnotations.keySet().size());
-        Assert.assertEquals(bestAnnotations.size(), enhancements.getTextAnnotations().size());
-        Entry<TextAnnotation, EntityAnnotation> entry = null;
-        Iterator<Entry<TextAnnotation, EntityAnnotation>> it = bestAnnotations.entrySet().iterator();
-        while (it.hasNext()) {
-            entry = it.next();
-            Collection<EntityAnnotation> eas = enhancements.getEntityAnnotations(entry.getKey());
-            for (EntityAnnotation ea : eas) {
-                Assert.assertTrue((ea.equals(entry.getValue())) || entry.getValue().getConfidence() >= ea.getConfidence());
+        Assert.assertEquals(bestAnnotations.keySet().size(), enhancements.getTextAnnotations().size());
+
+        for (TextAnnotation ta: bestAnnotations.keySet()) {
+            //check all best have the same
+            Collection<EntityAnnotation> eas = bestAnnotations.get(ta);
+            Double confidence = Iterables.get(eas, 0).getConfidence();
+            for (EntityAnnotation ea: eas) {
+                Assert.assertEquals(confidence, ea.getConfidence());
+            }
+
+            //check the confidence is actually the highest
+            for (EntityAnnotation ea: enhancements.getEntityAnnotations(ta)) {
+                Assert.assertTrue(confidence >= ea.getConfidence());
             }
         }
     }
