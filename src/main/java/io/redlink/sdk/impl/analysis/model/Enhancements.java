@@ -120,9 +120,11 @@ public class Enhancements implements Iterable<Enhancement> {
         Collection<EntityAnnotation> eas = getEntityAnnotations();
         Collection<EntityAnnotation> result = Sets.newHashSet();
 
-        for (EntityAnnotation ea : eas)
-            if (ea.getRelations().contains(ta))
+        for (EntityAnnotation ea : eas) {
+            if (ea.getRelations() != null && ea.getRelations().contains(ta)) {
                 result.add(ea);
+            }
+        }
 
         return result;
     }
