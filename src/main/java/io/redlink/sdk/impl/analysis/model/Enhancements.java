@@ -213,11 +213,11 @@ public class Enhancements implements Iterable<Enhancement> {
             public int compare(EntityAnnotation left, EntityAnnotation right) {
                 return Doubles.compare(left.confidence, right.confidence);
             }
-        };
+        }.reverse();
 
         Multimap<TextAnnotation, EntityAnnotation> result = ArrayListMultimap.create();
         for (TextAnnotation ta : getTextAnnotations()) {
-            List<EntityAnnotation> eas = o.reverse().sortedCopy(getEntityAnnotations(ta));
+            List<EntityAnnotation> eas = o.sortedCopy(getEntityAnnotations(ta));
             if (!eas.isEmpty()) {
                 Collection<EntityAnnotation> highest = new HashSet<>();
                 Double confidence = eas.get(0).getConfidence();

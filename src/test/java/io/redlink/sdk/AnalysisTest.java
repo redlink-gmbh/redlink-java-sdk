@@ -49,10 +49,10 @@ public class AnalysisTest extends GenericTest {
             + "is the main developer of Stanbol. The System is well integrated with many CMS like Drupal and Alfresco.";
 
     private static String PARIS_TEXT_TO_ENHANCE = "Paris is the capital of France";
-    
+
     private static final String DEREFERENCING_TEXT = "Roberto Baggio is a retired Italian football forward and attacking midfielder/playmaker"
-    		+ " who was the former President of the Technical Sector of the FIGC. Widely regarded as one of the greatest footballers of all time, "
-    		+ "he came fourth in the FIFA Player of the Century Internet poll, and was chosen as a member of the FIFA World Cup Dream Team";
+            + " who was the former President of the Technical Sector of the FIGC. Widely regarded as one of the greatest footballers of all time, "
+            + "he came fourth in the FIFA Player of the Century Internet poll, and was chosen as a member of the FIFA World Cup Dream Team";
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -192,16 +192,16 @@ public class AnalysisTest extends GenericTest {
         Assert.assertNotEquals(0, bestAnnotations.keySet().size());
         Assert.assertEquals(bestAnnotations.keySet().size(), enhancements.getTextAnnotations().size());
 
-        for (TextAnnotation ta: bestAnnotations.keySet()) {
+        for (TextAnnotation ta : bestAnnotations.keySet()) {
             //check all best have the same
             Collection<EntityAnnotation> eas = bestAnnotations.get(ta);
             Double confidence = Iterables.get(eas, 0).getConfidence();
-            for (EntityAnnotation ea: eas) {
+            for (EntityAnnotation ea : eas) {
                 Assert.assertEquals(confidence, ea.getConfidence());
             }
 
             //check the confidence is actually the highest
-            for (EntityAnnotation ea: enhancements.getEntityAnnotations(ta)) {
+            for (EntityAnnotation ea : enhancements.getEntityAnnotations(ta)) {
                 Assert.assertTrue(confidence >= ea.getConfidence());
             }
         }
@@ -228,40 +228,40 @@ public class AnalysisTest extends GenericTest {
         Collection<EntityAnnotation> eas = enhancements.getEntityAnnotationsByConfidenceValue((0.9));
         Assert.assertTrue(eas.size() > 0);
     }
-    
+
     @Test
-    public void testFormatResponses(){
-    	AnalysisRequestBuilder builder = AnalysisRequest.builder()
+    public void testFormatResponses() {
+        AnalysisRequestBuilder builder = AnalysisRequest.builder()
                 .setAnalysis(TEST_ANALYSIS)
-                .setContent(PARIS_TEXT_TO_ENHANCE); 
-    	AnalysisRequest request = builder.setOutputFormat(OutputFormat.JSON).build();
-    	String jsonResponse = redlink.enhance(request, String.class);
-    	try {
-			new JSONObject(jsonResponse);
-		} catch (JSONException e) {
-			Assert.fail(e.getMessage());
-		}
-    	request = builder.setOutputFormat(OutputFormat.XML).build();
-    	String xmlResponse = redlink.enhance(request, String.class);
-    	DocumentBuilderFactory domParserFac = DocumentBuilderFactory.newInstance();
-    	try {
-			DocumentBuilder db = domParserFac.newDocumentBuilder();
-			db.parse(new InputSource(new StringReader(xmlResponse)));
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
-    	
-    	Enhancements rdfResponse = redlink.enhance(builder.build(), Enhancements.class);
-    	Assert.assertFalse(rdfResponse.getEnhancements().isEmpty());
-    	testEntityProperties(rdfResponse);
-    	
+                .setContent(PARIS_TEXT_TO_ENHANCE);
+        AnalysisRequest request = builder.setOutputFormat(OutputFormat.JSON).build();
+        String jsonResponse = redlink.enhance(request, String.class);
+        try {
+            new JSONObject(jsonResponse);
+        } catch (JSONException e) {
+            Assert.fail(e.getMessage());
+        }
+        request = builder.setOutputFormat(OutputFormat.XML).build();
+        String xmlResponse = redlink.enhance(request, String.class);
+        DocumentBuilderFactory domParserFac = DocumentBuilderFactory.newInstance();
+        try {
+            DocumentBuilder db = domParserFac.newDocumentBuilder();
+            db.parse(new InputSource(new StringReader(xmlResponse)));
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+
+        Enhancements rdfResponse = redlink.enhance(builder.build(), Enhancements.class);
+        Assert.assertFalse(rdfResponse.getEnhancements().isEmpty());
+        testEntityProperties(rdfResponse);
+
     }
-    
+
     @Test
-    public void testDereferencing(){
-    	
-    	// Dereferencing Fields
-    	AnalysisRequest request = AnalysisRequest.builder()
+    public void testDereferencing() {
+
+        // Dereferencing Fields
+        AnalysisRequest request = AnalysisRequest.builder()
                 .setAnalysis(TEST_ANALYSIS)
                 .setContent(DEREFERENCING_TEXT)
                 .addDereferencingField("fb:people.person.height_meters")
@@ -269,46 +269,50 @@ public class AnalysisTest extends GenericTest {
                 .addDereferencingField("dct:subject")
                 .addDereferencingField("dbp:totalgoals")
                 .setOutputFormat(OutputFormat.RDFXML).build();
-    	Enhancements enhancements = redlink.enhance(request);
-    	
-    	Entity baggio = enhancements.getEntity("http://rdf.freebase.com/ns/m.06d6f");
-    	Assert.assertEquals(baggio.getFirstPropertyValue(
-    			"http://rdf.freebase.com/ns/people.person.height_meters"), 
-    			"1.74");
-    	Assert.assertEquals(baggio.getFirstPropertyValue(
-    			"http://rdf.freebase.com/ns/people.person.date_of_birth"), 
-    			"1967-02-18");
-    	
-    	Entity baggioDBP = enhancements.getEntity("http://dbpedia.org/resource/Roberto_Baggio");
-    	Assert.assertEquals(baggioDBP.getFirstPropertyValue(
-    			"http://purl.org/dc/terms/subject"), 
-    			"http://dbpedia.org/resource/Category:Men");
-    	Assert.assertEquals(baggioDBP.getFirstPropertyValue(
-    			"http://dbpedia.org/property/totalgoals"), 
-    			"221");
-    	
-    	//LdPath
-    	String date = "@prefix fb: <http://rdf.freebase.com/ns/>;"
-    			+ "@prefix custom :<http://io.redlink/custom/freebase/>"
-    			+ "custom:date = fb:people.person.date_of_birth :: xsd:string;"
-    			+ "custom:nationality = fb:people.person.nationality/fb:location.location.adjectival_form :: xsd:string;" ;
-    	request = AnalysisRequest.builder()
+        Enhancements enhancements = redlink.enhance(request);
+
+        Entity baggio = enhancements.getEntity("http://rdf.freebase.com/ns/m.06d6f");
+        Assert.assertEquals(baggio.getFirstPropertyValue(
+                        "http://rdf.freebase.com/ns/people.person.height_meters"),
+                "1.74"
+        );
+        Assert.assertEquals(baggio.getFirstPropertyValue(
+                        "http://rdf.freebase.com/ns/people.person.date_of_birth"),
+                "1967-02-18"
+        );
+
+        Entity baggioDBP = enhancements.getEntity("http://dbpedia.org/resource/Roberto_Baggio");
+        Assert.assertEquals(baggioDBP.getFirstPropertyValue(
+                        "http://purl.org/dc/terms/subject"),
+                "http://dbpedia.org/resource/Category:Men"
+        );
+        Assert.assertEquals(baggioDBP.getFirstPropertyValue(
+                        "http://dbpedia.org/property/totalgoals"),
+                "221"
+        );
+
+        //LdPath
+        String date = "@prefix fb: <http://rdf.freebase.com/ns/>;"
+                + "@prefix custom :<http://io.redlink/custom/freebase/>"
+                + "custom:date = fb:people.person.date_of_birth :: xsd:string;"
+                + "custom:nationality = fb:people.person.nationality/fb:location.location.adjectival_form :: xsd:string;";
+        request = AnalysisRequest.builder()
                 .setAnalysis(TEST_ANALYSIS)
                 .setContent(DEREFERENCING_TEXT)
                 .setLDpathProgram(date)
                 .setOutputFormat(OutputFormat.RDFXML).build();
-    	enhancements = redlink.enhance(request);
-    	baggio = enhancements.getEntity("http://rdf.freebase.com/ns/m.06d6f");
-    	String dateV = baggio.getFirstPropertyValue(
-    			"http://rdf.freebase.com/ns/people.person.date_of_birth");
-    	String dateCustomV = baggio.getFirstPropertyValue(
-    			"http://io.redlink/custom/freebase/date");
-    	Assert.assertEquals(dateV,dateCustomV);
-    	Assert.assertTrue(baggio.getValues(
-    			"http://io.redlink/custom/freebase/nationality")
-    			.contains("Italian"));
-    	
-    	
+        enhancements = redlink.enhance(request);
+        baggio = enhancements.getEntity("http://rdf.freebase.com/ns/m.06d6f");
+        String dateV = baggio.getFirstPropertyValue(
+                "http://rdf.freebase.com/ns/people.person.date_of_birth");
+        String dateCustomV = baggio.getFirstPropertyValue(
+                "http://io.redlink/custom/freebase/date");
+        Assert.assertEquals(dateV, dateCustomV);
+        Assert.assertTrue(baggio.getValues(
+                "http://io.redlink/custom/freebase/nationality")
+                .contains("Italian"));
+
+
     }
 
     /**
@@ -325,13 +329,13 @@ public class AnalysisTest extends GenericTest {
         Assert.assertFalse(paris.getValues(RDFS.LABEL.toString()).isEmpty());
         Assert.assertEquals("Paris", paris.getValue(RDFS.LABEL.toString(), "en"));
         Assert.assertTrue(paris.getValues(RDF.TYPE.toString()).contains("http://dbpedia.org/ontology/Place"));
-       // Assert.assertTrue(Float.parseFloat(paris.getFirstPropertyValue("http://stanbol.apache.org/ontology/entityhub/entityhub#entityRank")) > 0.5f);
+        // Assert.assertTrue(Float.parseFloat(paris.getFirstPropertyValue("http://stanbol.apache.org/ontology/entityhub/entityhub#entityRank")) > 0.5f);
         Assert.assertTrue(paris.getValues(DCTERMS.SUBJECT.toString()).contains("http://dbpedia.org/resource/Category:Capitals_in_Europe"));
 
         EntityAnnotation parisEa = enhancements.getEntityAnnotation(paris.getUri());
         Assert.assertTrue(parisEa.getEntityTypes().contains("http://dbpedia.org/ontology/Place"));
         Assert.assertEquals("Paris", parisEa.getEntityLabel());
- //       Assert.assertEquals("dbpedia", parisEa.getDataset());
+        //       Assert.assertEquals("dbpedia", parisEa.getDataset());
         Assert.assertEquals("en", parisEa.getLanguage());
 
 
