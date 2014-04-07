@@ -325,7 +325,7 @@ public class AnalysisTest extends GenericTest {
                 for (EntityAnnotation ea : eas) {
                     log.debug(" - {}", ea.getEntityReference().getUri());
                 }
-                log.trace("slection content: {}", ta.getSelectionContext());
+                log.trace("selection content: {}", ta.getSelectionContext());
             }
         }
     }
