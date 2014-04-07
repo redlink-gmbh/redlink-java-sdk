@@ -37,6 +37,7 @@ public class DataTest extends GenericTest {
     private static final String QUERY_CONSTRUCT = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }";
 
     private static final String QUERY_UPDATE = "INSERT DATA { <http://example.org/test> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/Test> }";
+
     public static final RDFFormat TEST_FILE_FORMAT = RDFFormat.RDFXML;
 
     private static Credentials credentials;

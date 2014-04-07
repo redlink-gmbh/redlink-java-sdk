@@ -37,7 +37,6 @@ public class DataConcurrencyTest extends GenericTest {
     @Rule
     public RepeatingRule rrule = new RepeatingRule();
 
-
     protected static Random rnd;
 
     private static long runs = 0;

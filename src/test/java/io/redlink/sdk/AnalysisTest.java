@@ -1,46 +1,37 @@
 package io.redlink.sdk;
 
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Iterators;
 import com.google.common.collect.Multimap;
 import io.redlink.sdk.analysis.AnalysisRequest;
 import io.redlink.sdk.analysis.AnalysisRequest.AnalysisRequestBuilder;
 import io.redlink.sdk.analysis.AnalysisRequest.OutputFormat;
-import io.redlink.sdk.impl.analysis.model.Enhancement;
-import io.redlink.sdk.impl.analysis.model.Enhancements;
-import io.redlink.sdk.impl.analysis.model.Entity;
-import io.redlink.sdk.impl.analysis.model.EntityAnnotation;
-import io.redlink.sdk.impl.analysis.model.TextAnnotation;
-
-import java.io.InputStream;
-import java.io.StringReader;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.soap.Text;
-
+import io.redlink.sdk.impl.analysis.model.*;
+import org.apache.commons.io.IOUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.util.Collection;
+import java.util.Map;
+
 public class AnalysisTest extends GenericTest {
+
+    private static Logger log = LoggerFactory.getLogger(AnalysisTest.class);
 
     private static RedLink.Analysis redlink;
     private static final String TEST_FILE = "/willsmith.txt";
     private static final String TEST_ANALYSIS = "test";
-
 
     private static final String STANBOL_TEXT_TO_ENHANCE = "The Open Source Project Apache Stanbol provides different "
             + "features that facilitate working with linked data, in the netlabs.org early adopter proposal VIE "
@@ -312,7 +303,31 @@ public class AnalysisTest extends GenericTest {
                 "http://io.redlink/custom/freebase/nationality")
                 .contains("Italian"));
 
+    }
 
+    /**
+     * Test for checking a non-deterministic behaviour (SDK-4)
+     *
+     */
+    @Test
+    public void testSDK4() throws IOException {
+        String content = IOUtils.toString(AnalysisTest.class.getResourceAsStream("/SDK-4.txt"), "utf8");
+        AnalysisRequest request = AnalysisRequest.builder()
+                .setAnalysis(TEST_ANALYSIS)
+                .setContent(content)
+                .setOutputFormat(OutputFormat.TURTLE).build();
+        Enhancements enhancements = redlink.enhance(request);
+        Multimap<TextAnnotation, EntityAnnotation> bestAnnotations = enhancements.getBestAnnotations();
+        for (TextAnnotation ta : bestAnnotations.keySet()) {
+            Collection<EntityAnnotation> eas = bestAnnotations.get(ta);
+            if (ta.getSelectedText().contains("Lopez")) {
+                log.debug("Found target text annotation \"{}\" with {} entity annotation:", ta.getSelectedText(), eas.size());
+                for (EntityAnnotation ea : eas) {
+                    log.debug(" - {}", ea.getEntityReference().getUri());
+                }
+                log.trace("slection content: {}", ta.getSelectionContext());
+            }
+        }
     }
 
     /**
@@ -337,8 +352,6 @@ public class AnalysisTest extends GenericTest {
         Assert.assertEquals("Paris", parisEa.getEntityLabel());
         //       Assert.assertEquals("dbpedia", parisEa.getDataset());
         Assert.assertEquals("en", parisEa.getLanguage());
-
-
     }
 
 }
