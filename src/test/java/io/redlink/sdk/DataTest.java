@@ -1,5 +1,6 @@
 package io.redlink.sdk;
 
+import com.jayway.restassured.RestAssured;
 import io.redlink.sdk.impl.Status;
 import io.redlink.sdk.impl.data.model.LDPathResult;
 import org.apache.marmotta.client.model.sparql.SPARQLResult;
@@ -78,12 +79,30 @@ public class DataTest extends GenericTest {
     public void testImport() throws IOException, RDFParseException, RDFHandlerException {
         InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
         Assume.assumeNotNull(in);
-        final Model model = Rio.parse(in, buildDatasetBaseUri(credentials, status.getOwner(), TEST_DATASET), TEST_FILE_FORMAT);
+        String base = buildDatasetBaseUri(credentials, status.getOwner(), TEST_DATASET);
+        final Model model = Rio.parse(in, base, TEST_FILE_FORMAT);
         Assert.assertTrue(redlink.importDataset(model, TEST_DATASET));
         final SPARQLResult triples = redlink.sparqlTupleQuery(QUERY_SELECT, TEST_DATASET);
         Assert.assertNotNull(triples);
         Assert.assertTrue(triples.size() >= TEST_FILE_TRIPLES);
         //TODO: more specific testing
+    }
+
+    @Test
+    public void testImportCheckDataHub() throws IOException, RDFParseException, RDFHandlerException {
+        InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
+        Assume.assumeNotNull(in);
+        String base = buildDatasetBaseUri(credentials, status.getOwner(), TEST_DATASET);
+        final Model model = Rio.parse(in, base, TEST_FILE_FORMAT);
+        Assert.assertTrue(redlink.importDataset(model, TEST_DATASET));
+
+        RestAssured
+            .given()
+                .header("Accept", "text/turtle")
+            .expect()
+                .statusCode(200)
+                .contentType("text/turtle")
+            .get(base + TEST_RESOURCE);
     }
 
     @Test
