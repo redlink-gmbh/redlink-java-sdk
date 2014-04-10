@@ -331,6 +331,21 @@ public class AnalysisTest extends GenericTest {
     }
 
     /**
+     * Test for checking an issue with some of the NLP engines
+     *
+     */
+    @Test
+    public void testSDK5() throws IOException {
+        String content = IOUtils.toString(AnalysisTest.class.getResourceAsStream("/SDK-5.txt"), "utf8");
+        AnalysisRequest request = AnalysisRequest.builder()
+                .setAnalysis(TEST_ANALYSIS)
+                .setContent(content)
+                .setOutputFormat(OutputFormat.TURTLE).build();
+        Enhancements enhancements = redlink.enhance(request);
+        Assert.assertEquals(11, enhancements.getTextAnnotations().size());
+    }
+
+    /**
      * Test Entities Parsing and Properties
      */
     private void testEntityProperties(Enhancements enhancements) {
