@@ -46,24 +46,24 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
         Response response = execEnhance(request);
         return parseResponse(response);
     }
-    
-    private Response execEnhance(AnalysisRequest request){
-    	try {
+
+    private Response execEnhance(AnalysisRequest request) {
+        try {
 
             // Build RESTEasy Endpoint
             WebTarget target = credentials.buildUrl(getEnhanceUriBuilder(request.getAnalysis())); // Change URI based on the analysis name
             target = target.queryParam(RedLink.IN, request.getInputFormat()) // InputFormat parameter
-            		.queryParam(RedLink.OUT, request.getOutputFormat()) // OutputFormat parameter
-            		.queryParam(SUMMARY, request.getSummary()) // Entities' summaries parameter;
-            		.queryParam(THUMBNAIL, request.getThumbnail()) // Entities' thumbnails parameter
-            		.queryParam(LDPATH, request.getLDpathProgram()); // LDpath program for dereferencing
-            if(!request.getFieldsToDereference().isEmpty()){
-            	Iterator<String> it = request.getFieldsToDereference().iterator();
-            	while(it.hasNext())
-            		target = target.queryParam(DEREF_FIELDS, it.next()); // Fields to be dereferenced
+                    .queryParam(RedLink.OUT, request.getOutputFormat()) // OutputFormat parameter
+                    .queryParam(SUMMARY, request.getSummary()) // Entities' summaries parameter;
+                    .queryParam(THUMBNAIL, request.getThumbnail()) // Entities' thumbnails parameter
+                    .queryParam(LDPATH, request.getLDpathProgram()); // LDpath program for dereferencing
+            if (!request.getFieldsToDereference().isEmpty()) {
+                Iterator<String> it = request.getFieldsToDereference().iterator();
+                while (it.hasNext())
+                    target = target.queryParam(DEREF_FIELDS, it.next()); // Fields to be dereferenced
             }
-            		   
-            
+
+
             // Accepted Media-Type setup
             Builder httpRequest = target.request();
             httpRequest.accept(request.getOutputMediaType());
@@ -72,43 +72,43 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
                 type = MediaType.APPLICATION_OCTET_STREAM_TYPE;
 
             Entity<?> entity = Entity.entity(request.getContent(), type);
-            
+
             logger.debug("Making Request to User Endpoint " + target.getUri().toString());
             long pre = System.currentTimeMillis();
             Response response = httpRequest.post(entity);
             long time = System.currentTimeMillis() - pre;
             logger.debug("Server Response Time " + time + " ms. Status: " + response.getStatus());
-//            logger.debug("X-Redlink-Worker: {}", response.getHeaderString("X-Redlink-Worker"));
+            //logger.debug("X-Redlink-Worker: {}", response.getHeaderString("X-Redlink-Worker"));
 
             if (response.getStatus() != 200) {
                 String message = "Enhancement failed: HTTP error code "
                         + response.getStatus() + ". Message: " + response.getStatusInfo().getReasonPhrase();
 
                 logger.error(message);
-//                logger.debug("X-Redlink-Worker: {}", response.getHeaderString("X-Redlink-Worker"));
+                //logger.debug("X-Redlink-Worker: {}", response.getHeaderString("X-Redlink-Worker"));
                 String stackTrace = response.readEntity(String.class);
                 logger.trace(stackTrace);
                 throw new RuntimeException(message);
-            } 
+            }
 
             return response;
         } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
             throw new RuntimeException(e);
         }
     }
-    
-    private Enhancements parseResponse(Response response){
-		try {
-			long pre = System.currentTimeMillis();
-	        EnhancementsParser parser = EnhancementsParserFactory.createParser(response);
-	        Enhancements enhancements = parser.createEnhancements();
-	        long time = System.currentTimeMillis() - pre;
-	        logger.debug("Response Parse Time: " + time + " ms");
-	        return enhancements;
-		} catch (EnhancementParserException e) {
-			throw new RuntimeException("Enhancement failed: " + e.getMessage(), e);
-		}
-        
+
+    private Enhancements parseResponse(Response response) {
+        try {
+            long pre = System.currentTimeMillis();
+            EnhancementsParser parser = EnhancementsParserFactory.createParser(response);
+            Enhancements enhancements = parser.createEnhancements();
+            long time = System.currentTimeMillis() - pre;
+            logger.debug("Response Parse Time: " + time + " ms");
+            return enhancements;
+        } catch (EnhancementParserException e) {
+            throw new RuntimeException("Enhancement failed: " + e.getMessage(), e);
+        }
+
     }
 
     private final UriBuilder getEnhanceUriBuilder(String analysis) {
@@ -151,31 +151,31 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
      * (non-Javadoc)
      * @see io.redlink.sdk.RedLink.Analysis#enhance(io.redlink.sdk.analysis.AnalysisRequest, java.lang.Class)
      */
-	@Override
-	public <T> T enhance(AnalysisRequest request, Class<T> responseType) {
-		Object result = null;
-		if(responseType.isAssignableFrom(Enhancements.class)){
-			AnalysisRequest finalRequest = request;
-			if(request.getOutputMediaType().
-					equals(OutputFormat.JSON.value()) || 
-				request.getOutputMediaType().
-					equals(OutputFormat.XML.value())){
-				finalRequest = AnalysisRequest.builder().
-					setAnalysis(request.getAnalysis()).
-					setContent(request.getContent()).
-					setInputFormat(InputFormat.valueOf(request.getInputFormat())).
-					setOutputFormat(OutputFormat.TURTLE).
-					setSummaries(request.getSummary()).
-					setThumbnails(request.getThumbnail()).build();
-			}
-			result = enhance(finalRequest);
-		}else if(responseType.isAssignableFrom((String.class))){
-			Response response = execEnhance(request);
-			result = response.readEntity(String.class);
-		}else
-			throw new UnsupportedOperationException("Unsupported Response Type" + responseType.getCanonicalName());
-		
-		return responseType.cast(result);
-	}
+    @Override
+    public <T> T enhance(AnalysisRequest request, Class<T> responseType) {
+        Object result = null;
+        if (responseType.isAssignableFrom(Enhancements.class)) {
+            AnalysisRequest finalRequest = request;
+            if (request.getOutputMediaType().
+                    equals(OutputFormat.JSON.value()) ||
+                    request.getOutputMediaType().
+                            equals(OutputFormat.XML.value())) {
+                finalRequest = AnalysisRequest.builder().
+                        setAnalysis(request.getAnalysis()).
+                        setContent(request.getContent()).
+                        setInputFormat(InputFormat.valueOf(request.getInputFormat())).
+                        setOutputFormat(OutputFormat.TURTLE).
+                        setSummaries(request.getSummary()).
+                        setThumbnails(request.getThumbnail()).build();
+            }
+            result = enhance(finalRequest);
+        } else if (responseType.isAssignableFrom((String.class))) {
+            Response response = execEnhance(request);
+            result = response.readEntity(String.class);
+        } else
+            throw new UnsupportedOperationException("Unsupported Response Type" + responseType.getCanonicalName());
+
+        return responseType.cast(result);
+    }
 
 }

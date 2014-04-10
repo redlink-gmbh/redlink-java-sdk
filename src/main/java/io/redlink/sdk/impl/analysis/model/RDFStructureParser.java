@@ -18,6 +18,7 @@ import java.util.*;
 
 /**
  * @author rafa.haro@redlink.co
+ * @author sergio.fernandez@redlink.co
  */
 final class RDFStructureParser extends EnhancementsParser {
 
@@ -172,8 +173,8 @@ final class RDFStructureParser extends EnhancementsParser {
         String textAnnotationsQuery = "PREFIX fise: <http://fise.iks-project.eu/ontology/> \n"
                 + "PREFIX dct: <http://purl.org/dc/terms/> \n"
                 + "SELECT * { \n"
-                + "  ?annotation a fise:TextAnnotation ; \n"
-                + "	 fise:confidence ?confidence ; \n"
+                + "  ?annotation a fise:TextAnnotation . \n"
+                + "	 OPTIONAL { ?annotation fise:confidence ?confidence } \n"
                 + "  OPTIONAL { ?annotation dct:type ?type} \n"
                 + "  OPTIONAL { ?annotation dct:language ?language} \n"
                 + "  OPTIONAL { ?annotation fise:start ?start ; fise:end ?end } \n"
@@ -307,8 +308,8 @@ final class RDFStructureParser extends EnhancementsParser {
                 + "PREFIX dct: <http://purl.org/dc/terms/> \n"
                 + "PREFIX entityhub: <http://stanbol.apache.org/ontology/entityhub/entityhub#> \n"
                 + "SELECT * { \n"
-                + "  ?annotation a fise:EntityAnnotation ; \n"
-                + "	  fise:confidence ?confidence ; \n"
+                + "  ?annotation a fise:EntityAnnotation . \n"
+                + "	 OPTIONAL { ?annotation fise:confidence ?confidence } \n"
                 + "  OPTIONAL { ?language a dct:language  } \n"
                 + "  OPTIONAL { ?annotation dct:relation ?relation } \n"
                 + "  OPTIONAL { ?annotation fise:entity-label ?entityLabel } \n"
@@ -488,9 +489,9 @@ final class RDFStructureParser extends EnhancementsParser {
         String textAnnotationQuery = "PREFIX fise: <http://fise.iks-project.eu/ontology/> \n"
                 + "PREFIX dct: <http://purl.org/dc/terms/> \n"
                 + "PREFIX entityhub: <http://stanbol.apache.org/ontology/entityhub/entityhub#> \n"
-                + "SELECT * { \n" + "	<"
+                + "SELECT * { \n OPTIONAL { <"
                 + taUri
-                + ">  fise:confidence ?confidence . \n"
+                + ">  fise:confidence ?confidence } \n"
                 + "  OPTIONAL { <"
                 + taUri
                 + ">  dct:language ?language } \n"
@@ -575,7 +576,7 @@ final class RDFStructureParser extends EnhancementsParser {
         String entityAnnotationsQuery = "PREFIX fise: <http://fise.iks-project.eu/ontology/> \n"
                 + "PREFIX dct: <http://purl.org/dc/terms/> \n"
                 + "PREFIX entityhub: <http://stanbol.apache.org/ontology/entityhub/entityhub#> \n"
-                + "SELECT * { \n" + "	<"
+                + "SELECT * { \n OPTIONAL { <"
                 + eaUri
                 + ">  fise:confidence ?confidence ; \n"
                 + eaUri
@@ -729,8 +730,12 @@ final class RDFStructureParser extends EnhancementsParser {
     }
 
     private void setEnhancementData(Enhancement enhancement, BindingSet result) {
-        enhancement.setConfidence(Double.parseDouble(result
-                .getBinding("confidence").getValue().stringValue()));
+        if (result.hasBinding("confidence")) {
+            enhancement.setConfidence(Double.parseDouble(result
+                    .getBinding("confidence").getValue().stringValue()));
+        } else {
+            enhancement.setConfidence(1.0); //TODO: Rupert says this should be the default value...
+        }
         enhancement.setLanguage(result.getBinding("language") != null ? result
                 .getBinding("language").getValue().stringValue() : null);
     }
@@ -775,8 +780,8 @@ final class RDFStructureParser extends EnhancementsParser {
                 + "PREFIX dct: <http://purl.org/dc/terms/> \n"
                 + "PREFIX entityhub: <http://stanbol.apache.org/ontology/entityhub/entityhub#> \n"
                 + "SELECT * { \n"
-                + "  ?annotation a fise:TopicAnnotation ; \n"
-                + "	  fise:confidence ?confidence ; \n"
+                + "  ?annotation a fise:TopicAnnotation . \n"
+                + "	 OPTIONAL { fise:confidence ?confidence } \n"
                 + "  OPTIONAL { ?language a dct:language  } \n"
                 + "  OPTIONAL { ?annotation dct:relation ?relation } \n"
                 + "  OPTIONAL { ?annotation fise:entity-label ?entityLabel } \n"
@@ -857,4 +862,5 @@ final class RDFStructureParser extends EnhancementsParser {
             }
         }
     }
+
 }
