@@ -343,6 +343,7 @@ public class AnalysisTest extends GenericTest {
                 .setOutputFormat(OutputFormat.TURTLE).build();
         Enhancements enhancements = redlink.enhance(request);
         Assert.assertEquals(11, enhancements.getTextAnnotations().size());
+        Assert.assertEquals(7, enhancements.getBestAnnotations().size());
     }
 
     /**
