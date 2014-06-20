@@ -81,8 +81,12 @@ public final class EnhancementsParserFactory {
      * @throws EnhancementParserException
      */
     public static final EnhancementsParser createParser(Response response) throws EnhancementParserException {
+    	String type = 
+    			response.getMediaType().getType() +
+    			"/" +
+    			response.getMediaType().getSubtype();
         OutputFormat format =
-                OutputFormat.get(response.getMediaType().toString());
+                OutputFormat.get(type);
         switch (format) {
 //		case XML: 
 //		case JSON:
