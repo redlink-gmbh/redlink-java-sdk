@@ -22,6 +22,11 @@ public class Entity {
      * Entity URI
      */
     private String uri;
+    
+    /**
+     * Entity Dataset
+     */
+    private String dataset;
 
     /**
      * Properties' -> <Property URI, Multimap<Language, Property Value>>
@@ -32,9 +37,10 @@ public class Entity {
         this.properties = Maps.newHashMap();
     }
 
-    public Entity(String uri) {
+    public Entity(String uri, String dataset) {
         this();
         this.uri = uri;
+        this.dataset = dataset;
     }
 
     /**
@@ -49,8 +55,21 @@ public class Entity {
     void setUri(String uri) {
         this.uri = uri;
     }
+    
+    /**
+     * Returns the Entity Dataset
+     * 
+     * @return
+     */
+    public String getDataset() {
+		return dataset;
+	}
 
-    void addPropertyValue(String property, String value) {
+	void setDataset(String dataset) {
+		this.dataset = dataset;
+	}
+
+	void addPropertyValue(String property, String value) {
 
         if (property != null && value != null) {
             Multimap<Optional<String>, String> entry = properties.get(property);

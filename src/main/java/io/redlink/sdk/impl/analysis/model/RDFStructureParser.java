@@ -365,12 +365,18 @@ final class RDFStructureParser extends EnhancementsParser {
                             .getValue()).getLanguage());
 
             }
+            
+            if (result.hasBinding("site")) {
+                entityAnnotation.setDataset(result.getBinding("site").getValue()
+                        .stringValue());
+            }
 
             if (result.hasBinding("entityReference")) {
                 entityAnnotation
                         .setEntityReference(parseEntity(conn, result
                                 .getBinding("entityReference").getValue()
-                                .stringValue()));
+                                .stringValue(),
+                                entityAnnotation.getDataset()));
             }
 
             if (result.hasBinding("relation")) {
@@ -385,11 +391,6 @@ final class RDFStructureParser extends EnhancementsParser {
                         .stringValue());
             }
             entityAnnotation.setEntityTypes(types);
-
-            if (result.hasBinding("site")) {
-                entityAnnotation.setDataset(result.getBinding("site").getValue()
-                        .stringValue());
-            }
         } else {
             if (result.hasBinding("relation")) {
                 final String nextRelationUri = result.getBinding("relation")
@@ -614,10 +615,15 @@ final class RDFStructureParser extends EnhancementsParser {
                                     .getValue()).getLanguage());
 
                     }
+                    if (result.hasBinding("site")) {
+                        enhancement.setDataset(result.getBinding("site")
+                                .getValue().stringValue());
+                    }
                     if (result.hasBinding("entityReference")) {
                         enhancement.setEntityReference(parseEntity(conn, result
                                 .getBinding("entityReference").getValue()
-                                .stringValue()));
+                                .stringValue(),
+                                enhancement.getDataset()));
                     }
                     if (result.hasBinding("relation")) {
                         String nextRelationUri = result.getBinding("relation")
@@ -631,10 +637,6 @@ final class RDFStructureParser extends EnhancementsParser {
                         types.add(result.getBinding("entityType").getValue()
                                 .stringValue());
                         enhancement.setEntityTypes(types);
-                    }
-                    if (result.hasBinding("site")) {
-                        enhancement.setDataset(result.getBinding("site")
-                                .getValue().stringValue());
                     }
                 } else {
                     if (result.hasBinding("relation")) {
@@ -675,12 +677,12 @@ final class RDFStructureParser extends EnhancementsParser {
      * io.redlink.sdk.impl.analysis.model.EnhancementsParser#parseEntity(java
      * .lang.String)
      */
-    public Entity parseEntity(String entityUri)
+    public Entity parseEntity(String entityUri, String dataset)
             throws EnhancementParserException {
         try {
             RepositoryConnection conn = repository.getConnection();
             conn.begin();
-            Entity result = parseEntity(conn, entityUri);
+            Entity result = parseEntity(conn, entityUri, dataset);
             conn.close();
             return result;
         } catch (RepositoryException e) {
@@ -690,11 +692,11 @@ final class RDFStructureParser extends EnhancementsParser {
         }
     }
 
-    private Entity parseEntity(RepositoryConnection conn, String entityUri)
+    private Entity parseEntity(RepositoryConnection conn, String entityUri, String dataset)
             throws EnhancementParserException {
         String entityQuery = "SELECT ?p ?o { \n" + "  <" + entityUri
                 + "> ?p ?o ; \n" + "}";
-        Entity entity = new Entity(entityUri);
+        Entity entity = new Entity(entityUri, dataset);
 
         try {
             TupleQueryResult entityResults = conn.prepareTupleQuery(
@@ -734,7 +736,7 @@ final class RDFStructureParser extends EnhancementsParser {
             enhancement.setConfidence(Double.parseDouble(result
                     .getBinding("confidence").getValue().stringValue()));
         } else {
-            enhancement.setConfidence(1.0); //TODO: Rupert says this should be the default value...
+            enhancement.setConfidence(1.0); // Rupert says this should be the default value...
         }
         enhancement.setLanguage(result.getBinding("language") != null ? result
                 .getBinding("language").getValue().stringValue() : null);

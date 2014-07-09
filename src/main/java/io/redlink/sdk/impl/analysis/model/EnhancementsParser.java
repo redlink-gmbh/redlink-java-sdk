@@ -72,5 +72,5 @@ public abstract class EnhancementsParser {
      * @return
      * @throws EnhancementParserException
      */
-    public abstract Entity parseEntity(String entityUri) throws EnhancementParserException;
+    public abstract Entity parseEntity(String entityUri, String dataset) throws EnhancementParserException;
 }
