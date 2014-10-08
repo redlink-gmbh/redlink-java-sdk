@@ -26,14 +26,14 @@
     <url>http://dev.redlink.io/sdk</url>
 
     <organization>
-        <name>RedLink GmbH</name>
+        <name>Redlink GmbH</name>
         <url>http://redlink.co</url>
     </organization>
 
     <scm>
         <connection>scm:git:git@github.com:redlink-gmbh/redlink-java-sdk.git</connection>
         <developerConnection>scm:git:git@github.com:redlink-gmbh/redlink-java-sdk.git</developerConnection>
-        <url>ggit@github.com:redlink-gmbh/redlink-java-sdk.git</url>
+        <url>git@github.com:redlink-gmbh/redlink-java-sdk.git</url>
     </scm>
 
     <issueManagement>
