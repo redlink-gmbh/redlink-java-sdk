@@ -234,7 +234,17 @@ public class AnalysisTest extends GenericTest {
     }
 
     @Test
-    public void testFormatResponses() {
+    public void testRdfFormatResponse() {
+        AnalysisRequestBuilder builder = AnalysisRequest.builder()
+                .setAnalysis(TEST_ANALYSIS)
+                .setContent(PARIS_TEXT_TO_ENHANCE);
+        Enhancements rdfResponse = redlink.enhance(builder.build(), Enhancements.class);
+        Assert.assertFalse(rdfResponse.getEnhancements().isEmpty());
+        testEntityProperties(rdfResponse);
+    }
+
+    @Test
+    public void testJsonFormatResponse() {
         AnalysisRequestBuilder builder = AnalysisRequest.builder()
                 .setAnalysis(TEST_ANALYSIS)
                 .setContent(PARIS_TEXT_TO_ENHANCE);
@@ -243,22 +253,27 @@ public class AnalysisTest extends GenericTest {
         try {
             new JSONObject(jsonResponse);
         } catch (JSONException e) {
+            e.printStackTrace();
             Assert.fail(e.getMessage());
         }
-        request = builder.setOutputFormat(OutputFormat.XML).build();
+    }
+
+    @Test
+    public void testXmlFormatResponse() {
+        AnalysisRequestBuilder builder = AnalysisRequest.builder()
+                .setAnalysis(TEST_ANALYSIS)
+                .setContent(PARIS_TEXT_TO_ENHANCE);
+        AnalysisRequest request = builder.setOutputFormat(OutputFormat.XML).build();
         String xmlResponse = redlink.enhance(request, String.class);
         DocumentBuilderFactory domParserFac = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder db = domParserFac.newDocumentBuilder();
             db.parse(new InputSource(new StringReader(xmlResponse)));
         } catch (Exception e) {
+            log.debug("Raw response: \n{}", xmlResponse);
+            e.printStackTrace();
             Assert.fail(e.getMessage());
         }
-
-        Enhancements rdfResponse = redlink.enhance(builder.build(), Enhancements.class);
-        Assert.assertFalse(rdfResponse.getEnhancements().isEmpty());
-        testEntityProperties(rdfResponse);
-
     }
 
     @Test
