@@ -70,7 +70,6 @@ public class AnalysisRequest {
         TURTLE(new MediaType("text", "turtle")),
         NT(new MediaType("text", "rdf+n3"));
 
-
         private final MediaType type;
 
         private OutputFormat(MediaType type) {
@@ -93,8 +92,8 @@ public class AnalysisRequest {
     /**
      * Supported Content Formats in the Builder API
      */
-    private static enum ContentType{
-    	STRING, FILE, INPUTSTREAM, EMPTY;
+    private static enum ContentType {
+        STRING, FILE, INPUTSTREAM, EMPTY;
     }
     
     private boolean consumed = false;
@@ -203,33 +202,35 @@ public class AnalysisRequest {
     public InputStream getContent() {
         switch(contentType){
         case EMPTY:
-        	throw new RuntimeException("There is not Content available to analyze");
+            throw new RuntimeException("There is not Content available to analyze");
         case FILE:
-        	if(consumed)
-				try {
-					contentStream = Optional.of((InputStream) new FileInputStream(contentFile.get()));
-				} catch (FileNotFoundException e) {
-					throw new RuntimeException(e);
-				}
-        	break;
-        case STRING:
-        	if(consumed){
-        		if(contentEncoding.isPresent())
-					try {
-						contentStream = Optional.of(IOUtils.toInputStream(contentString.get(), contentEncoding.get()));
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}
-				else
-        			contentStream = Optional.of(IOUtils.toInputStream(contentString.get()));
-        	}
-        	break;
-        case INPUTSTREAM:
-        	if(consumed)
-        		throw new RuntimeException("The Content Stream to be analyzed has been already consumed");
-        	break;
-		default:
-			break;
+            if(consumed)
+                try {
+                    contentStream = Optional.of((InputStream) new FileInputStream(contentFile.get()));
+                } catch (FileNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            break;
+            case STRING:
+                if (consumed) {
+                    if (contentEncoding.isPresent()) {
+                        try {
+                            contentStream = Optional.of(IOUtils.toInputStream(contentString.get(), contentEncoding.get()));
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    } else {
+                        contentStream = Optional.of(IOUtils.toInputStream(contentString.get()));
+                    }
+                }
+                break;
+            case INPUTSTREAM:
+                if (consumed) {
+                    throw new RuntimeException("The Content Stream to be analyzed has been already consumed");
+                }
+                break;
+            default:
+                break;
         }
         
         consumed = true;
@@ -264,11 +265,11 @@ public class AnalysisRequest {
     }
     
     public Collection<String> getFieldsToDereference(){
-    	return dereferencedFields;
+        return dereferencedFields;
     }
     
     public String getLDpathProgram(){
-    	return ldpath.orNull();
+        return ldpath.orNull();
     }
 
     /**
@@ -393,13 +394,13 @@ public class AnalysisRequest {
         }
         
         public AnalysisRequestBuilder setLDpathProgram(String ldpathProgram){
-        	this.request.ldpath = Optional.of(ldpathProgram);
-        	return this;
+            this.request.ldpath = Optional.of(ldpathProgram);
+            return this;
         }
         
         public AnalysisRequestBuilder addDereferencingField(String field){
-        	this.request.dereferencedFields.add(field);
-        	return this;
+            this.request.dereferencedFields.add(field);
+            return this;
         }
 
 

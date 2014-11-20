@@ -36,7 +36,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.util.Collection;
-import java.util.Map;
 
 public class AnalysisTest extends GenericTest {
 
