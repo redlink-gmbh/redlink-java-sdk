@@ -26,6 +26,7 @@ import io.redlink.sdk.impl.analysis.model.EnhancementsParserFactory;
 
 import java.net.MalformedURLException;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation.Builder;
@@ -63,8 +64,19 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
     private Response execEnhance(AnalysisRequest request) {
         try {
 
+            // Find out the target analysis
+            String analysis = request.getAnalysis();
+            if (analysis == null) {
+                final List<String> analyses = credentials.getStatus().getAnalyses();
+                if (analyses.size() == 1) {
+                    analysis = analyses.get(0);
+                } else {
+                    throw new IllegalArgumentException("not analysis found in the request");
+                }
+            }
+
             // Build RESTEasy Endpoint
-            WebTarget target = credentials.buildUrl(getEnhanceUriBuilder(request.getAnalysis())); // Change URI based on the analysis name
+            WebTarget target = credentials.buildUrl(getEnhanceUriBuilder(analysis)); // Change URI based on the analysis name
             target = target.queryParam(RedLink.IN, request.getInputFormat()) // InputFormat parameter
                     .queryParam(RedLink.OUT, request.getOutputFormat()) // OutputFormat parameter
                     .queryParam(SUMMARY, request.getSummary()) // Entities' summaries parameter;
@@ -75,7 +87,6 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
                 while (it.hasNext())
                     target = target.queryParam(DEREF_FIELDS, it.next()); // Fields to be dereferenced
             }
-
 
             // Accepted Media-Type setup
             Builder httpRequest = target.request();
