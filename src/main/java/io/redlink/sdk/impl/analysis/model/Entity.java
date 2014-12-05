@@ -78,11 +78,11 @@ public class Entity {
 		return dataset;
 	}
 
-	void setDataset(String dataset) {
+    void setDataset(String dataset) {
 		this.dataset = dataset;
 	}
 
-	void addPropertyValue(String property, String value) {
+    void addPropertyValue(String property, String value) {
 
         if (property != null && value != null) {
             Multimap<Optional<String>, String> entry = properties.get(property);

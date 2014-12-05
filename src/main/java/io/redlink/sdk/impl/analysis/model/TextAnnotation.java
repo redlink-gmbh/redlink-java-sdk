@@ -19,7 +19,7 @@ package io.redlink.sdk.impl.analysis.model;
  *
  * @author sergio.fernandez@redlink.co
  * @author rafa.haro@redlink.co
- * @see https://stanbol.apache.org/docs/trunk/components/enhancer/enhancementstructure#fisetextannotation
+ * @see <a href="https://stanbol.apache.org/docs/trunk/components/enhancer/enhancementstructure#fisetextannotation">FISE Text Annotation</a>
  */
 public final class TextAnnotation extends Enhancement {
 
@@ -28,6 +28,7 @@ public final class TextAnnotation extends Enhancement {
     private int ends = 0; // http://fise.iks-project.eu/ontology/end
     private String selectedText = null; // http://fise.iks-project.eu/ontology/selected-text
     private String selectionContext = null; // http://fise.iks-project.eu/ontology/selection-context
+    private String type = null; // ttp://purl.org/dc/terms/type
 
     public TextAnnotation() {
         super();
@@ -83,6 +84,19 @@ public final class TextAnnotation extends Enhancement {
 
     void setSelectionContext(String selectionContext) {
         this.selectionContext = selectionContext;
+    }
+
+    /**
+     * Returns the type of the entity annotation
+     *
+     * @return
+     */
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     @Override

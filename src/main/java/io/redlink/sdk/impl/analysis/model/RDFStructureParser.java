@@ -268,6 +268,10 @@ final class RDFStructureParser extends EnhancementsParser {
                     textAnnotation.setLanguage(((Literal) selectedText
                             .getValue()).getLanguage());
             }
+            if (result.hasBinding("type")) {
+                Binding type = result.getBinding("type");
+                textAnnotation.setType(type.getValue().stringValue());
+            }
         } else {
             if (result.hasBinding("relation")) {
                 String nextRelationUri = result.getBinding("relation")
