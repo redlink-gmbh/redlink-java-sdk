@@ -15,6 +15,7 @@ package io.redlink.sdk.impl;
 
 import org.codehaus.jackson.JsonNode;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,7 +23,8 @@ import java.util.List;
 /**
  * RedLink's user Application Status data
  *
- * @author rafa.haro@redlink.co
+ * @author Rafa Haro
+ * @author Sergio Fernández
  */
 public class Status {
 
@@ -36,7 +38,8 @@ public class Status {
     private List<String> analyses;
 
     public Status() {
-
+        datasets = new ArrayList<>();
+        analyses = new ArrayList<>();
     }
 
     /**

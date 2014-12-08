@@ -45,11 +45,12 @@ import org.slf4j.LoggerFactory;
  * inject the content to be analyzed and, finally, make the request to RedLink platform. The response of the service is parsed
  * using the proper parser for the {@link OutputFormat} selected by the user
  *
- * @author rafa.haro@redlink.co
+ * @author Rafa Haro
+ * @author Sergio Fernández
  */
 public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.Analysis {
 
-    private static final Logger logger = LoggerFactory.getLogger(RedLinkAnalysisImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(RedLinkAnalysisImpl.class);
 
     public RedLinkAnalysisImpl(Credentials credentials) {
         super(credentials);
@@ -67,8 +68,9 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
             // Find out the target analysis
             String analysis = request.getAnalysis();
             if (analysis == null) {
-                final List<String> analyses = credentials.getStatus().getAnalyses();
+                final List<String> analyses = status.getAnalyses();
                 if (analyses.size() == 1) {
+                    log.debug("using default analysis '{}'");
                     analysis = analyses.get(0);
                 } else {
                     throw new IllegalArgumentException("not analysis found in the request");
@@ -98,21 +100,21 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
 
             Entity<?> entity = Entity.entity(request.getContent(), type);
 
-            logger.debug("Making Request to User Endpoint " + target.getUri().toString());
+            log.debug("Making Request to User Endpoint " + target.getUri().toString());
             long pre = System.currentTimeMillis();
             Response response = httpRequest.post(entity);
             long time = System.currentTimeMillis() - pre;
-            logger.debug("Server Response Time " + time + " ms. Status: " + response.getStatus());
-            //logger.debug("X-Redlink-Worker: {}", response.getHeaderString("X-Redlink-Worker"));
+            log.debug("Server Response Time " + time + " ms. Status: " + response.getStatus());
+            //log.debug("X-Redlink-Worker: {}", response.getHeaderString("X-Redlink-Worker"));
 
             if (response.getStatus() != 200) {
                 String message = "Enhancement failed: HTTP error code "
                         + response.getStatus() + ". Message: " + response.getStatusInfo().getReasonPhrase();
 
-                logger.error(message);
-                //logger.debug("X-Redlink-Worker: {}", response.getHeaderString("X-Redlink-Worker"));
+                log.error(message);
+                //log.debug("X-Redlink-Worker: {}", response.getHeaderString("X-Redlink-Worker"));
                 String stackTrace = response.readEntity(String.class);
-                logger.trace(stackTrace);
+                log.trace(stackTrace);
                 throw new RuntimeException(message);
             }
 
@@ -128,7 +130,7 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
             EnhancementsParser parser = EnhancementsParserFactory.createParser(response);
             Enhancements enhancements = parser.createEnhancements();
             long time = System.currentTimeMillis() - pre;
-            logger.debug("Response Parse Time: " + time + " ms");
+            log.debug("Response Parse Time: " + time + " ms");
             return enhancements;
         } catch (EnhancementParserException e) {
             throw new RuntimeException("Enhancement failed: " + e.getMessage(), e);
@@ -143,27 +145,27 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
 //    private final Enhancements execEnhance(String uri, Builder request, Entity<?> entity) {
 //        try {
 //
-//            logger.debug("Making Request to User Endpoint " + uri);
+//            log.debug("Making Request to User Endpoint " + uri);
 //            long pre = System.currentTimeMillis();
 //            Response response = request.post(entity);
 //            long time = System.currentTimeMillis() - pre;
-//            logger.debug("Server Response Time " + time + " ms. Status: " + response.getStatus());
+//            log.debug("Server Response Time " + time + " ms. Status: " + response.getStatus());
 //
 //            if (response.getStatus() != 200) {
 //                String message = "Enhancement failed: HTTP error code "
 //                        + response.getStatus() + ". Message: " + response.getStatusInfo().getReasonPhrase();
 //
-//                logger.error(message);
+//                log.error(message);
 //                String stackTrace = response.readEntity(String.class);
-//                //logger.debug("X-Redlink-Worker: {}", response.getHeaderString("X-Redlink-Worker"));
-//                logger.trace(stackTrace);
+//                //log.debug("X-Redlink-Worker: {}", response.getHeaderString("X-Redlink-Worker"));
+//                log.trace(stackTrace);
 //                throw new RuntimeException(message);
 //            } else {
 //                pre = System.currentTimeMillis();
 //                EnhancementsParser parser = EnhancementsParserFactory.createParser(response);
 //                Enhancements enhancements = parser.createEnhancements();
 //                time = System.currentTimeMillis() - pre;
-//                logger.debug("Response Parse Time: " + time + " ms");
+//                log.debug("Response Parse Time: " + time + " ms");
 //                return enhancements;
 //            }
 //        } catch (Exception e) {

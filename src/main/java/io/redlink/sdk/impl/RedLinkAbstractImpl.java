@@ -17,6 +17,7 @@ import io.redlink.sdk.Credentials;
 import io.redlink.sdk.RedLink;
 
 import javax.ws.rs.core.UriBuilder;
+import java.net.MalformedURLException;
 
 /**
  * RedLink Client API (abstract) template implementation. Any RedLink client concrete implementation must extend this class and use a
@@ -27,9 +28,18 @@ import javax.ws.rs.core.UriBuilder;
 public abstract class RedLinkAbstractImpl implements RedLink {
 
     protected final Credentials credentials;
+    protected final Status status;
 
     public RedLinkAbstractImpl(Credentials credentials) {
         this.credentials = credentials;
+        try {
+            this.status = credentials.getStatus();
+            if (!this.status.isAccessible()) {
+                throw new IllegalArgumentException("invalid credentials: not accessible api key");
+            }
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException("invalid credentials: " + e.getMessage(), e);
+        }
     }
 
     /**
