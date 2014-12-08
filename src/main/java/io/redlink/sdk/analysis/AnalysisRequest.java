@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.List;
 
 import javax.ws.rs.core.MediaType;
 
@@ -34,7 +35,8 @@ import com.google.common.collect.Sets;
  * all the parameters that can be used for profiling a request to the RedLink {@link Analysis} service. In order to build
  * such instances, {@link AnalysisRequestBuilder} must be used
  *
- * @author rafa.haro@redlink.co
+ * @author Rafa Haro
+ * @author Sergio Fernández
  */
 public class AnalysisRequest {
 
@@ -56,6 +58,7 @@ public class AnalysisRequest {
         public MediaType value() {
             return type;
         }
+
     }
 
     /**
@@ -268,7 +271,7 @@ public class AnalysisRequest {
         return dereferencedFields;
     }
     
-    public String getLDpathProgram(){
+    public String getLDPathProgram(){
         return ldpath.orNull();
     }
 
@@ -403,7 +406,6 @@ public class AnalysisRequest {
             return this;
         }
 
-
         /**
          * Returns {@link Analysis}'s service request object
          *
@@ -412,6 +414,7 @@ public class AnalysisRequest {
         public AnalysisRequest build() {
             return request;
         }
+
     }
 
     /**

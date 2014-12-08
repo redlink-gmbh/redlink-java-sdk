@@ -81,11 +81,12 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
                     .queryParam(RedLink.OUT, request.getOutputFormat()) // OutputFormat parameter
                     .queryParam(SUMMARY, request.getSummary()) // Entities' summaries parameter;
                     .queryParam(THUMBNAIL, request.getThumbnail()) // Entities' thumbnails parameter
-                    .queryParam(LDPATH, request.getLDpathProgram()); // LDpath program for dereferencing
+                    .queryParam(LDPATH, request.getLDPathProgram()); // LDPath program for dereferencing
             if (!request.getFieldsToDereference().isEmpty()) {
                 Iterator<String> it = request.getFieldsToDereference().iterator();
-                while (it.hasNext())
+                while (it.hasNext()) {
                     target = target.queryParam(DEREF_FIELDS, it.next()); // Fields to be dereferenced
+                }
             }
 
             // Accepted Media-Type setup
@@ -197,7 +198,7 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
             Response response = execEnhance(request);
             result = response.readEntity(String.class);
         } else
-            throw new UnsupportedOperationException("Unsupported Response Type" + responseType.getCanonicalName());
+            throw new UnsupportedOperationException("Unsupported Response Type " + responseType.getCanonicalName());
 
         return responseType.cast(result);
     }
