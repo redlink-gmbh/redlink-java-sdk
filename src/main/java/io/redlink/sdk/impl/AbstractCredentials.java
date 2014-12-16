@@ -89,13 +89,13 @@ abstract class AbstractCredentials implements Credentials {
             if (response.getStatus() == 200) {
                 /* Response is directly serialized to an Status object containing information of the
                  * current User APP status
-            	 */
+                 */
                 return response.readEntity(Status.class);
             } else {
-            	/*
-            	 * If the response is not an HTTP 200, then deserialize to an StatusError object containing
-            	 * detailed and customized information of the error in the server. Throws informative exception
-            	 */
+                /*
+                 * If the response is not an HTTP 200, then deserialize to an StatusError object containing
+                 * detailed and customized information of the error in the server. Throws informative exception
+                */
                 StatusError error = response.readEntity(StatusError.class);
                 throw new RuntimeException("Status check failed: HTTP error code "
                         + error.getError() + "\n Endpoint: " + target.getUri().toString()
