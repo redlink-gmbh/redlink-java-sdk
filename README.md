@@ -12,7 +12,7 @@ Further details at [dev.redlink.io][dev].
 
 ## License
 
-This SDK SDK is available under the business-friendly license [Apache License, Version 2.0][ASL2]. 
+This SDK is available under the business-friendly license [Apache License, Version 2.0][ASL2]. 
 Therefore, you are completelly free to use the software for any purpose, to distribute it, 
 to modify it, and to distribute modified versions of the software, including closed-source, 
 under the terms of the license, without concern for royalties.
