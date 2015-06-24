@@ -4,11 +4,9 @@
 
 To properly run the test suite there are few requisites need to be in place:
 
-* At [my.redlink.io][my], create an app 'test' including a dataset with the name 'test' too.
-* Copy the api key into the src/test/resources/api.key file.
-* Run the test with Maven or any compatible IDE.
-
-Test are skipped by default, so then you need to explictly enable them:
+* At [my.redlink.io][my], create an app `test`, including `dbpedia`, `freebase` and a custom dataset named `test`.
+* Copy the api key into the `src/test/resources/api.key` file.
+* Run the test suite with Maven or any compatible IDE; tests are skipped by default, so then you have to explicitly enable them:
 
     mvn test -DskipTests=false
 

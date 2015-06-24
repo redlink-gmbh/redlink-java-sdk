@@ -111,7 +111,7 @@ public class AnalysisTest extends GenericTest {
                 .setOutputFormat(OutputFormat.RDFXML).build();
         Enhancements enhancements = redlink.enhance(request);
         Assert.assertNotNull(enhancements);
-//		Assert.assertNotEquals(0, enhancements.getModel().size());
+        //Assert.assertNotEquals(0, enhancements.getModel().size());
         int sizeE = enhancements.getEnhancements().size();
         Assert.assertNotEquals(0, sizeE);
         int sizeTA = enhancements.getTextAnnotations().size();
@@ -300,14 +300,9 @@ public class AnalysisTest extends GenericTest {
         );
 
         Entity baggioDBP = enhancements.getEntity("http://dbpedia.org/resource/Roberto_Baggio");
-        Assert.assertEquals(baggioDBP.getFirstPropertyValue(
-                        "http://purl.org/dc/terms/subject"),
-                "http://dbpedia.org/resource/Category:Men"
-        );
-        Assert.assertEquals(baggioDBP.getFirstPropertyValue(
-                        "http://dbpedia.org/property/totalgoals"),
-                "221"
-        );
+        Assert.assertEquals("http://dbpedia.org/resource/Category:Brescia_Calcio_players",
+                baggioDBP.getFirstPropertyValue("http://purl.org/dc/terms/subject"));
+        Assert.assertEquals("221", baggioDBP.getFirstPropertyValue("http://dbpedia.org/property/totalgoals"));
 
         //LdPath
         String date = "@prefix fb: <http://rdf.freebase.com/ns/>;"
@@ -369,8 +364,8 @@ public class AnalysisTest extends GenericTest {
                 .setContent(content)
                 .setOutputFormat(OutputFormat.TURTLE).build();
         Enhancements enhancements = redlink.enhance(request);
-        Assert.assertEquals(11, enhancements.getTextAnnotations().size());
-        Assert.assertEquals(7, enhancements.getBestAnnotations().size());
+        Assert.assertEquals(7, enhancements.getTextAnnotations().size());
+        Assert.assertEquals(13, enhancements.getBestAnnotations().size());
     }
 
     /**
