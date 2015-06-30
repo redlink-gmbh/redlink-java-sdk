@@ -25,7 +25,8 @@ import java.util.regex.Pattern;
  */
 public class ApiHelper {
 
-    public static final Pattern VERSION_PATTERN = Pattern.compile("(\\d)+\\.(\\d)+(\\.\\d+)?\\-([A-Z]+)(\\-SNAPSHOT)?");
+    public static final Pattern VERSION_PATTERN = Pattern.compile("(\\d)+\\.(\\d)+(\\.\\d+)?(\\-SNAPSHOT)?");
+    public static final String VERSION = "1.0"; //FIXME
 
     /**
      * Build a proper api version from the artifact version
@@ -35,7 +36,7 @@ public class ApiHelper {
      */
     public static String getApiVersion() {
         String version = getApiVersion(ApiHelper.class.getPackage().getImplementationVersion());
-        return (StringUtils.isBlank(version) ? "1.0-BETA" : version); //FIXME
+        return (StringUtils.isBlank(version) ? VERSION : version); //FIXME
     }
 
     /**
@@ -47,17 +48,13 @@ public class ApiHelper {
      */
     public static String getApiVersion(String version) {
         if (StringUtils.isBlank(version)) {
-            return null;
+            return VERSION;
         } else {
             final Matcher matcher = VERSION_PATTERN.matcher(version);
             if (matcher.matches()) {
-                if (StringUtils.isBlank(matcher.group(4))) {
-                    return String.format("%s.%s", matcher.group(1), matcher.group(2));
-                } else {
-                    return String.format("%s.%s-%s", matcher.group(1), matcher.group(2), matcher.group(4));
-                }
+                return String.format("%s.%s", matcher.group(1), matcher.group(2));
             } else {
-                return null;
+                return VERSION;
             }
         }
     }
