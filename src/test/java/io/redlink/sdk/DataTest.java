@@ -61,6 +61,10 @@ public class DataTest extends GenericTest {
     @BeforeClass
     public static void beforeClass() throws MalformedURLException {
         credentials = buildCredentials(DataTest.class);
+        Assume.assumeNotNull(credentials);
+        Assume.assumeNotNull(credentials.getVersion());
+        Assume.assumeTrue(credentials.verify());
+
         status = credentials.getStatus();
         redlink = RedLinkFactory.createDataClient(credentials);
     }
