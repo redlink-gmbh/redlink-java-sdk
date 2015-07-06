@@ -101,7 +101,6 @@ public class RepeatedUpdateTest extends GenericTest {
     }
 
     @BeforeClass
-    @AfterClass
     public static void cleanUp() throws Exception {
         Credentials credentials = buildCredentials(DataTest.class);
         Assume.assumeNotNull(credentials);
