@@ -57,9 +57,14 @@
             <organization>Redlink GmbH</organization>
         </developer>
         <developer>
-            <name>Rafa Haro</name>
-            <email>rafa.haro@redlink.co</email>
+            <name>Jakob Frank</name>
+            <email>jakob.frank@redlink.co</email>
             <organization>Redlink GmbH</organization>
+        </developer>
+        <developer>
+            <name>Rafa Haro</name>
+            <email>rharo@zaizi.com</email>
+            <organization>Zaizi Ltd.</organization>
         </developer>
     </developers>
 
