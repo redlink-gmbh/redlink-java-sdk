@@ -32,9 +32,9 @@
     </organization>
 
     <scm>
-        <connection>scm:git:git@github.com:redlink-gmbh/redlink-java-sdk.git</connection>
+        <connection>scm:git:https://github.com/redlink-gmbh/redlink-java-sdk.git</connection>
         <developerConnection>scm:git:git@github.com:redlink-gmbh/redlink-java-sdk.git</developerConnection>
-        <url>git@github.com:redlink-gmbh/redlink-java-sdk.git</url>
+        <url>https://github.com/redlink-gmbh/redlink-java-sdk</url>
     </scm>
 
     <issueManagement>
@@ -64,7 +64,7 @@
     </developers>
 
     <properties>
-        <skipTests>true</skipTests>
+        <skipTests>false</skipTests>
         <sesame.version>2.7.10</sesame.version>
         <resteasy.version>3.0.6.Final</resteasy.version>
     </properties>
