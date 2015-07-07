@@ -10,6 +10,8 @@ needs, please contact us for further information.
 
 Further details at [dev.redlink.io][dev].
 
+[![Build Status](https://secure.travis-ci.org/redlink-gmbh/redlink-java-sdk.svg?branch=master)](https://travis-ci.org/redlink-gmbh/redlink-java-sdk)
+
 ## License
 
 This SDK is available under the business-friendly license [Apache License, Version 2.0][ASL2]. 
