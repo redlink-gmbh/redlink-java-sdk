@@ -86,20 +86,24 @@ abstract class AbstractCredentials implements Credentials {
         request.accept("application/json");
         try {
             Response response = request.get();
-            if (response.getStatus() == 200) {
+            try {
+                if (response.getStatus() == 200) {
                 /* Response is directly serialized to an Status object containing information of the
                  * current User APP status
                  */
-                return response.readEntity(Status.class);
-            } else {
+                    return response.readEntity(Status.class);
+                } else {
                 /*
                  * If the response is not an HTTP 200, then deserialize to an StatusError object containing
                  * detailed and customized information of the error in the server. Throws informative exception
                 */
-                StatusError error = response.readEntity(StatusError.class);
-                throw new RuntimeException("Status check failed: HTTP error code "
-                        + error.getError() + "\n Endpoint: " + target.getUri().toString()
-                        + "\n Message: " + error.getMessage());
+                    StatusError error = response.readEntity(StatusError.class);
+                    throw new RuntimeException("Status check failed: HTTP error code "
+                            + error.getError() + "\n Endpoint: " + target.getUri().toString()
+                            + "\n Message: " + error.getMessage());
+                }
+            } finally {
+                response.close();
             }
         } catch (Exception e) {
             throw new RuntimeException("Status check failed: " + e.getMessage(), e);

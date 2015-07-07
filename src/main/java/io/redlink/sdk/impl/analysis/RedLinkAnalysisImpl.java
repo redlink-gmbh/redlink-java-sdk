@@ -59,7 +59,11 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
     @Override
     public Enhancements enhance(AnalysisRequest request) {
         Response response = execEnhance(request);
-        return parseResponse(response);
+        try {
+            return parseResponse(response);
+        } finally {
+            response.close();
+        }
     }
 
     private Response execEnhance(AnalysisRequest request) {
@@ -198,7 +202,11 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
             result = enhance(finalRequest);
         } else if (responseType.isAssignableFrom((String.class))) {
             Response response = execEnhance(request);
-            result = response.readEntity(String.class);
+            try {
+                result = response.readEntity(String.class);
+            } finally {
+                response.close();
+            }
         } else
             throw new UnsupportedOperationException("Unsupported Response Type " + responseType.getCanonicalName());
 

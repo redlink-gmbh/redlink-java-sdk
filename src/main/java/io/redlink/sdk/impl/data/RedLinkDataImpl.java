@@ -106,9 +106,13 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
             } else {
                 response = request.post(Entity.entity(in, MediaType.valueOf(format.getDefaultMIMEType())));
             }
-            log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
-            //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
-            return (response.getStatus() == 200);
+            try {
+                log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
+                //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
+                return (response.getStatus() == 200);
+            } finally {
+                response.close();
+            }
         } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
             throw new RuntimeException(e);
         }
@@ -123,14 +127,18 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
             request.header("Accept", format.getDefaultMIMEType());
             log.debug("Exporting {} data from dataset {}", format.getName(), dataset);
             Response response = request.get();
-            log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
-            if (response.getStatus() == 200) {
-                ParserConfig config = new ParserConfig();
-                String entity = response.readEntity(String.class);
-                return Rio.parse(new StringReader(entity), target.getUri().toString(), format, config, ValueFactoryImpl.getInstance(), new ParseErrorLogger());
-            } else {
-                log.error("Unexpected error exporting dataset {}: request returned with {} status code", dataset, response.getStatus());
-                throw new RuntimeException("Unexpected error exporting dataset");
+            try {
+                log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
+                if (response.getStatus() == 200) {
+                    ParserConfig config = new ParserConfig();
+                    String entity = response.readEntity(String.class);
+                    return Rio.parse(new StringReader(entity), target.getUri().toString(), format, config, ValueFactoryImpl.getInstance(), new ParseErrorLogger());
+                } else {
+                    log.error("Unexpected error exporting dataset {}: request returned with {} status code", dataset, response.getStatus());
+                    throw new RuntimeException("Unexpected error exporting dataset");
+                }
+            } finally {
+                response.close();
             }
         } catch (IllegalArgumentException | UriBuilderException | IOException | RDFParseException e) {
             throw new RuntimeException(e);
@@ -144,9 +152,13 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
             Invocation.Builder request = target.request();
             log.debug("Cleaning data from dataset {}", dataset);
             Response response = request.delete();
-            log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
-            //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
-            return (response.getStatus() == 200);
+            try {
+                log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
+                //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
+                return (response.getStatus() == 200);
+            } finally {
+                response.close();
+            }
         } catch (IllegalArgumentException | UriBuilderException | IOException e) {
             throw new RuntimeException(e);
         }
@@ -170,17 +182,21 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
             request.header("Accept", format.getDefaultMIMEType());
             log.debug("Retrieving resource as {}", format.getName());
             Response response = request.get();
-            log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
-            if (response.getStatus() == 200) {
-                ParserConfig config = new ParserConfig();
-                String entity = response.readEntity(String.class);
-                return Rio.parse(new StringReader(entity), target.getUri().toString(), format, config, ValueFactoryImpl.getInstance(), new ParseErrorLogger());
-            } else if (response.getStatus() == 404) {
-                log.error("resource not found");
-                return new TreeModel();
-            } else {
-                log.error("Unexpected error retrieving resource: request returned with {} status code", response.getStatus());
-                throw new RuntimeException("Unexpected error retrieving resource");
+            try {
+                log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
+                if (response.getStatus() == 200) {
+                    ParserConfig config = new ParserConfig();
+                    String entity = response.readEntity(String.class);
+                    return Rio.parse(new StringReader(entity), target.getUri().toString(), format, config, ValueFactoryImpl.getInstance(), new ParseErrorLogger());
+                } else if (response.getStatus() == 404) {
+                    log.error("resource not found");
+                    return new TreeModel();
+                } else {
+                    log.error("Unexpected error retrieving resource: request returned with {} status code", response.getStatus());
+                    throw new RuntimeException("Unexpected error retrieving resource");
+                }
+            } finally {
+                response.close();
             }
         } catch (IllegalArgumentException | UriBuilderException | IOException | RDFParseException e) {
             throw new RuntimeException(e);
@@ -208,9 +224,13 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
             } else {
                 response = request.post(Entity.entity(in, MediaType.valueOf(format.getDefaultMIMEType())));
             }
-            log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
-            //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
-            return (response.getStatus() == 200);
+            try {
+                log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
+                //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
+                return (response.getStatus() == 200);
+            } finally {
+                response.close();
+            }
         } catch (IllegalArgumentException | UriBuilderException | RDFHandlerException | IOException e) {
             log.error("Error importing resource: {}", e.getMessage());
             throw new RuntimeException(e);
@@ -224,8 +244,12 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
             Invocation.Builder request = target.request();
             log.debug("Deleting resource {} from datataset {}", resource, dataset);
             Response response = request.delete();
-            log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
-            return (response.getStatus() == 200);
+            try {
+                log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
+                return (response.getStatus() == 200);
+            } finally {
+                response.close();
+            }
         } catch (IllegalArgumentException | UriBuilderException | IOException e) {
             throw new RuntimeException(e);
         }
@@ -319,22 +343,26 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
         try {
             log.debug("Executing LDpath program over resource {}", uri);
             Response response = request.post(Entity.text(program));
-            log.debug("Request resolved with {} status code", response.getStatus());
-            //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
-            if (response.getStatus() != 200) {
-                // TODO: improve this feedback from the sdk (400, 500, etc)
-                throw new RuntimeException("Query failed: HTTP error code " + response.getStatus());
-            } else {
-                LDPathResult result = new LDPathResult();
-                final Map<String, List<Map<String, String>>> fields = response.readEntity(Map.class);
-                for (Map.Entry<String, List<Map<String, String>>> field : fields.entrySet()) {
-                    List<RDFNode> row = new ArrayList<RDFNode>();
-                    for (Map<String, String> node : field.getValue()) {
-                        row.add(RDFJSONParser.parseRDFJSONNode(node));
+            try {
+                log.debug("Request resolved with {} status code", response.getStatus());
+                //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
+                if (response.getStatus() != 200) {
+                    // TODO: improve this feedback from the sdk (400, 500, etc)
+                    throw new RuntimeException("Query failed: HTTP error code " + response.getStatus());
+                } else {
+                    LDPathResult result = new LDPathResult();
+                    final Map<String, List<Map<String, String>>> fields = response.readEntity(Map.class);
+                    for (Map.Entry<String, List<Map<String, String>>> field : fields.entrySet()) {
+                        List<RDFNode> row = new ArrayList<RDFNode>();
+                        for (Map<String, String> node : field.getValue()) {
+                            row.add(RDFJSONParser.parseRDFJSONNode(node));
+                        }
+                        result.add(field.getKey(), row);
                     }
-                    result.add(field.getKey(), row);
+                    return result;
                 }
-                return result;
+            } finally {
+                response.close();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -381,54 +409,58 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
         try {
             log.debug("Executing SPARQL tuple query: {}", query.replaceAll("\\s*[\\r\\n]+\\s*", " ").trim());
             Response response = request.post(Entity.text(query));
-            log.debug("Request resolved with {} status code", response.getStatus());
-            //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
-            if (response.getStatus() != 200) {
-                // TODO: improve this feedback from the sdk (400, 500, etc)
-                throw new RuntimeException("Query failed: HTTP error code " + response.getStatus());
-            } else {
-                QueryResultCollector results = new QueryResultCollector();
-                parse(response.readEntity(String.class), format, results, ValueFactoryImpl.getInstance());
-                if (!results.getHandledTuple() || results.getBindingSets().isEmpty()) {
-                    return new SPARQLResult(new LinkedHashSet<String>());
+            try {
+                log.debug("Request resolved with {} status code", response.getStatus());
+                //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
+                if (response.getStatus() != 200) {
+                    // TODO: improve this feedback from the sdk (400, 500, etc)
+                    throw new RuntimeException("Query failed: HTTP error code " + response.getStatus());
                 } else {
-                    List<String> fieldNames = results.getBindingNames();
+                    QueryResultCollector results = new QueryResultCollector();
+                    parse(response.readEntity(String.class), format, results, ValueFactoryImpl.getInstance());
+                    if (!results.getHandledTuple() || results.getBindingSets().isEmpty()) {
+                        return new SPARQLResult(new LinkedHashSet<String>());
+                    } else {
+                        List<String> fieldNames = results.getBindingNames();
 
-                    //TODO: find sesame classes for removing this code
-                    SPARQLResult result = new SPARQLResult(new LinkedHashSet<String>(fieldNames));
+                        //TODO: find sesame classes for removing this code
+                        SPARQLResult result = new SPARQLResult(new LinkedHashSet<String>(fieldNames));
 
-                    for (BindingSet nextRow : results.getBindingSets()) {
-                        Map<String, RDFNode> row = new HashMap<String, RDFNode>();
+                        for (BindingSet nextRow : results.getBindingSets()) {
+                            Map<String, RDFNode> row = new HashMap<String, RDFNode>();
 
-                        for (String nextBindingName : fieldNames) {
-                            if (nextRow.hasBinding(nextBindingName)) {
-                                Binding nextBinding = nextRow.getBinding(nextBindingName);
-                                Value nodeDef = nextBinding.getValue();
-                                RDFNode node = null;
-                                if (nodeDef instanceof org.openrdf.model.URI) {
-                                    node = new URI(nodeDef.stringValue());
-                                } else if (nodeDef instanceof org.openrdf.model.BNode) {
-                                    node = new BNode(((org.openrdf.model.BNode) nodeDef).getID());
-                                } else if (nodeDef instanceof org.openrdf.model.Literal) {
-                                    org.openrdf.model.Literal nodeLiteral = (org.openrdf.model.Literal) nodeDef;
-                                    if (nodeLiteral.getLanguage() != null) {
-                                        node = new Literal(nodeLiteral.getLabel(), nodeLiteral.getLanguage());
-                                    } else if (nodeLiteral.getDatatype() != null) {
-                                        node = new Literal(nodeLiteral.getLabel(), new URI(nodeLiteral.getDatatype().stringValue()));
-                                    } else {
-                                        node = new Literal(nodeLiteral.getLabel());
+                            for (String nextBindingName : fieldNames) {
+                                if (nextRow.hasBinding(nextBindingName)) {
+                                    Binding nextBinding = nextRow.getBinding(nextBindingName);
+                                    Value nodeDef = nextBinding.getValue();
+                                    RDFNode node = null;
+                                    if (nodeDef instanceof org.openrdf.model.URI) {
+                                        node = new URI(nodeDef.stringValue());
+                                    } else if (nodeDef instanceof org.openrdf.model.BNode) {
+                                        node = new BNode(((org.openrdf.model.BNode) nodeDef).getID());
+                                    } else if (nodeDef instanceof org.openrdf.model.Literal) {
+                                        org.openrdf.model.Literal nodeLiteral = (org.openrdf.model.Literal) nodeDef;
+                                        if (nodeLiteral.getLanguage() != null) {
+                                            node = new Literal(nodeLiteral.getLabel(), nodeLiteral.getLanguage());
+                                        } else if (nodeLiteral.getDatatype() != null) {
+                                            node = new Literal(nodeLiteral.getLabel(), new URI(nodeLiteral.getDatatype().stringValue()));
+                                        } else {
+                                            node = new Literal(nodeLiteral.getLabel());
+                                        }
+                                    }
+
+                                    if (node != null) {
+                                        row.put(nextBindingName, node);
                                     }
                                 }
-
-                                if (node != null) {
-                                    row.put(nextBindingName, node);
-                                }
                             }
+                            result.add(row);
                         }
-                        result.add(row);
+                        return result;
                     }
-                    return result;
                 }
+            } finally {
+                response.close();
             }
         } catch (Exception e) {
             //e.printStackTrace();
@@ -443,15 +475,19 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
         try {
             log.debug("Executing SPARQL graph query: {}", query.replaceAll("\\s*[\\r\\n]+\\s*", " ").trim());
             Response response = request.post(Entity.text(query));
-            log.debug("Request resolved with {} status code", response.getStatus());
-            //log.error("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
-            if (response.getStatus() != 200) {
-                // TODO: improve this feedback from the sdk (400, 500, etc)
-                throw new RuntimeException("Query failed: HTTP error code " + response.getStatus());
-            } else {
-                ParserConfig config = new ParserConfig();
-                String entity = response.readEntity(String.class);
-                return Rio.parse(new StringReader(entity), target.getUri().toString(), format, config, ValueFactoryImpl.getInstance(), new ParseErrorLogger());
+            try {
+                log.debug("Request resolved with {} status code", response.getStatus());
+                //log.error("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
+                if (response.getStatus() != 200) {
+                    // TODO: improve this feedback from the sdk (400, 500, etc)
+                    throw new RuntimeException("Query failed: HTTP error code " + response.getStatus());
+                } else {
+                    ParserConfig config = new ParserConfig();
+                    String entity = response.readEntity(String.class);
+                    return Rio.parse(new StringReader(entity), target.getUri().toString(), format, config, ValueFactoryImpl.getInstance(), new ParseErrorLogger());
+                }
+            } finally {
+                response.close();
             }
         } catch (Exception e) {
             //e.printStackTrace();
@@ -464,9 +500,13 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
         try {
             log.debug("Executing SPARQL update query: {}", query.replaceAll("\\s*[\\r\\n]+\\s*", " ").trim());
             Response response = request.post(Entity.entity(query, new MediaType("application", "sparql-update")));
-            log.debug("Request resolved with {} status code", response.getStatus());
-            //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
-            return (response.getStatus() == 200);
+            try {
+                log.debug("Request resolved with {} status code", response.getStatus());
+                //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
+                return (response.getStatus() == 200);
+            } finally {
+                response.close();
+            }
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Query execution failed: " + e.getMessage(), e);
