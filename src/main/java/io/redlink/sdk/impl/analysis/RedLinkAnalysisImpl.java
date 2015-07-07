@@ -18,6 +18,7 @@ import io.redlink.sdk.RedLink;
 import io.redlink.sdk.analysis.AnalysisRequest;
 import io.redlink.sdk.analysis.AnalysisRequest.InputFormat;
 import io.redlink.sdk.analysis.AnalysisRequest.OutputFormat;
+import io.redlink.sdk.impl.DefaultCredentials;
 import io.redlink.sdk.impl.RedLinkAbstractImpl;
 import io.redlink.sdk.impl.analysis.model.EnhancementParserException;
 import io.redlink.sdk.impl.analysis.model.Enhancements;
@@ -104,7 +105,9 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
 
             Entity<?> entity = Entity.entity(request.getContent(), type);
 
-            log.debug("Making Request to User Endpoint " + target.getUri().toString());
+            if (log.isDebugEnabled()) {
+                log.debug("Making Request to User Endpoint " + target.getUriBuilder().replaceQueryParam(DefaultCredentials.KEY_PARAM).build().toString());
+            }
             long pre = System.currentTimeMillis();
             Response response = httpRequest.post(entity);
             long time = System.currentTimeMillis() - pre;
