@@ -8,9 +8,9 @@ developing against our API.
 The SDKs are provided for a limited set of languages; so if it does not covers your particular, 
 needs, please contact us for further information.
 
-Further details at [dev.redlink.io][dev].
-
 [![Build Status](https://secure.travis-ci.org/redlink-gmbh/redlink-java-sdk.svg?branch=master)](https://travis-ci.org/redlink-gmbh/redlink-java-sdk)
+
+Further details at [dev.redlink.io][dev].
 
 ## License
 
