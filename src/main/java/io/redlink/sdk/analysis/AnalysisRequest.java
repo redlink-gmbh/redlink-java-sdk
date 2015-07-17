@@ -65,6 +65,7 @@ public class AnalysisRequest {
      * Accepted Output Formats
      */
     public static enum OutputFormat {
+
         XML(MediaType.APPLICATION_ATOM_XML_TYPE),
         JSON(MediaType.APPLICATION_JSON_TYPE),
         JSONLD(new MediaType("application", "ld+json")),
@@ -75,7 +76,7 @@ public class AnalysisRequest {
 
         private final MediaType type;
 
-        private OutputFormat(MediaType type) {
+        OutputFormat(MediaType type) {
             this.type = type;
         }
 
@@ -95,8 +96,8 @@ public class AnalysisRequest {
     /**
      * Supported Content Formats in the Builder API
      */
-    private static enum ContentType {
-        STRING, FILE, INPUTSTREAM, EMPTY;
+    private enum ContentType {
+        STRING, FILE, INPUTSTREAM, EMPTY
     }
     
     private boolean consumed = false;
