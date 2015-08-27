@@ -16,7 +16,6 @@ package io.redlink.sdk;
 import io.redlink.sdk.analysis.AnalysisRequest;
 import io.redlink.sdk.impl.analysis.model.Enhancements;
 import io.redlink.sdk.impl.data.model.LDPathResult;
-import io.redlink.sdk.impl.search.model.SearchResults;
 import org.apache.marmotta.client.model.sparql.SPARQLResult;
 import org.openrdf.model.Model;
 import org.openrdf.rio.RDFFormat;
@@ -325,28 +324,6 @@ public interface RedLink {
          * @return Result of the program execution as {@link LDPathResult} object
          */
         LDPathResult ldpath(String uri, String program);
-
-    }
-
-    /**
-     * RedLink Search API. Any implementation of this interface must have a constructor that receives a {@link Credentials}
-     * object which will be used for each service request
-     */
-    public static interface Search {
-
-        static final String PATH = "search";
-
-        static final String QUERY = "search";
-
-        static final String START = "start";
-
-        static final String RESULTS = "results";
-
-        static final String FACET = "facet";
-
-        SearchResults search(String query, String core);
-
-        SearchResults search(String query, String core, int start, int results, boolean facet);
 
     }
 

@@ -18,7 +18,6 @@ import io.redlink.sdk.impl.analysis.RedLinkAnalysisImpl;
 import io.redlink.sdk.impl.data.RedLinkDataImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  * RedLink SDK Factory. This class eases the creation of the different RedLink
@@ -88,30 +87,6 @@ public class RedLinkFactory {
      */
     public static RedLink.Data createDataClient(Credentials credentials) {
         return new RedLinkDataImpl(credentials);
-    }
-
-    /**
-     * Create an {@link io.redlink.sdk.RedLink.Search} client associated to an user {@link Credentials}
-     * (currently not yet implemented).
-     *
-     * @param apiKey RedLink valid API key
-     * @return RedLink's {@link io.redlink.sdk.RedLink.Search} service client
-     */
-    public static RedLink.Search createSearchClient(String apiKey) {
-        throw new NotImplementedException();
-        //return createSearchClient(new DefaultCredentials(apiKey));
-    }
-
-    /**
-     * Create an {@link io.redlink.sdk.RedLink.Search} client associated to an user {@link Credentials}
-     * (currently not yet implemented).
-     *
-     * @param credentials RedLink valid {@link Credentials}
-     * @return RedLink's {@link io.redlink.sdk.RedLink.Search} service client
-     */
-    public static RedLink.Search createSearchClient(Credentials credentials) {
-        throw new NotImplementedException();
-        //return new RedLinkSearchImpl(credentials);
     }
 
 }
