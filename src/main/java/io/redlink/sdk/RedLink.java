@@ -34,29 +34,29 @@ import java.io.InputStream;
  */
 public interface RedLink {
 
-    static final String URI = "uri";
+    String URI = "uri";
 
-    static final String IN = "in";
+     String IN = "in";
 
-    static final String OUT = "out";
+    String OUT = "out";
 
     /**
      * RedLink Analysis API. Any implementation of this interface must have a constructor that receives a {@link Credentials}
      * object which will be used for each service request
      */
-    public static interface Analysis {
+    interface Analysis {
 
-        static final String PATH = "analysis";
+        String PATH = "analysis";
 
-        static final String ENHANCE = "enhance";
+        String ENHANCE = "enhance";
 
-        static final String SUMMARY = "summary";
+        String SUMMARY = "summary";
 
-        static final String THUMBNAIL = "thumbnail";
+        String THUMBNAIL = "thumbnail";
         
-        static final String DEREF_FIELDS = "enhancer.engines.dereference.fields";
+        String DEREF_FIELDS = "enhancer.engines.dereference.fields";
         
-        static final String LDPATH = "enhancer.engines.dereference.ldpath";
+        String LDPATH = "enhancer.engines.dereference.ldpath";
 
         /**
          * Performs an analysis of the content included in the request, getting a {@link Enhancements} object as result
@@ -86,21 +86,21 @@ public interface RedLink {
      * RedLink LinkedData API. Any implementation of this interface must have a constructor that receives a {@link Credentials}
      * object which will be used for each service request
      */
-    public static interface Data {
+    interface Data {
 
-        static final String PATH = "data";
+        String PATH = "data";
 
-        static final String RESOURCE = "resource";
+        String RESOURCE = "resource";
 
-        static final String SPARQL = "sparql";
+        String SPARQL = "sparql";
 
-        static final String SELECT = "select";
+        String SELECT = "select";
 
-        static final String QUERY = "query";
+        String QUERY = "query";
 
-        static final String UPDATE = "update";
+        String UPDATE = "update";
 
-        static final String LDPATH = "ldpath";
+        String LDPATH = "ldpath";
 
         /**
          * Import an RDF {@link Model} into the selected Dataset. The Dataset must exist at the user RedLink account and
