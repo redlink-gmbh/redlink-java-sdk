@@ -108,7 +108,6 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
             }
             try {
                 log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
-                //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
                 return (response.getStatus() == 200);
             } finally {
                 response.close();
@@ -154,7 +153,6 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
             Response response = request.delete();
             try {
                 log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
-                //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
                 return (response.getStatus() == 200);
             } finally {
                 response.close();
@@ -226,7 +224,6 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
             }
             try {
                 log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
-                //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
                 return (response.getStatus() == 200);
             } finally {
                 response.close();
@@ -348,7 +345,6 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
                 Response response = request.post(Entity.text(dataset)); //FIXME: request.post()
                 try {
                     log.debug("Request resolved with {} status code", response.getStatus());
-                    //log.error("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
                     if (response.getStatus() != 200) {
                         throw new RuntimeException("Query failed: HTTP error code " + response.getStatus());
                     } else {
@@ -410,7 +406,6 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
             Response response = request.post(Entity.text(query));
             try {
                 log.debug("Request resolved with {} status code", response.getStatus());
-                //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
                 if (response.getStatus() != 200) {
                     // TODO: improve this feedback from the sdk (400, 500, etc)
                     throw new RuntimeException("Query failed: HTTP error code " + response.getStatus());
@@ -462,7 +457,6 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
                 response.close();
             }
         } catch (Exception e) {
-            //e.printStackTrace();
             throw new RuntimeException("Query execution failed: " + e.getMessage(), e);
         }
     }
@@ -476,7 +470,7 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
             Response response = request.post(Entity.text(query));
             try {
                 log.debug("Request resolved with {} status code", response.getStatus());
-                //log.error("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
+                //log.trace("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
                 if (response.getStatus() != 200) {
                     // TODO: improve this feedback from the sdk (400, 500, etc)
                     throw new RuntimeException("Query failed: HTTP error code " + response.getStatus());
@@ -489,7 +483,6 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
                 response.close();
             }
         } catch (Exception e) {
-            //e.printStackTrace();
             throw new RuntimeException("Query execution failed: " + e.getMessage(), e);
         }
     }
@@ -501,7 +494,6 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
             Response response = request.post(Entity.entity(query, new MediaType("application", "sparql-update")));
             try {
                 log.debug("Request resolved with {} status code", response.getStatus());
-                //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
                 return (response.getStatus() == 200);
             } finally {
                 response.close();
@@ -520,7 +512,6 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
             Response response = request.post(Entity.text(program));
             try {
                 log.debug("Request resolved with {} status code", response.getStatus());
-                //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
                 if (response.getStatus() != 200) {
                     // TODO: improve this feedback from the sdk (400, 500, etc)
                     throw new RuntimeException("Query failed: HTTP error code " + response.getStatus());
