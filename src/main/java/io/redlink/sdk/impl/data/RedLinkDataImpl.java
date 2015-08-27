@@ -337,36 +337,31 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
         }
     }
 
-    private LDPathResult execLDPath(WebTarget target, String uri, String program) {
-        Invocation.Builder request = target.request();
-        request.accept(MediaType.APPLICATION_JSON);
+    @Override
+    public boolean release(String dataset) {
         try {
-            log.debug("Executing LDpath program over resource {}", uri);
-            Response response = request.post(Entity.text(program));
+            WebTarget target = credentials.buildUrl(getReleaseUriBuilder(dataset));
+            Invocation.Builder request = target.request();
+            request.accept("application/json");
             try {
-                log.debug("Request resolved with {} status code", response.getStatus());
-                //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
-                if (response.getStatus() != 200) {
-                    // TODO: improve this feedback from the sdk (400, 500, etc)
-                    throw new RuntimeException("Query failed: HTTP error code " + response.getStatus());
-                } else {
-                    LDPathResult result = new LDPathResult();
-                    final Map<String, List<Map<String, String>>> fields = response.readEntity(Map.class);
-                    for (Map.Entry<String, List<Map<String, String>>> field : fields.entrySet()) {
-                        List<RDFNode> row = new ArrayList<RDFNode>();
-                        for (Map<String, String> node : field.getValue()) {
-                            row.add(RDFJSONParser.parseRDFJSONNode(node));
-                        }
-                        result.add(field.getKey(), row);
+                log.debug("Releasing dataset {}...", dataset);
+                Response response = request.post(Entity.text(dataset)); //FIXME: request.post()
+                try {
+                    log.debug("Request resolved with {} status code", response.getStatus());
+                    //log.error("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
+                    if (response.getStatus() != 200) {
+                        throw new RuntimeException("Query failed: HTTP error code " + response.getStatus());
+                    } else {
+                        return true;
                     }
-                    return result;
+                } finally {
+                    response.close();
                 }
-            } finally {
-                response.close();
+            } catch (Exception e) {
+                throw new RuntimeException("Release execution failed: " + e.getMessage(), e);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Query execution failed: " + e.getMessage(), e);
+        } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -400,6 +395,10 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
 
     private final UriBuilder getLDPathUriBuilder(String dataset, String uri) {
         return initiateUriBuilding().path(PATH).path(dataset).path(LDPATH).queryParam(RedLink.URI, uri);
+    }
+
+    private final UriBuilder getReleaseUriBuilder(String dataset) {
+        return initiateUriBuilding().path(PATH).path(dataset).path(RELEASE);
     }
 
     private SPARQLResult execTupleQuery(WebTarget target, String query) {
@@ -504,6 +503,39 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
                 log.debug("Request resolved with {} status code", response.getStatus());
                 //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
                 return (response.getStatus() == 200);
+            } finally {
+                response.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Query execution failed: " + e.getMessage(), e);
+        }
+    }
+
+    private LDPathResult execLDPath(WebTarget target, String uri, String program) {
+        Invocation.Builder request = target.request();
+        request.accept(MediaType.APPLICATION_JSON);
+        try {
+            log.debug("Executing LDpath program over resource {}", uri);
+            Response response = request.post(Entity.text(program));
+            try {
+                log.debug("Request resolved with {} status code", response.getStatus());
+                //log.debug("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
+                if (response.getStatus() != 200) {
+                    // TODO: improve this feedback from the sdk (400, 500, etc)
+                    throw new RuntimeException("Query failed: HTTP error code " + response.getStatus());
+                } else {
+                    LDPathResult result = new LDPathResult();
+                    final Map<String, List<Map<String, String>>> fields = response.readEntity(Map.class);
+                    for (Map.Entry<String, List<Map<String, String>>> field : fields.entrySet()) {
+                        List<RDFNode> row = new ArrayList<RDFNode>();
+                        for (Map<String, String> node : field.getValue()) {
+                            row.add(RDFJSONParser.parseRDFJSONNode(node));
+                        }
+                        result.add(field.getKey(), row);
+                    }
+                    return result;
+                }
             } finally {
                 response.close();
             }

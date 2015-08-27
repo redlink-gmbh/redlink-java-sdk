@@ -101,6 +101,8 @@ public interface RedLink {
 
         String LDPATH = "ldpath";
 
+        String RELEASE = "release";
+
         /**
          * Import an RDF {@link Model} into the selected Dataset. The Dataset must exist at the user RedLink account and
          * must be configured for the user's RedLink application used in the request.
@@ -324,6 +326,15 @@ public interface RedLink {
          * @return Result of the program execution as {@link LDPathResult} object
          */
         LDPathResult ldpath(String uri, String program);
+
+        /**
+         * Releases the data currently store in the dataset to be used
+         * later on for analysis purposes.
+         *
+         * @param dataset Name of the dataset to release
+         * @return Result o the operation
+         */
+        boolean release(String dataset);
 
     }
 
