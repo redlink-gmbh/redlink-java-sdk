@@ -141,7 +141,7 @@ public class DataTest extends GenericTest {
         //TODO: more specific testing
     }
 
-    @Test
+    //@Test
     public void testImportCleaningFile() throws FileNotFoundException {
         URL url = this.getClass().getResource(TEST_FILE);
         Assume.assumeNotNull(url);
@@ -334,6 +334,11 @@ public class DataTest extends GenericTest {
         Assert.assertTrue(results.getFields().contains("name"));
         Assert.assertTrue(results.getResults("name").size() > 0);
         Assert.assertEquals("John Pereira", results.getResults("name").get(0).toString());
+    }
+
+    @Test
+    public void testRelease() {
+        Assert.assertTrue(redlink.release(TEST_DATASET));
     }
 
     private int getCurrentSize(String dataset) {
