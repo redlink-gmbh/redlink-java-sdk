@@ -345,11 +345,7 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
                 Response response = request.post(Entity.text(dataset)); //FIXME: request.post()
                 try {
                     log.debug("Request resolved with {} status code", response.getStatus());
-                    if (response.getStatus() != 200) {
-                        throw new RuntimeException("Query failed: HTTP error code " + response.getStatus());
-                    } else {
-                        return true;
-                    }
+                    return (response.getStatus() == 200);
                 } finally {
                     response.close();
                 }
