@@ -193,7 +193,7 @@ public class AnalysisTest extends GenericTest {
     private void testEnhancementBestAnnotations(Enhancements enhancements) {
         Multimap<TextAnnotation, EntityAnnotation> bestAnnotations = enhancements.getBestAnnotations();
         Assert.assertNotEquals(0, bestAnnotations.keySet().size());
-        Assert.assertEquals(bestAnnotations.keySet().size(), enhancements.getTextAnnotations().size());
+        Assert.assertTrue(bestAnnotations.keySet().size() < enhancements.getTextAnnotations().size());
 
         for (TextAnnotation ta : bestAnnotations.keySet()) {
             //check all best have the same
@@ -364,8 +364,8 @@ public class AnalysisTest extends GenericTest {
                 .setContent(content)
                 .setOutputFormat(OutputFormat.TURTLE).build();
         Enhancements enhancements = redlink.enhance(request);
-        Assert.assertEquals(7, enhancements.getTextAnnotations().size());
-        Assert.assertEquals(13, enhancements.getBestAnnotations().size());
+        Assert.assertEquals(9, enhancements.getTextAnnotations().size());
+        Assert.assertEquals(11, enhancements.getBestAnnotations().size());
     }
 
     /**
