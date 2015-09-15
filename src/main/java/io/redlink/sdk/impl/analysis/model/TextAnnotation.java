@@ -28,7 +28,7 @@ public final class TextAnnotation extends Enhancement {
     private int ends = 0; // http://fise.iks-project.eu/ontology/end
     private String selectedText = null; // http://fise.iks-project.eu/ontology/selected-text
     private String selectionContext = null; // http://fise.iks-project.eu/ontology/selection-context
-    private String type = null; // ttp://purl.org/dc/terms/type
+    private String type = null; // http://purl.org/dc/terms/type
 
     public TextAnnotation() {
         super();
