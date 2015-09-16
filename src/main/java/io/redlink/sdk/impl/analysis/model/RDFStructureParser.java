@@ -383,14 +383,14 @@ final class RDFStructureParser extends EnhancementsParser {
             }
             
             if (result.hasBinding("site")) {
-                entityAnnotation.setOrigin(result.getBinding("site").getValue()
+                entityAnnotation.setDataset(result.getBinding("site").getValue()
                         .stringValue());
             }
 
             if (result.hasBinding("entityReference")) {
                 entityAnnotation.setEntityReference(parseEntity(conn, 
                     result.getBinding("entityReference").getValue().stringValue(),
-                    entityAnnotation.getOrigin()));
+                    entityAnnotation.getDataset()));
             }
 
             if (result.hasBinding("relation")) {
@@ -601,13 +601,13 @@ final class RDFStructureParser extends EnhancementsParser {
                         enhancement.setEntityLabel(entityLabel.stringValue(), lang);
                     }
                     if (result.hasBinding("site")) {
-                        enhancement.setOrigin(result.getBinding("site")
+                        enhancement.setDataset(result.getBinding("site")
                                 .getValue().stringValue());
                     }
                     if (result.hasBinding("entityReference")) {
                         enhancement.setEntityReference(parseEntity(conn, 
                             result.getBinding("entityReference").getValue().stringValue(),
-                                enhancement.getOrigin()));
+                                enhancement.getDataset()));
                     }
                     if (result.hasBinding("relation")) {
                         String nextRelationUri = result.getBinding("relation").getValue().stringValue();

@@ -218,8 +218,8 @@ public class AnalysisTest extends GenericTest {
         Assert.assertTrue(StringUtils.isNotBlank(ea.getEntityLabel()));
         Assert.assertNotNull(ea.getEntityReference());
         Assert.assertNotNull(ea.getEntityTypes());
-        if(ea.getOrigin() != null){
-            Assert.assertTrue(StringUtils.isNotBlank(ea.getOrigin()));
+        if(ea.getDataset() != null) {
+            Assert.assertTrue(StringUtils.isNotBlank(ea.getDataset()));
         } //else not all EntityAnnotation have a dataset
     }
 

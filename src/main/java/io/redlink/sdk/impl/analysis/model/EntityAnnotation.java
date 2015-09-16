@@ -29,7 +29,7 @@ public final class EntityAnnotation extends Enhancement {
     private String entityLabelLang;
     private Entity entityReference = null; // http://fise.iks-project.eu/ontology/entity-reference
     private Collection<String> entityTypes = null; // http://fise.iks-project.eu/ontology/entity-type
-    private String origin = null; // http://stanbol.apache.org/ontology/entityhub/entityhub#"
+    private String dataset = null; // http://stanbol.apache.org/ontology/entityhub/entityhub#"
 
     public EntityAnnotation() {
         super();
@@ -87,26 +87,18 @@ public final class EntityAnnotation extends Enhancement {
     void setEntityTypes(Collection<String> entityTypes) {
         this.entityTypes = entityTypes;
     }
-
-    /**
-     * @see #getOrign()
-     * @deprecated
-     */
-    @Deprecated
-    public String getDataset() {
-        return getOrigin();
-    }
     
     /**
-     * The origin of the entity (e.g. an own dataset or a public dataset of an other user)
-     * @return the origin of the referenced entity or <code>null</code> if not applicable.
+     * The dataset of the entity (e.g. an own dataset or a public dataset of an other user)
+     *
+     * @return the dataset of the referenced entity or <code>null</code> if not applicable.
      */
-    public String getOrigin() {
-        return origin;
+    public String getDataset() {
+        return dataset;
     }
 
-    void setOrigin(String origin) {
-        this.origin = origin;
+    void setDataset(String dataset) {
+        this.dataset = dataset;
     }
 
     @Override
@@ -134,4 +126,5 @@ public final class EntityAnnotation extends Enhancement {
             return false;
         return true;
     }
+
 }
