@@ -32,8 +32,11 @@ import org.openrdf.repository.RepositoryException;
 import java.util.*;
 
 /**
- * @author rafa.haro@redlink.co
+ * RDF Structure SPARQL Parser
+ *
+ * @author rharo@zaizi.com
  * @author sergio.fernandez@redlink.co
+ * @author rupert.westenthaler@redlink.co
  */
 final class RDFStructureParser extends EnhancementsParser {
 

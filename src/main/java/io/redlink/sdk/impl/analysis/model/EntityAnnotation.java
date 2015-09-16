@@ -19,8 +19,10 @@ import java.util.Collection;
  * Entity annotation, suggested/linked entities recognized within the text
  *
  * @author sergio.fernandez@redlink.co
- * @author rafa.haro@redlink.co
- * @see https://stanbol.apache.org/docs/trunk/components/enhancer/enhancementstructure#fiseentityannotation
+ * @author rharo@zaizi.com
+ * @author rupert.westenthaler@redlink.co
+ *
+ * @see <a href="https://stanbol.apache.org/docs/trunk/components/enhancer/enhancementstructure#fiseentityannotation">fise:EntityAnnotation</a>
  */
 public final class EntityAnnotation extends Enhancement {
 
