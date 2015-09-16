@@ -24,7 +24,7 @@ public class TopicAnnotation extends Enhancement {
 
     // properties
     private String topicLabel = null; // http://fise.iks-project.eu/ontology/entity-label
-    private String topicReference = null; // http://fise.iks-project.eu/ontology/entity-reference
+    private Entity topicReference = null; // http://fise.iks-project.eu/ontology/entity-reference
     private String dataset = null; // http://stanbol.apache.org/ontology/entityhub/entityhub#"
     private String summary = null; // Entity (Concept) Description
 
@@ -46,11 +46,11 @@ public class TopicAnnotation extends Enhancement {
      *
      * @return
      */
-    public String getTopicReference() {
+    public Entity getTopicReference() {
         return topicReference;
     }
 
-    void setTopicReference(String topicReference) {
+    void setTopicReference(Entity topicReference) {
         this.topicReference = topicReference;
     }
 

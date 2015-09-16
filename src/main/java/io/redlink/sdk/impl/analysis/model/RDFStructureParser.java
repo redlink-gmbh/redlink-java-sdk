@@ -16,7 +16,9 @@ package io.redlink.sdk.impl.analysis.model;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
+
 import io.redlink.sdk.util.ModelRepository;
+
 import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
 import org.openrdf.model.Value;
@@ -120,6 +122,8 @@ final class RDFStructureParser extends EnhancementsParser {
 
                 parseTextAnnotations(conn, relations, enhancementsByUri);
                 parseEntityAnnotations(conn, relations, enhancementsByUri);
+                parseTopicAnnotations(conn, relations, enhancementsByUri);
+                parseSentimentAnnotations(conn, relations, enhancementsByUri);
 
                 for (Enhancement e : relations.keys()) {
                     Collection<String> relationsUris = relations.get(e);
@@ -194,6 +198,10 @@ final class RDFStructureParser extends EnhancementsParser {
                 + "  OPTIONAL { ?annotation dct:relation ?relation } \n"
                 + "  OPTIONAL { ?annotation fise:selection-context ?selectionContext } \n"
                 + "  OPTIONAL { ?annotation fise:selected-text ?selectedText } \n"
+                // Filter Language Annotations and  Sentiment Annotations
+                + "  FILTER NOT EXISTS { ?annotation dct:type fise:Sentiment } \n"
+                + "  FILTER NOT EXISTS { ?annotation dct:type fise:DocumentSentiment } \n"
+                + "  FILTER NOT EXISTS { ?annotation dct:type dct:LinguisticSystem } \n"
                 + "} \n";
 
         try {
@@ -201,30 +209,19 @@ final class RDFStructureParser extends EnhancementsParser {
                     QueryLanguage.SPARQL, textAnnotationsQuery).evaluate();
             while (textAnnotationsResults.hasNext()) {
                 BindingSet result = textAnnotationsResults.next();
-                if (!result.hasBinding("type")
-                        || !result
-                        .getBinding("type")
-                        .getValue()
-                        .stringValue()
-                        .equalsIgnoreCase(
-                                DCTERMS.LINGUISTIC_SYSTEM.stringValue())) // Filter
-                // Language
-                // Annotations
-                {
-                    final String uri = result.getBinding("annotation")
-                            .getValue().stringValue();
+                final String uri = result.getBinding("annotation")
+                        .getValue().stringValue();
 
-                    Enhancement textAnnotation = enhancementsByUri.get(uri);
-                    if (textAnnotation == null) {
-                        textAnnotation = new TextAnnotation();
-                        enhancementsByUri.put(uri, textAnnotation);
-                    }
-
-                    setTextAnnotationData((TextAnnotation) textAnnotation,
-                            result, relations);
-                    if (!tas.contains(textAnnotation))
-                        tas.add((TextAnnotation) textAnnotation);
+                Enhancement textAnnotation = enhancementsByUri.get(uri);
+                if (textAnnotation == null) {
+                    textAnnotation = new TextAnnotation();
+                    enhancementsByUri.put(uri, textAnnotation);
                 }
+
+                setTextAnnotationData((TextAnnotation) textAnnotation,
+                        result, relations);
+                if (!tas.contains(textAnnotation))
+                    tas.add((TextAnnotation) textAnnotation);
             }
         } catch (QueryEvaluationException | MalformedQueryException e) {
             throw new EnhancementParserException(
@@ -800,12 +797,13 @@ final class RDFStructureParser extends EnhancementsParser {
                 + "PREFIX entityhub: <http://stanbol.apache.org/ontology/entityhub/entityhub#> \n"
                 + "SELECT * { \n"
                 + "  ?annotation a fise:TopicAnnotation . \n"
-                + "	 OPTIONAL { fise:confidence ?confidence } \n"
-                + "  OPTIONAL { ?language a dct:language  } \n"
+                + "	 OPTIONAL { ?annotation fise:confidence ?confidence } \n"
+                + "  OPTIONAL { ?annotation dct:language ?language  } \n"
                 + "  OPTIONAL { ?annotation dct:relation ?relation } \n"
                 + "  OPTIONAL { ?annotation fise:entity-label ?entityLabel } \n"
                 + "  OPTIONAL { ?annotation fise:entity-reference ?entityReference } \n"
-                + "  OPTIONAL { ?annotation entityhub:site ?site } \n" + "}";
+                + "  OPTIONAL { ?annotation entityhub:site ?site } \n" 
+                + "}";
 
         try {
             TupleQueryResult topicAnnotationsResults = conn.prepareTupleQuery(
@@ -827,59 +825,184 @@ final class RDFStructureParser extends EnhancementsParser {
                     tas.add((TopicAnnotation) topicAnnotation);
             }
         } catch (QueryEvaluationException | MalformedQueryException e) {
-            throw new EnhancementParserException(
-                    "Error parsing text annotations", e);
+            throw new EnhancementParserException("Error parsing topic annotations", e);
         } catch (RepositoryException e) {
-            throw new EnhancementParserException(
-                    "Error querying the RDF Model obtained as Service Response",
-                    e);
+            throw new EnhancementParserException("Error querying the RDF Model obtained as Service Response", e);
         }
 
         return tas;
     }
 
     private void setTopicAnnotationData(TopicAnnotation topicAnnotation,
-                                        BindingSet result, RepositoryConnection conn,
-                                        Multimap<Enhancement, String> relations) {
+            BindingSet result, RepositoryConnection conn, 
+            Multimap<Enhancement, String> relations) throws EnhancementParserException {
 
         if (!relations.containsKey(topicAnnotation)) {
             setEnhancementData(topicAnnotation, result);
             if (result.hasBinding("entityLabel")) {
                 Binding entityLabel = result.getBinding("entityLabel");
-                topicAnnotation.setTopicLabel(entityLabel.getValue()
-                        .stringValue());
-                if (!result.hasBinding("language")
-                        && (entityLabel.getValue() instanceof Literal))
-                    topicAnnotation.setLanguage(((Literal) entityLabel
-                            .getValue()).getLanguage());
-
+                topicAnnotation.setTopicLabel(entityLabel.getValue().stringValue());
+                if (!result.hasBinding("language") && (entityLabel.getValue() instanceof Literal)){
+                    topicAnnotation.setLanguage(((Literal) entityLabel.getValue()).getLanguage());
+                }
             }
 
             if (result.hasBinding("entityReference")) {
-                topicAnnotation
-                        .setTopicReference(result
-                                .getBinding("entityReference").getValue()
-                                .stringValue());
+                topicAnnotation.setTopicReference(parseEntity(conn, 
+                    result.getBinding("entityReference").getValue().stringValue(),
+                    topicAnnotation.getDataset()));
             }
 
             if (result.hasBinding("relation")) {
-                String nextRelationUri = result.getBinding("relation")
-                        .getValue().stringValue();
+                String nextRelationUri = result.getBinding("relation").getValue().stringValue();
                 relations.put(topicAnnotation, nextRelationUri);
             }
 
             if (result.hasBinding("site")) {
-                topicAnnotation.setDataset(result.getBinding("site").getValue()
-                        .stringValue());
+                topicAnnotation.setDataset(result.getBinding("site").getValue().stringValue());
             }
         } else {
             if (result.hasBinding("relation")) {
-                final String nextRelationUri = result.getBinding("relation")
-                        .getValue().stringValue();
-                if (!relations.containsEntry(topicAnnotation, nextRelationUri))
+                final String nextRelationUri = result.getBinding("relation").getValue().stringValue();
+                if (!relations.containsEntry(topicAnnotation, nextRelationUri)) {
                     relations.put(topicAnnotation, nextRelationUri);
+                }
             }
         }
     }
 
+    @Override
+    public Collection<SentimentAnnotation> parseSentimentAnnotation() throws EnhancementParserException {
+        Multimap<Enhancement, String> relations = ArrayListMultimap.create();
+        Map<String, Enhancement> enhancementsByUri = Maps.newHashMap();
+        try {
+            RepositoryConnection conn = repository.getConnection();
+            conn.begin();
+            Collection<SentimentAnnotation> sas = parseSentimentAnnotations(conn, relations, enhancementsByUri);
+            conn.close();
+            return sas;
+        } catch (RepositoryException e) {
+            throw new EnhancementParserException("Error querying the RDF Model obtained as Service Response", e);
+        }
+    }
+    
+    /**
+     * Returns the Sentiment for the processed document or <code>null</code> if
+     * no Sentiment analysis component is configured for the analysis.
+     * @return the Document Sentiment or <code>null</code> if not available
+     * @throws EnhancementParserException
+     */
+    public Double parseDocumentSentiment() throws EnhancementParserException {
+        RepositoryConnection conn = null;
+        try {
+            conn = repository.getConnection();
+            conn.begin();
+            String documentSentimentQuery = "PREFIX fise: <http://fise.iks-project.eu/ontology/> \n"
+                    + "PREFIX dct: <http://purl.org/dc/terms/> \n"
+                    + "SELECT ?docSent { \n"
+                    + "  ?annotation a fise:TextAnnotation . \n"
+                    + "  ?annotation dct:type fise:DocumentSentiment . \n"
+                    + "  ?annotation fise:sentiment ?docSent \n"
+                    + "}";
+            TupleQueryResult documentSentimentAnnotationsResults = conn.prepareTupleQuery(
+                QueryLanguage.SPARQL, documentSentimentQuery).evaluate();
+            final Double docSentiment;
+            if(documentSentimentAnnotationsResults.hasNext()) {
+                BindingSet result = documentSentimentAnnotationsResults.next();
+                docSentiment = Double.parseDouble(result.getBinding("docSent").getValue().stringValue());
+            } else {
+                docSentiment = null;
+            }
+            documentSentimentAnnotationsResults.close();
+            conn.commit();
+            return docSentiment;
+        } catch (QueryEvaluationException | MalformedQueryException e) {
+            throw new EnhancementParserException("Error parsing text annotations", e);
+        } catch (RepositoryException e) {
+            throw new EnhancementParserException("Error querying the RDF Model obtained as Service Response", e);
+        } finally {
+            if(conn != null){
+                try {
+                    conn.close();
+                } catch (RepositoryException e) {/*ignore*/}
+            }
+        }
+        
+    }
+    
+    private Collection<SentimentAnnotation> parseSentimentAnnotations(
+        RepositoryConnection conn, Multimap<Enhancement, String> relations,
+        Map<String, Enhancement> enhancementsByUri) throws EnhancementParserException {
+
+        Collection<SentimentAnnotation> sas = Sets.newHashSet();
+    
+        String sentimentAnnotationQuery = "PREFIX fise: <http://fise.iks-project.eu/ontology/> \n"
+                + "PREFIX dct: <http://purl.org/dc/terms/> \n"
+                + "SELECT * { \n"
+                + "  ?annotation a fise:TextAnnotation . \n"
+                + "  ?annotation dct:type fise:Sentiment . \n"
+                + "  OPTIONAL { ?annotation fise:confidence ?confidence } \n"
+                + "  OPTIONAL { ?annotation fise:sentiment ?sentiment  } \n"
+                + "  OPTIONAL { ?annotation fise:start ?start ; fise:end ?end } \n"
+                + "  OPTIONAL { ?annotation dct:relation ?relation } \n"
+                //filter the Document Sentiment Annotation
+                + "  FILTER NOT EXISTS { ?annotation dct:type fise:DocumentSentiment } \n"
+                + "}";
+    
+        try {
+            TupleQueryResult sentimentAnnotationsResults = conn.prepareTupleQuery(
+                    QueryLanguage.SPARQL, sentimentAnnotationQuery).evaluate();
+    
+            while (sentimentAnnotationsResults.hasNext()) {
+                BindingSet result = sentimentAnnotationsResults.next();
+                final String uri = result.getBinding("annotation").getValue()
+                        .stringValue();
+    
+                Enhancement sentimentAnnotation = enhancementsByUri.get(uri);
+                if (sentimentAnnotation == null) {
+                    sentimentAnnotation = new SentimentAnnotation();
+                    enhancementsByUri.put(uri, sentimentAnnotation);
+                }
+                setSentimentAnnotationData((SentimentAnnotation) sentimentAnnotation,
+                        result, conn, relations);
+                if (!sas.contains(sentimentAnnotation))
+                    sas.add((SentimentAnnotation) sentimentAnnotation);
+            }
+        } catch (QueryEvaluationException | MalformedQueryException e) {
+            throw new EnhancementParserException( "Error parsing sentiment annotations", e);
+        } catch (RepositoryException e) {
+            throw new EnhancementParserException("Error querying the RDF Model obtained as Service Response", e);
+        }
+    
+        return sas;
+    }
+
+    private void setSentimentAnnotationData(SentimentAnnotation sentimentAnnotation, BindingSet result,
+            RepositoryConnection conn, Multimap<Enhancement,String> relations) {
+        if (!relations.containsKey(sentimentAnnotation)) {
+            setEnhancementData(sentimentAnnotation, result);
+            if (result.hasBinding("start")) {
+                sentimentAnnotation.setStarts(Integer.parseInt(result
+                        .getBinding("start").getValue().stringValue()));
+                sentimentAnnotation.setEnds(Integer.parseInt(result
+                        .getBinding("end").getValue().stringValue()));
+            }
+            if (result.hasBinding("relation")) {
+                String nextRelationUri = result.getBinding("relation")
+                        .getValue().stringValue();
+                relations.put(sentimentAnnotation, nextRelationUri);
+            }
+            if(result.hasBinding("sentiment")) {
+                sentimentAnnotation.setSentiment(Double.parseDouble(
+                    result.getBinding("sentiment").getValue().stringValue()));
+            }
+        } else {
+            if (result.hasBinding("relation")) {
+                String nextRelationUri = result.getBinding("relation")
+                        .getValue().stringValue();
+                relations.put(sentimentAnnotation, nextRelationUri);
+            }
+        }
+    }
+    
 }

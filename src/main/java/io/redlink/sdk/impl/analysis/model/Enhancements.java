@@ -43,11 +43,13 @@ public class Enhancements implements Iterable<Enhancement> {
      * Annotations' languages (LanguageAnnotation)
      */
     private Collection<String> languages;
+    
+    private Double documentSentiment;
 
     Enhancements() {
         this.enhancements = ArrayListMultimap.create();
         this.entities = Maps.newLinkedHashMap();
-        languages = Sets.newHashSet();
+        this.languages = Sets.newHashSet();
     }
 
     @Override
@@ -77,6 +79,9 @@ public class Enhancements implements Iterable<Enhancement> {
             EntityAnnotation ea = (EntityAnnotation) enhancement;
             entities.put(ea.getEntityReference().getUri(),
                     ea.getEntityReference());
+        } else if(enhancement instanceof TopicAnnotation){
+            TopicAnnotation ta = (TopicAnnotation)enhancement;
+            entities.put(ta.getTopicReference().getUri(), ta.getTopicReference());
         }
     }
 
@@ -89,8 +94,8 @@ public class Enhancements implements Iterable<Enhancement> {
     public Collection<TextAnnotation> getTextAnnotations() {
         Collection<? extends Enhancement> result = enhancements
                 .get(TextAnnotation.class);
-        return (Collection<TextAnnotation>) result; // Should be safe. Need to
-        // be tested
+        return result == null ? Collections.<TextAnnotation>emptySet() : 
+            Collections.unmodifiableCollection((Collection<TextAnnotation>) result);
     }
 
     /**
@@ -101,7 +106,36 @@ public class Enhancements implements Iterable<Enhancement> {
     @SuppressWarnings("unchecked")
     public Collection<EntityAnnotation> getEntityAnnotations() {
         Collection<? extends Enhancement> result = enhancements.get(EntityAnnotation.class);
-        return (Collection<EntityAnnotation>) result; // Should be safe. Needs to be tested
+        return result == null ? Collections.<EntityAnnotation>emptySet() : 
+            Collections.unmodifiableCollection((Collection<EntityAnnotation>) result);
+    }
+
+    /**
+     * Returns the {@link Collection} of extracted {@link SentimentAnnotation}s. This
+     * allows to process low level sentiment values extracted from sub-sections of the
+     * document (e.g. on Sentence level). Use {@link #getDocumentSentiment()} to
+     * get the overall sentiment of the document as a whole
+     *
+     * @return A collection of Sentiment annotations for sub-sections of the document
+     * @see #getDocumentSentiment()
+     */
+    @SuppressWarnings("unchecked")
+    public Collection<SentimentAnnotation> getSentimentAnnotations() {
+        Collection<? extends Enhancement> result = enhancements.get(SentimentAnnotation.class);
+        return result == null ? Collections.<SentimentAnnotation>emptySet() : 
+            Collections.unmodifiableCollection((Collection<SentimentAnnotation>) result);
+    }
+    
+    /**
+     * Returns the {@link Collection} of extracted {@link EntityAnnotation}s
+     *
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public Collection<TopicAnnotation> getTopicAnnotations() {
+        Collection<? extends Enhancement> result = enhancements.get(TopicAnnotation.class);
+        return result == null ? Collections.<TopicAnnotation>emptySet() : 
+            Collections.unmodifiableCollection((Collection<TopicAnnotation>) result);
     }
 
     /**
@@ -293,6 +327,18 @@ public class Enhancements implements Iterable<Enhancement> {
         this.languages.add(language);
     }
 
+    void setDocumentSentiment(Double documentSentiment) {
+        this.documentSentiment = documentSentiment;
+    }
+    /**
+     * Getter for the overall sentiment of the Document
+     * @return the document sentiment or <code>null</code> if no sentiment component 
+     * is configured for the analysis.
+     */
+    public Double getDocumentSentiment() {
+        return documentSentiment;
+    }
+    
     /**
      * Returns the {@link Collection} of extracted categories (topics) for the analyzed content
      *

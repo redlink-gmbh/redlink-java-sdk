@@ -34,6 +34,7 @@ public abstract class EnhancementsParser {
         Enhancements enhancements = new Enhancements();
         enhancements.setEnhancements(parseEnhancements());
         enhancements.setLanguages(parseLanguages());
+        enhancements.setDocumentSentiment(parseDocumentSentiment());
         return enhancements;
     }
 
@@ -77,6 +78,21 @@ public abstract class EnhancementsParser {
      * @throws EnhancementParserException
      */
     public abstract Collection<TopicAnnotation> parseTopicAnnotation() throws EnhancementParserException;
+
+    /**
+     * Returns a {@link Collection} of {@link SentimentAnnotation}s from a serialized Enhancement Structure
+     * @return
+     * @throws EnhancementParserException
+     */
+    public abstract Collection<SentimentAnnotation> parseSentimentAnnotation() throws EnhancementParserException;
+    
+    /**
+     * Returns the Sentiment for the processed document or <code>null</code> if
+     * no Sentiment analysis component is configured for the analysis.
+     * @return the Document Sentiment or <code>null</code> if not available
+     * @throws EnhancementParserException
+     */
+    public abstract Double parseDocumentSentiment() throws EnhancementParserException;
 
     /**
      * Returns a dereferenced {@link Entity} identified by its URI from a serialized Enhancement Structure

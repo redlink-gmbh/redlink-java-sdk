@@ -15,10 +15,12 @@ package io.redlink.sdk;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
+
 import io.redlink.sdk.analysis.AnalysisRequest;
 import io.redlink.sdk.analysis.AnalysisRequest.AnalysisRequestBuilder;
 import io.redlink.sdk.analysis.AnalysisRequest.OutputFormat;
 import io.redlink.sdk.impl.analysis.model.*;
+
 import org.apache.commons.io.IOUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -32,10 +34,12 @@ import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.util.Collection;
+import java.util.Map.Entry;
 
 public class AnalysisTest extends GenericTest {
 
@@ -75,7 +79,7 @@ public class AnalysisTest extends GenericTest {
     /**
      * <p>Tests the empty enhancements when an empty string is sent to the API</p>
      */
-    @Test
+    //@Test
     public void testEmptyEnhancement() {
         AnalysisRequest request = AnalysisRequest.builder()
                 .setAnalysis(TEST_ANALYSIS)
@@ -290,6 +294,7 @@ public class AnalysisTest extends GenericTest {
         Enhancements enhancements = redlink.enhance(request);
 
         Entity baggio = enhancements.getEntity("http://rdf.freebase.com/ns/m.06d6f");
+        Assert.assertNotNull(baggio);
         Assert.assertEquals(baggio.getFirstPropertyValue(
                         "http://rdf.freebase.com/ns/people.person.height_meters"),
                 "1.74"
@@ -300,6 +305,7 @@ public class AnalysisTest extends GenericTest {
         );
 
         Entity baggioDBP = enhancements.getEntity("http://dbpedia.org/resource/Roberto_Baggio");
+        Assert.assertNotNull(baggioDBP);
         //Assert.assertEquals("http://dbpedia.org/resource/Category:Brescia_Calcio_players",
         //        baggioDBP.getFirstPropertyValue("http://purl.org/dc/terms/subject"));
         Assert.assertEquals("221", baggioDBP.getFirstPropertyValue("http://dbpedia.org/property/totalgoals"));
@@ -316,6 +322,7 @@ public class AnalysisTest extends GenericTest {
                 .setOutputFormat(OutputFormat.RDFXML).build();
         enhancements = redlink.enhance(request);
         baggio = enhancements.getEntity("http://rdf.freebase.com/ns/m.06d6f");
+        Assert.assertNotNull(baggio);
         String dateV = baggio.getFirstPropertyValue(
                 "http://rdf.freebase.com/ns/people.person.date_of_birth");
         String dateCustomV = baggio.getFirstPropertyValue(
@@ -364,8 +371,12 @@ public class AnalysisTest extends GenericTest {
                 .setContent(content)
                 .setOutputFormat(OutputFormat.TURTLE).build();
         Enhancements enhancements = redlink.enhance(request);
-        Assert.assertEquals(9, enhancements.getTextAnnotations().size());
-        Assert.assertEquals(11, enhancements.getBestAnnotations().size());
+        Collection<TextAnnotation> tas = enhancements.getTextAnnotations();
+        logTextAnnotations(tas);
+        Assert.assertEquals(6, tas.size());
+        Multimap<TextAnnotation,EntityAnnotation> beas = enhancements.getBestAnnotations();
+        logBestAnnotations(beas);
+        Assert.assertEquals(11, beas.size());
     }
 
     /**
@@ -391,5 +402,30 @@ public class AnalysisTest extends GenericTest {
         //       Assert.assertEquals("dbpedia", parisEa.getDataset());
         Assert.assertEquals("en", parisEa.getLanguage());
     }
+    
+    
+    /**
+     * @param tas
+     */
+    private void logTextAnnotations(Collection<TextAnnotation> tas) {
+        log.debug("> TextAnnotations:");
+        for(TextAnnotation ta : tas){
+            log.debug(" - {}@[{},{}] - type: {}", ta.getSelectedText(), ta.getStarts(), ta.getEnds(), ta.getType());
+        }
+    }
+
+    /**
+     * @param beas
+     */
+    private void logBestAnnotations(Multimap<TextAnnotation,EntityAnnotation> beas) {
+        log.debug("> best EntityAnnotations:");
+        for(Entry<TextAnnotation, EntityAnnotation> entry : beas.entries()){
+            log.debug(" - {}@[{},{}] -> {} | conf: {}", entry.getKey().getSelectedText(), 
+                entry.getKey().getStarts(), entry.getKey().getEnds(), 
+                entry.getValue().getEntityReference().getUri(), entry.getValue().getConfidence());
+        }
+    }
+
+
 
 }

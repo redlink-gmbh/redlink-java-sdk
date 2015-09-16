@@ -95,7 +95,7 @@ public final class TextAnnotation extends Enhancement {
         return type;
     }
 
-    public void setType(String type) {
+    void setType(String type) {
         this.type = type;
     }
 
