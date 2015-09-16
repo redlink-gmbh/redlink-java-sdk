@@ -26,9 +26,10 @@ public final class EntityAnnotation extends Enhancement {
 
     // properties
     private String entityLabel = null; // http://fise.iks-project.eu/ontology/entity-label
+    private String entityLabelLang;
     private Entity entityReference = null; // http://fise.iks-project.eu/ontology/entity-reference
     private Collection<String> entityTypes = null; // http://fise.iks-project.eu/ontology/entity-type
-    private String dataset = null; // http://stanbol.apache.org/ontology/entityhub/entityhub#"
+    private String origin = null; // http://stanbol.apache.org/ontology/entityhub/entityhub#"
 
     public EntityAnnotation() {
         super();
@@ -43,8 +44,22 @@ public final class EntityAnnotation extends Enhancement {
         return entityLabel;
     }
 
-    void setEntityLabel(String entityLabel) {
+    public String getEntityLabelLang() {
+        return entityLabelLang;
+    }
+    
+    /**
+     * @deprecated use {@link #getEntityLabelLang()} instead
+     */
+    @Override
+    @Deprecated
+    public String getLanguage() {
+        return getEntityLabelLang();
+    }
+    
+    void setEntityLabel(String entityLabel, String lang) {
         this.entityLabel = entityLabel;
+        this.entityLabelLang = lang;
     }
 
     /**
@@ -74,16 +89,24 @@ public final class EntityAnnotation extends Enhancement {
     }
 
     /**
-     * Returns the name of the dataset which the entity has been linked with
-     *
-     * @return
+     * @see #getOrign()
+     * @deprecated
      */
+    @Deprecated
     public String getDataset() {
-        return dataset;
+        return getOrigin();
+    }
+    
+    /**
+     * The origin of the entity (e.g. an own dataset or a public dataset of an other user)
+     * @return the origin of the referenced entity or <code>null</code> if not applicable.
+     */
+    public String getOrigin() {
+        return origin;
     }
 
-    void setDataset(String dataset) {
-        this.dataset = dataset;
+    void setOrigin(String origin) {
+        this.origin = origin;
     }
 
     @Override

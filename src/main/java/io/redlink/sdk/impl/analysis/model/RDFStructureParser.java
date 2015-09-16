@@ -193,8 +193,8 @@ final class RDFStructureParser extends EnhancementsParser {
                 + "  ?annotation a fise:TextAnnotation . \n"
                 + "	 OPTIONAL { ?annotation fise:confidence ?confidence } \n"
                 + "  OPTIONAL { ?annotation dct:type ?type} \n"
-                + "  OPTIONAL { ?annotation dct:language ?language} \n"
                 + "  OPTIONAL { ?annotation fise:start ?start ; fise:end ?end } \n"
+                + "  OPTIONAL { ?annotation fise:selection-prefix ?prefix ; fise:selection-suffix ?suffix } \n"
                 + "  OPTIONAL { ?annotation dct:relation ?relation } \n"
                 + "  OPTIONAL { ?annotation fise:selection-context ?selectionContext } \n"
                 + "  OPTIONAL { ?annotation fise:selected-text ?selectedText } \n"
@@ -251,6 +251,11 @@ final class RDFStructureParser extends EnhancementsParser {
                 textAnnotation.setEnds(Integer.parseInt(result
                         .getBinding("end").getValue().stringValue()));
             }
+            if (result.hasBinding("prefix") && result.hasBinding("suffix")) {
+                textAnnotation.setSelectionPrefixSuffix(
+                    result.getBinding("prefix").getValue().stringValue(),
+                    result.getBinding("suffix").getValue().stringValue());
+            }
             if (result.hasBinding("relation")) {
                 String nextRelationUri = result.getBinding("relation")
                         .getValue().stringValue();
@@ -262,13 +267,9 @@ final class RDFStructureParser extends EnhancementsParser {
                         .stringValue());
             }
             if (result.hasBinding("selectedText")) {
-                Binding selectedText = result.getBinding("selectedText");
-                textAnnotation.setSelectedText(selectedText.getValue()
-                        .stringValue());
-                if (!result.hasBinding("language")
-                        && (selectedText.getValue() instanceof Literal))
-                    textAnnotation.setLanguage(((Literal) selectedText
-                            .getValue()).getLanguage());
+                Value selectedText = result.getBinding("selectedText").getValue();
+                String language = selectedText instanceof Literal ? ((Literal)selectedText).getLanguage() : null;
+                textAnnotation.setSelectedText(selectedText.stringValue(), language);
             }
             if (result.hasBinding("type")) {
                 Binding type = result.getBinding("type");
@@ -329,12 +330,13 @@ final class RDFStructureParser extends EnhancementsParser {
                 + "SELECT * { \n"
                 + "  ?annotation a fise:EntityAnnotation . \n"
                 + "	 OPTIONAL { ?annotation fise:confidence ?confidence } \n"
-                + "  OPTIONAL { ?language a dct:language  } \n"
                 + "  OPTIONAL { ?annotation dct:relation ?relation } \n"
                 + "  OPTIONAL { ?annotation fise:entity-label ?entityLabel } \n"
                 + "  OPTIONAL { ?annotation fise:entity-reference ?entityReference } \n"
                 + "  OPTIONAL { ?annotation fise:entity-type ?entityType } \n"
-                + "  OPTIONAL { ?annotation entityhub:site ?site } \n" + "}";
+                + "  OPTIONAL { ?annotation entityhub:site ?site } \n" 
+                + "  OPTIONAL { ?annotation fise:origin ?site } \n" 
+                + "}";
 
         try {
             TupleQueryResult entityAnnotationsResults = conn.prepareTupleQuery(
@@ -375,27 +377,20 @@ final class RDFStructureParser extends EnhancementsParser {
         if (!relations.containsKey(entityAnnotation)) {
             setEnhancementData(entityAnnotation, result);
             if (result.hasBinding("entityLabel")) {
-                Binding entityLabel = result.getBinding("entityLabel");
-                entityAnnotation.setEntityLabel(entityLabel.getValue()
-                        .stringValue());
-                if (!result.hasBinding("language")
-                        && (entityLabel.getValue() instanceof Literal))
-                    entityAnnotation.setLanguage(((Literal) entityLabel
-                            .getValue()).getLanguage());
-
+                Value entityLabel = result.getBinding("entityLabel").getValue();
+                String lang = entityLabel instanceof Literal ? ((Literal)entityLabel).getLanguage() : null;
+                entityAnnotation.setEntityLabel(entityLabel.stringValue(), lang);
             }
             
             if (result.hasBinding("site")) {
-                entityAnnotation.setDataset(result.getBinding("site").getValue()
+                entityAnnotation.setOrigin(result.getBinding("site").getValue()
                         .stringValue());
             }
 
             if (result.hasBinding("entityReference")) {
-                entityAnnotation
-                        .setEntityReference(parseEntity(conn, result
-                                .getBinding("entityReference").getValue()
-                                .stringValue(),
-                                entityAnnotation.getDataset()));
+                entityAnnotation.setEntityReference(parseEntity(conn, 
+                    result.getBinding("entityReference").getValue().stringValue(),
+                    entityAnnotation.getOrigin()));
             }
 
             if (result.hasBinding("relation")) {
@@ -449,8 +444,7 @@ final class RDFStructureParser extends EnhancementsParser {
 
         while (!toParse.isEmpty()) {
             String nextRelation = toParse.poll();
-            Enhancement nextEnhancement = parseEnhancement(nextRelation, conn,
-                    toParse, relations);
+            Enhancement nextEnhancement = parseEnhancement(nextRelation, conn, toParse, relations);
 
             if (nextEnhancement != null)
                 allRelations.put(nextRelation, nextEnhancement);
@@ -509,27 +503,14 @@ final class RDFStructureParser extends EnhancementsParser {
         String textAnnotationQuery = "PREFIX fise: <http://fise.iks-project.eu/ontology/> \n"
                 + "PREFIX dct: <http://purl.org/dc/terms/> \n"
                 + "PREFIX entityhub: <http://stanbol.apache.org/ontology/entityhub/entityhub#> \n"
-                + "SELECT * { \n OPTIONAL { <"
-                + taUri
-                + ">  fise:confidence ?confidence } \n"
-                + "  OPTIONAL { <"
-                + taUri
-                + ">  dct:language ?language } \n"
-                + "  OPTIONAL { <"
-                + taUri
-                + "> fise:start ?start ; fise:end ?end } \n"
-                + "  OPTIONAL { <"
-                + taUri
-                + "> dct:type ?type } \n"
-                + "  OPTIONAL { <"
-                + taUri
-                + "> dct:relation ?relation } \n"
-                + "  OPTIONAL { <"
-                + taUri
-                + "> fise:selection-context ?selectionContext } \n"
-                + "  OPTIONAL { <"
-                + taUri
-                + "> fise:selected-text ?selectedText } \n" + "}";
+                + "SELECT * { \n "
+                + "  OPTIONAL { <" + taUri + ">  fise:confidence ?confidence } \n"
+                + "  OPTIONAL { <" + taUri + "> fise:start ?start ; fise:end ?end } \n"
+                + "  OPTIONAL { <" + taUri + "> fise:selection-prefix ?prefix ; fise:selection-suffix ?suffix } \n"
+                + "  OPTIONAL { <" + taUri + "> dct:type ?type } \n"
+                + "  OPTIONAL { <" + taUri + "> dct:relation ?relation } \n"
+                + "  OPTIONAL { <" + taUri + "> fise:selection-context ?selectionContext } \n"
+                + "  OPTIONAL { <" + taUri + "> fise:selected-text ?selectedText } \n" + "}";
         try {
             TupleQueryResult textAnnotationResults = conn.prepareTupleQuery(
                     QueryLanguage.SPARQL, textAnnotationQuery).evaluate();
@@ -545,6 +526,11 @@ final class RDFStructureParser extends EnhancementsParser {
                         enhancement.setEnds(Integer.parseInt(result
                                 .getBinding("end").getValue().stringValue()));
                     }
+                    if (result.hasBinding("prefix") && result.hasBinding("suffix")) {
+                        enhancement.setSelectionPrefixSuffix(
+                            result.getBinding("prefix").getValue().stringValue(),
+                            result.getBinding("suffix").getValue().stringValue());
+                    }
                     if (result.hasBinding("relation")) {
                         String nextRelationUri = result.getBinding("relation")
                                 .getValue().stringValue();
@@ -558,14 +544,9 @@ final class RDFStructureParser extends EnhancementsParser {
                                 .stringValue());
                     }
                     if (result.hasBinding("selectedText")) {
-                        Binding selectedText = result
-                                .getBinding("selectedText");
-                        enhancement.setSelectedText(selectedText.getValue()
-                                .stringValue());
-                        if (!result.hasBinding("language")
-                                && (selectedText.getValue() instanceof Literal))
-                            enhancement.setLanguage(((Literal) selectedText
-                                    .getValue()).getLanguage());
+                        Value selectedText = result.getBinding("selectedText").getValue();
+                        String lang = selectedText instanceof Literal ? ((Literal)selectedText).getLanguage() : null;
+                        enhancement.setSelectedText(selectedText.stringValue(), lang);
                     }
                 } else {
                     if (result.hasBinding("relation")) {
@@ -596,25 +577,15 @@ final class RDFStructureParser extends EnhancementsParser {
         String entityAnnotationsQuery = "PREFIX fise: <http://fise.iks-project.eu/ontology/> \n"
                 + "PREFIX dct: <http://purl.org/dc/terms/> \n"
                 + "PREFIX entityhub: <http://stanbol.apache.org/ontology/entityhub/entityhub#> \n"
-                + "SELECT * { \n OPTIONAL { <"
-                + eaUri
-                + ">  fise:confidence ?confidence ; \n"
-                + eaUri
-                + ">  dct:language ?language . \n"
-                + "  OPTIONAL { <"
-                + eaUri
-                + "> dct:relation ?relation } \n"
-                + "  OPTIONAL { <"
-                + eaUri
-                + "> fise:entity-label ?entityLabel } \n"
-                + "  OPTIONAL { <"
-                + eaUri
-                + "> fise:entity-reference ?entityReference } \n"
-                + "  OPTIONAL { <"
-                + eaUri
-                + "> fise:entity-type ?entityType } \n"
-                + "  OPTIONAL { <"
-                + eaUri + "> entityhub:site ?site } \n" + "}";
+                + "SELECT * { \n "
+                + "  OPTIONAL { <" + eaUri + "> fise:confidence ?confidence } \n"
+                + "  OPTIONAL { <" + eaUri + "> dct:relation ?relation } \n"
+                + "  OPTIONAL { <" + eaUri + "> fise:entity-label ?entityLabel } \n"
+                + "  OPTIONAL { <" + eaUri + "> fise:entity-reference ?entityReference } \n"
+                + "  OPTIONAL { <" + eaUri + "> fise:entity-type ?entityType } \n"
+                + "  OPTIONAL { <" + eaUri + "> entityhub:site ?site } \n" 
+                + "  OPTIONAL { <" + eaUri + "> fise:origin ?site } \n" 
+                + "}";
         try {
             TupleQueryResult entityAnnotationsResults = conn.prepareTupleQuery(
                     QueryLanguage.SPARQL, entityAnnotationsQuery).evaluate();
@@ -625,56 +596,49 @@ final class RDFStructureParser extends EnhancementsParser {
                 if (i == 0) {
                     setEnhancementData(enhancement, result);
                     if (result.hasBinding("entityLabel")) {
-                        Binding entityLabel = result.getBinding("entityLabel");
-                        enhancement.setEntityLabel(entityLabel.getValue()
-                                .stringValue());
-                        if (!result.hasBinding("language")
-                                && (entityLabel.getValue() instanceof Literal))
-                            enhancement.setLanguage(((Literal) entityLabel
-                                    .getValue()).getLanguage());
-
+                        Value entityLabel = result.getBinding("entityLabel").getValue();
+                        String lang = entityLabel instanceof Literal ? ((Literal)entityLabel).getLanguage() : null;
+                        enhancement.setEntityLabel(entityLabel.stringValue(), lang);
                     }
                     if (result.hasBinding("site")) {
-                        enhancement.setDataset(result.getBinding("site")
+                        enhancement.setOrigin(result.getBinding("site")
                                 .getValue().stringValue());
                     }
                     if (result.hasBinding("entityReference")) {
-                        enhancement.setEntityReference(parseEntity(conn, result
-                                .getBinding("entityReference").getValue()
-                                .stringValue(),
-                                enhancement.getDataset()));
+                        enhancement.setEntityReference(parseEntity(conn, 
+                            result.getBinding("entityReference").getValue().stringValue(),
+                                enhancement.getOrigin()));
                     }
                     if (result.hasBinding("relation")) {
-                        String nextRelationUri = result.getBinding("relation")
-                                .getValue().stringValue();
-                        if (!relations.values().contains(nextRelationUri))
+                        String nextRelationUri = result.getBinding("relation").getValue().stringValue();
+                        if (!relations.values().contains(nextRelationUri)){
                             toParse.add(nextRelationUri);
+                        }
                         relations.put(enhancement, nextRelationUri);
                     }
                     if (result.hasBinding("entityType")) {
                         Collection<String> types = new HashSet<String>();
-                        types.add(result.getBinding("entityType").getValue()
-                                .stringValue());
+                        types.add(result.getBinding("entityType").getValue().stringValue());
                         enhancement.setEntityTypes(types);
                     }
                 } else {
                     if (result.hasBinding("relation")) {
                         String nextRelationUri = result.getBinding("relation")
                                 .getValue().stringValue();
-                        Collection<String> eRelations = relations
-                                .get(enhancement);
+                        Collection<String> eRelations = relations.get(enhancement);
                         if (!eRelations.contains(nextRelationUri)) {
-                            if (!relations.values().contains(nextRelationUri))
+                            if (!relations.values().contains(nextRelationUri)){
                                 toParse.add(nextRelationUri);
+                            }
                             relations.put(enhancement, nextRelationUri);
                         }
                     }
 
                     if (result.hasBinding("entityType")) {
-                        String nextType = result.getBinding("entityType")
-                                .getValue().stringValue();
-                        if (!enhancement.getEntityTypes().contains(nextType))
+                        String nextType = result.getBinding("entityType").getValue().stringValue();
+                        if (!enhancement.getEntityTypes().contains(nextType)){
                             enhancement.getEntityTypes().add(nextType);
+                        }
                     }
                 }
 
@@ -759,8 +723,6 @@ final class RDFStructureParser extends EnhancementsParser {
         } else {
             enhancement.setConfidence(1.0); // Rupert says this should be the default value...
         }
-        enhancement.setLanguage(result.getBinding("language") != null ? result
-                .getBinding("language").getValue().stringValue() : null);
     }
 
     /*
@@ -805,11 +767,11 @@ final class RDFStructureParser extends EnhancementsParser {
                 + "SELECT * { \n"
                 + "  ?annotation a fise:TopicAnnotation . \n"
                 + "	 OPTIONAL { ?annotation fise:confidence ?confidence } \n"
-                + "  OPTIONAL { ?annotation dct:language ?language  } \n"
                 + "  OPTIONAL { ?annotation dct:relation ?relation } \n"
                 + "  OPTIONAL { ?annotation fise:entity-label ?entityLabel } \n"
                 + "  OPTIONAL { ?annotation fise:entity-reference ?entityReference } \n"
                 + "  OPTIONAL { ?annotation entityhub:site ?site } \n" 
+                + "  OPTIONAL { ?annotation fise:origin ?site } \n" 
                 + "}";
 
         try {
@@ -847,17 +809,15 @@ final class RDFStructureParser extends EnhancementsParser {
         if (!relations.containsKey(topicAnnotation)) {
             setEnhancementData(topicAnnotation, result);
             if (result.hasBinding("entityLabel")) {
-                Binding entityLabel = result.getBinding("entityLabel");
-                topicAnnotation.setTopicLabel(entityLabel.getValue().stringValue());
-                if (!result.hasBinding("language") && (entityLabel.getValue() instanceof Literal)){
-                    topicAnnotation.setLanguage(((Literal) entityLabel.getValue()).getLanguage());
-                }
+                Value entityLabel = result.getBinding("entityLabel").getValue();
+                String lang = entityLabel instanceof Literal ? ((Literal)entityLabel).getLanguage() : null;
+                topicAnnotation.setTopicLabel(entityLabel.stringValue(), lang);
             }
 
             if (result.hasBinding("entityReference")) {
                 topicAnnotation.setTopicReference(parseEntity(conn, 
                     result.getBinding("entityReference").getValue().stringValue(),
-                    topicAnnotation.getDataset()));
+                    topicAnnotation.getOrigin()));
             }
 
             if (result.hasBinding("relation")) {
@@ -866,7 +826,7 @@ final class RDFStructureParser extends EnhancementsParser {
             }
 
             if (result.hasBinding("site")) {
-                topicAnnotation.setDataset(result.getBinding("site").getValue().stringValue());
+                topicAnnotation.setOrigin(result.getBinding("site").getValue().stringValue());
             }
         } else {
             if (result.hasBinding("relation")) {

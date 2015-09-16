@@ -27,7 +27,10 @@ public final class TextAnnotation extends Enhancement {
     private int starts = 0; // http://fise.iks-project.eu/ontology/start
     private int ends = 0; // http://fise.iks-project.eu/ontology/end
     private String selectedText = null; // http://fise.iks-project.eu/ontology/selected-text
+    private String selectedTextLang = null;
     private String selectionContext = null; // http://fise.iks-project.eu/ontology/selection-context
+    private String selectionPrefix = null;
+    private String selectionSuffix = null;
     private String type = null; // http://purl.org/dc/terms/type
 
     public TextAnnotation() {
@@ -69,8 +72,22 @@ public final class TextAnnotation extends Enhancement {
         return selectedText;
     }
 
-    void setSelectedText(String selectedText) {
+    public String getSelectedTextLang() {
+        return selectedTextLang;
+    }
+    
+    /**
+     * @deprecated use {@link #getSelectedTextLang()}
+     */
+    @Override
+    @Deprecated
+    public String getLanguage() {
+        return getSelectedTextLang();
+    }
+    
+    void setSelectedText(String selectedText, String lang) {
         this.selectedText = selectedText;
+        this.selectedTextLang = lang;
     }
 
     /**
@@ -86,6 +103,30 @@ public final class TextAnnotation extends Enhancement {
         this.selectionContext = selectionContext;
     }
 
+    void setSelectionPrefixSuffix(String prefix, String suffix){
+        this.selectionPrefix = prefix;
+        this.selectionSuffix = suffix;
+    }
+    /**
+     * Some chars before the {@link #getSelectedText()} aimed to allow the location
+     * of the selection in case {@link #getStarts()} and {@link #getEnds()} can 
+     * not be used (e.g. for rich text documents)
+     * @return the selection prefix
+     */
+    public String getSelectionPrefix() {
+        return selectionPrefix;
+    }
+    
+    /**
+     * Some chars after the {@link #getSelectedText()} aimed to allow the location
+     * of the selection in case {@link #getStarts()} and {@link #getEnds()} can 
+     * not be used (e.g. for rich text documents)
+     * @return the selection prefix
+     */
+    public String getSelectionSuffix() {
+        return selectionSuffix;
+    }
+    
     /**
      * Returns the type of the entity annotation
      *

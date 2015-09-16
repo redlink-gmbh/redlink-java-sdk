@@ -24,8 +24,9 @@ public class TopicAnnotation extends Enhancement {
 
     // properties
     private String topicLabel = null; // http://fise.iks-project.eu/ontology/entity-label
+    private String topicLabelLang = null;
     private Entity topicReference = null; // http://fise.iks-project.eu/ontology/entity-reference
-    private String dataset = null; // http://stanbol.apache.org/ontology/entityhub/entityhub#"
+    private String origin = null; // http://stanbol.apache.org/ontology/entityhub/entityhub#"
     private String summary = null; // Entity (Concept) Description
 
     /**
@@ -37,8 +38,22 @@ public class TopicAnnotation extends Enhancement {
         return topicLabel;
     }
 
-    void setTopicLabel(String topicLabel) {
+    public String getTopicLabelLang() {
+        return topicLabelLang;
+    }
+
+    /**
+     * @deprecated use {@link #getTopicLabelLang()} instead
+     */
+    @Override
+    @Deprecated
+    public String getLanguage() {
+        return getTopicLabelLang();
+    }
+    
+    void setTopicLabel(String topicLabel, String lang) {
         this.topicLabel = topicLabel;
+        this.topicLabelLang = lang;
     }
 
     /**
@@ -55,18 +70,25 @@ public class TopicAnnotation extends Enhancement {
     }
 
     /**
-     * Returns the name of the dataset which the category belongs to
-     *
-     * @return
+     * @see #getOrign()
+     * @deprecated
      */
+    @Deprecated
     public String getDataset() {
-        return dataset;
+        return getOrigin();
+    }
+    
+    /**
+     * The origin of the entity (e.g. an own dataset or a public dataset of an other user)
+     * @return the origin of the referenced entity or <code>null</code> if not applicable.
+     */
+    public String getOrigin() {
+        return origin;
     }
 
-    void setDataset(String dataset) {
-        this.dataset = dataset;
+    void setOrigin(String origin) {
+        this.origin = origin;
     }
-
     /**
      * Returns a description of the category
      *

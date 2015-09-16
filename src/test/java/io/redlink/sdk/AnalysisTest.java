@@ -22,6 +22,7 @@ import io.redlink.sdk.analysis.AnalysisRequest.OutputFormat;
 import io.redlink.sdk.impl.analysis.model.*;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.junit.*;
@@ -122,12 +123,27 @@ public class AnalysisTest extends GenericTest {
         Assert.assertNotEquals(0, sizeEnh);
         int sizeTextAnno = enhancements.getTextAnnotations().size();
         Assert.assertNotEquals(0, sizeTextAnno);
+        for(TextAnnotation ta : enhancements.getTextAnnotations()){
+            testTextAnnotationProperties(ta);
+        }
+
         int sizeEntityAnno = enhancements.getEntityAnnotations().size();
         Assert.assertNotEquals(0, sizeEntityAnno);
+        for(EntityAnnotation ea : enhancements.getEntityAnnotations()){
+            testEntityAnnotationProperties(ea);
+        }
+        
         int sizeTopicAnno = enhancements.getTopicAnnotations().size();
         Assert.assertNotEquals(0, sizeTopicAnno);
+        for(TopicAnnotation ta : enhancements.getTopicAnnotations()){
+            testTopicAnnotationProperties(ta);
+        }
         int sizeSentiAnno = enhancements.getSentimentAnnotations().size();
         Assert.assertNotEquals(0, sizeSentiAnno);
+        for(SentimentAnnotation sa : enhancements.getSentimentAnnotations()){
+            testSentimentAnnotationProperties(sa);
+        }
+        
         Assert.assertEquals(sizeEnh, sizeTextAnno + sizeEntityAnno + sizeTopicAnno + sizeSentiAnno);
 
         //Best Annotation
@@ -181,13 +197,15 @@ public class AnalysisTest extends GenericTest {
      * @param ta the TextAnnotation object
      */
     private void testTextAnnotationProperties(TextAnnotation ta) {
-        Assert.assertEquals("en", ta.getLanguage());
-        Assert.assertNotEquals("", ta.getSelectionContext());
-        Assert.assertNotNull(ta.getSelectionContext());
-        Assert.assertNotEquals("", ta.getSelectedText());
         Assert.assertNotNull(ta.getSelectedText());
-        Assert.assertNotEquals(0, ta.getEnds());
-        Assert.assertNotEquals(-1, ta.getStarts());
+        Assert.assertTrue(StringUtils.isNotBlank(ta.getSelectedText()));
+        Assert.assertEquals("en", ta.getSelectedTextLang());
+        Assert.assertNotNull(ta.getSelectionContext());
+        Assert.assertTrue(StringUtils.isNotBlank(ta.getSelectionContext()));
+        Assert.assertTrue(ta.getStarts() >= 0);
+        Assert.assertTrue(ta.getEnds() > ta.getStarts());
+        Assert.assertNotNull(ta.getSelectionPrefix());
+        Assert.assertNotNull(ta.getSelectionSuffix());
     }
 
     /**
@@ -196,12 +214,39 @@ public class AnalysisTest extends GenericTest {
      * @param ea
      */
     private void testEntityAnnotationProperties(EntityAnnotation ea) {
-        Assert.assertNotEquals(ea.getEntityLabel(), "");
         Assert.assertNotNull(ea.getEntityLabel());
+        Assert.assertTrue(StringUtils.isNotBlank(ea.getEntityLabel()));
         Assert.assertNotNull(ea.getEntityReference());
         Assert.assertNotNull(ea.getEntityTypes());
-        Assert.assertNotEquals(ea.getDataset(), "");
-        //Assert.assertNotNull(ea.getDataset());
+        if(ea.getOrigin() != null){
+            Assert.assertTrue(StringUtils.isNotBlank(ea.getOrigin()));
+        } //else not all EntityAnnotation have a dataset
+    }
+
+    /**
+     * <p>Tests the {@code TopicAnnotation} properties</p>
+     *
+     * @param ta
+     */
+    private void testTopicAnnotationProperties(TopicAnnotation ta) {
+        Assert.assertNotNull(ta.getTopicLabel());
+        Assert.assertTrue(StringUtils.isNotBlank(ta.getTopicLabel()));
+        Assert.assertNotNull(ta.getTopicReference());
+        Assert.assertNotNull(ta.getTopicReference());
+        if(ta.getOrigin() != null){
+            Assert.assertTrue(StringUtils.isNotBlank(ta.getOrigin()));
+        }
+    }
+    /**
+     * <p>Tests the {@code EntityAnnotation} properties</p>
+     *
+     * @param sa
+     */
+    private void testSentimentAnnotationProperties(SentimentAnnotation sa) {
+        Assert.assertTrue(sa.getSentiment() >= -1 && sa.getSentiment() <= 1);
+        Assert.assertNull(sa.getLanguage()); //sentiment Annotations do not have a language
+        Assert.assertTrue(sa.getStarts() >= 0);
+        Assert.assertTrue(sa.getEnds() > sa.getStarts());
     }
 
     /**

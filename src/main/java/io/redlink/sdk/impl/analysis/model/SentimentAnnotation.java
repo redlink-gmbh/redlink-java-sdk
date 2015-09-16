@@ -10,7 +10,7 @@ package io.redlink.sdk.impl.analysis.model;
  * @author Rupert Westenthaler
  *
  */
-public class SentimentAnnotation extends Enhancement {
+public class SentimentAnnotation extends Enhancement{
 
     private double sentiment;
     private int starts;

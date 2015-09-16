@@ -26,7 +26,6 @@ public abstract class Enhancement implements Comparable<Enhancement> {
     // properties
     protected Double confidence = null; // http://fise.iks-project.eu/ontology/confidence
     protected Collection<Enhancement> relations = null; // http://purl.org/dc/terms/relation
-    private String language = null; // http://purl.org/dc/terms/language
 
     public Enhancement() {
 
@@ -62,16 +61,14 @@ public abstract class Enhancement implements Comparable<Enhancement> {
     }
 
     /**
-     * Returns the annotation language
+     * Enhancements do not have a language. 
      *
-     * @return
+     * @return <code>null</code>
+     * @deprecated use {label}Lanugage methods of subclasses. This will allways
+     * return <code>null</code> (if not overridden by subclasses).
      */
     public String getLanguage() {
-        return language;
-    }
-
-    void setLanguage(String language) {
-        this.language = language;
+        return null;
     }
 
     /*
