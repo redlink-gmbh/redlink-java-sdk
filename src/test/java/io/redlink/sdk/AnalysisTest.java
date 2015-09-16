@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map.Entry;
 
 public class AnalysisTest extends GenericTest {
@@ -112,18 +113,22 @@ public class AnalysisTest extends GenericTest {
     public void testDemoEnhancement() {
         AnalysisRequest request = AnalysisRequest.builder()
                 .setAnalysis(TEST_ANALYSIS)
-                .setContent(PARIS_TEXT_TO_ENHANCE)
+                .setContent(PARIS_TEXT_TO_ENHANCE + ".\n\n"+STANBOL_TEXT_TO_ENHANCE)
                 .setOutputFormat(OutputFormat.RDFXML).build();
         Enhancements enhancements = redlink.enhance(request);
         Assert.assertNotNull(enhancements);
         //Assert.assertNotEquals(0, enhancements.getModel().size());
-        int sizeE = enhancements.getEnhancements().size();
-        Assert.assertNotEquals(0, sizeE);
-        int sizeTA = enhancements.getTextAnnotations().size();
-        Assert.assertNotEquals(0, sizeTA);
-        int sizeEA = enhancements.getEntityAnnotations().size();
-        Assert.assertNotEquals(0, sizeEA);
-        Assert.assertEquals(sizeE, sizeTA + sizeEA);
+        int sizeEnh = enhancements.getEnhancements().size();
+        Assert.assertNotEquals(0, sizeEnh);
+        int sizeTextAnno = enhancements.getTextAnnotations().size();
+        Assert.assertNotEquals(0, sizeTextAnno);
+        int sizeEntityAnno = enhancements.getEntityAnnotations().size();
+        Assert.assertNotEquals(0, sizeEntityAnno);
+        int sizeTopicAnno = enhancements.getTopicAnnotations().size();
+        Assert.assertNotEquals(0, sizeTopicAnno);
+        int sizeSentiAnno = enhancements.getSentimentAnnotations().size();
+        Assert.assertNotEquals(0, sizeSentiAnno);
+        Assert.assertEquals(sizeEnh, sizeTextAnno + sizeEntityAnno + sizeTopicAnno + sizeSentiAnno);
 
         //Best Annotation
         testEnhancementBestAnnotations(enhancements);
@@ -133,6 +138,14 @@ public class AnalysisTest extends GenericTest {
 
         // Entity Properties
         testEntityProperties(enhancements);
+        
+        //Test language
+        log.debug("Language: {}", enhancements.getLanguages());
+        Assert.assertEquals(Collections.singleton("en"), enhancements.getLanguages());
+        
+        //Document Sentiment
+        log.debug("Document Sentiment: {}", enhancements.getDocumentSentiment());
+        Assert.assertNotNull(enhancements.getDocumentSentiment());
     }
 
     /**
@@ -197,7 +210,7 @@ public class AnalysisTest extends GenericTest {
     private void testEnhancementBestAnnotations(Enhancements enhancements) {
         Multimap<TextAnnotation, EntityAnnotation> bestAnnotations = enhancements.getBestAnnotations();
         Assert.assertNotEquals(0, bestAnnotations.keySet().size());
-        Assert.assertTrue(bestAnnotations.keySet().size() < enhancements.getTextAnnotations().size());
+        Assert.assertTrue(bestAnnotations.keySet().size() <= enhancements.getTextAnnotations().size());
 
         for (TextAnnotation ta : bestAnnotations.keySet()) {
             //check all best have the same
@@ -373,10 +386,10 @@ public class AnalysisTest extends GenericTest {
         Enhancements enhancements = redlink.enhance(request);
         Collection<TextAnnotation> tas = enhancements.getTextAnnotations();
         logTextAnnotations(tas);
-        Assert.assertEquals(6, tas.size());
+        Assert.assertEquals(7, tas.size());
         Multimap<TextAnnotation,EntityAnnotation> beas = enhancements.getBestAnnotations();
         logBestAnnotations(beas);
-        Assert.assertEquals(11, beas.size());
+        Assert.assertEquals(10, beas.size());
     }
 
     /**
@@ -397,7 +410,7 @@ public class AnalysisTest extends GenericTest {
         Assert.assertTrue(paris.getValues(DCTERMS.SUBJECT.toString()).contains("http://dbpedia.org/resource/Category:Capitals_in_Europe"));
 
         EntityAnnotation parisEa = enhancements.getEntityAnnotation(paris.getUri());
-        Assert.assertTrue(parisEa.getEntityTypes().contains("http://dbpedia.org/ontology/Place"));
+        Assert.assertEquals(parisEa.getEntityTypes(), Collections.singleton("http://dbpedia.org/ontology/Municipality"));
         Assert.assertEquals("Paris", parisEa.getEntityLabel());
         //       Assert.assertEquals("dbpedia", parisEa.getDataset());
         Assert.assertEquals("en", parisEa.getLanguage());

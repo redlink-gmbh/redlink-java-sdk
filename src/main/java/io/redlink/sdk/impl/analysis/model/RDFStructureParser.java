@@ -198,10 +198,15 @@ final class RDFStructureParser extends EnhancementsParser {
                 + "  OPTIONAL { ?annotation dct:relation ?relation } \n"
                 + "  OPTIONAL { ?annotation fise:selection-context ?selectionContext } \n"
                 + "  OPTIONAL { ?annotation fise:selected-text ?selectedText } \n"
-                // Filter Language Annotations and  Sentiment Annotations
+                // Filter Language Annotations,  Sentiment Annotations and
+                // Text Annotations used as anchor for TopicAnnotations
                 + "  FILTER NOT EXISTS { ?annotation dct:type fise:Sentiment } \n"
                 + "  FILTER NOT EXISTS { ?annotation dct:type fise:DocumentSentiment } \n"
                 + "  FILTER NOT EXISTS { ?annotation dct:type dct:LinguisticSystem } \n"
+                + "  FILTER NOT EXISTS { \n"
+                + "    ?topicAnno dct:relation ?annotation . \n"
+                + "    ?topicAnno a fise:TopicAnnotation \n"
+                + "  } \n"
                 + "} \n";
 
         try {
@@ -708,8 +713,10 @@ final class RDFStructureParser extends EnhancementsParser {
 
     private Entity parseEntity(RepositoryConnection conn, String entityUri, String dataset)
             throws EnhancementParserException {
-        String entityQuery = "SELECT ?p ?o { \n" + "  <" + entityUri
-                + "> ?p ?o ; \n" + "}";
+        String entityQuery = 
+                "SELECT ?p ?o { \n" 
+                + "  <" + entityUri + "> ?p ?o ; \n" 
+                + "}";
         Entity entity = new Entity(entityUri, dataset);
 
         try {
