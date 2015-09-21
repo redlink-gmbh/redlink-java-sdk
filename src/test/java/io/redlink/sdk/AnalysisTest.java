@@ -125,7 +125,7 @@ public class AnalysisTest extends GenericTest {
     public void testDemoEnhancement() {
         log.debug("> test annotations: ");
         log.debug(" - app: {}", TEST_ANALYSIS);
-        String content = PARIS_TEXT_TO_ENHANCE + ".\n\n"+STANBOL_TEXT_TO_ENHANCE;
+        String content = PARIS_TEXT_TO_ENHANCE + ". "+STANBOL_TEXT_TO_ENHANCE;
         log.debug(" - content: \n{}", content);
         AnalysisRequest request = AnalysisRequest.builder()
                 .setAnalysis(TEST_ANALYSIS)
@@ -138,31 +138,35 @@ public class AnalysisTest extends GenericTest {
         Assert.assertNotEquals(0, sizeEnh);
         int sizeTextAnno = enhancements.getTextAnnotations().size();
         Assert.assertNotEquals(0, sizeTextAnno);
+        log.debug("> {} Text Annotations: ", sizeTextAnno);
         for(TextAnnotation ta : enhancements.getTextAnnotations()){
             testTextAnnotationProperties(ta);
         }
 
         int sizeEntityAnno = enhancements.getEntityAnnotations().size();
         Assert.assertNotEquals(0, sizeEntityAnno);
+        log.debug("> {} Entity Annotations: ", sizeEntityAnno);
         for(EntityAnnotation ea : enhancements.getEntityAnnotations()){
             testEntityAnnotationProperties(ea);
         }
         
         int sizeTopicAnno = enhancements.getTopicAnnotations().size();
         Assert.assertNotEquals(0, sizeTopicAnno);
+        log.debug("> {} Topic Annotations: ", sizeTopicAnno);
         for(TopicAnnotation ta : enhancements.getTopicAnnotations()){
             testTopicAnnotationProperties(ta);
         }
         
         int sizeSentiAnno = enhancements.getSentimentAnnotations().size();
         Assert.assertNotEquals(0, sizeSentiAnno);
+        log.debug("> {} Sentiment Annotations: ", sizeSentiAnno);
         for(SentimentAnnotation sa : enhancements.getSentimentAnnotations()){
             testSentimentAnnotationProperties(sa);
         }
         
         int sizeKeywordAnno = enhancements.getKeywordAnnotations().size();
         Assert.assertNotEquals(0, sizeKeywordAnno);
-        log.debug("> Keyword Annotations: ");
+        log.debug("> {} Entity Annotations: ", sizeKeywordAnno);
         for(KeywordAnnotation ka : enhancements.getKeywordAnnotations()){
             testKeywordAnnotationProperties(ka);
         }
@@ -193,13 +197,10 @@ public class AnalysisTest extends GenericTest {
     private void testGetKeywordsByCountMetric(Enhancements enhancements) {
         Collection<KeywordAnnotation> kas = enhancements.getKeywordAnnotationsByCountMetric(null, null);
         Assert.assertEquals(enhancements.getKeywordAnnotations().size(), kas.size());
-        //TODO: the current results are not suitable to wirte a count test
-//        kas = enhancements.getKeywordAnnotationsByCountMetric(2, null);
-//        Assert.assertEquals(2, kas.size());
+        kas = enhancements.getKeywordAnnotationsByCountMetric(3, null);
+        Assert.assertEquals(0, kas.size());
         kas = enhancements.getKeywordAnnotationsByCountMetric(null, 0.5d);
         Assert.assertEquals(1, kas.size());
-//        kas = enhancements.getKeywordAnnotationsByCountMetric(2, 0.5d);
-//        Assert.assertEquals(1, kas.size());
         
     }
 
@@ -236,6 +237,8 @@ public class AnalysisTest extends GenericTest {
      * @param ta the TextAnnotation object
      */
     private void testTextAnnotationProperties(TextAnnotation ta) {
+        log.debug("  - {}@{} [{}..{} | type: {}]", ta.getSelectedText(), ta.getSelectedTextLang(), 
+            ta.getStarts(), ta.getEnds(), ta.getType());
         Assert.assertNotNull(ta.getSelectedText());
         Assert.assertTrue(StringUtils.isNotBlank(ta.getSelectedText()));
         Assert.assertEquals("en", ta.getSelectedTextLang());
@@ -253,6 +256,8 @@ public class AnalysisTest extends GenericTest {
      * @param ea
      */
     private void testEntityAnnotationProperties(EntityAnnotation ea) {
+        log.debug("  - {}@{} [ref: {}]", ea.getEntityLabel(), ea.getEntityLabelLang(), 
+            ea.getEntityReference() != null ? ea.getEntityReference().getUri() : null);
         Assert.assertNotNull(ea.getEntityLabel());
         Assert.assertTrue(StringUtils.isNotBlank(ea.getEntityLabel()));
         Assert.assertNotNull(ea.getEntityReference());
@@ -281,6 +286,8 @@ public class AnalysisTest extends GenericTest {
      * @param ta
      */
     private void testTopicAnnotationProperties(TopicAnnotation ta) {
+        log.debug("  - {}@{} [ref: {}]", ta.getTopicLabel(), ta.getTopicLabelLang(), 
+            ta.getTopicReference() != null ? ta.getTopicReference().getUri() : null);
         Assert.assertNotNull(ta.getTopicLabel());
         Assert.assertTrue(StringUtils.isNotBlank(ta.getTopicLabel()));
         Assert.assertNotNull(ta.getTopicReference());
@@ -295,6 +302,7 @@ public class AnalysisTest extends GenericTest {
      * @param sa
      */
     private void testSentimentAnnotationProperties(SentimentAnnotation sa) {
+        log.debug("  - {} [{}..{}]", sa.getSentiment(), sa.getStarts(), sa.getEnds());
         Assert.assertTrue(sa.getSentiment() >= -1 && sa.getSentiment() <= 1);
         Assert.assertNull(sa.getLanguage()); //sentiment Annotations do not have a language
         Assert.assertTrue(sa.getStarts() >= 0);
@@ -510,7 +518,7 @@ public class AnalysisTest extends GenericTest {
         Assert.assertEquals(parisEa.getEntityTypes(), Collections.singleton("http://dbpedia.org/ontology/Municipality"));
         Assert.assertEquals("Paris", parisEa.getEntityLabel());
         //       Assert.assertEquals("dbpedia", parisEa.getDataset());
-        Assert.assertEquals("en", parisEa.getLanguage());
+        Assert.assertEquals("en", parisEa.getEntityLabelLang());
     }
     
     
