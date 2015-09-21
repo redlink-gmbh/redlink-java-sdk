@@ -13,28 +13,17 @@
  */
 package io.redlink.sdk;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Multimap;
-
 import io.redlink.sdk.analysis.AnalysisRequest;
 import io.redlink.sdk.analysis.AnalysisRequest.AnalysisRequestBuilder;
 import io.redlink.sdk.analysis.AnalysisRequest.OutputFormat;
-import io.redlink.sdk.impl.analysis.model.*;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-import org.junit.*;
-import org.openrdf.model.vocabulary.DCTERMS;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.model.vocabulary.RDFS;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xml.sax.InputSource;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import io.redlink.sdk.impl.analysis.model.Enhancement;
+import io.redlink.sdk.impl.analysis.model.Enhancements;
+import io.redlink.sdk.impl.analysis.model.Entity;
+import io.redlink.sdk.impl.analysis.model.EntityAnnotation;
+import io.redlink.sdk.impl.analysis.model.KeywordAnnotation;
+import io.redlink.sdk.impl.analysis.model.SentimentAnnotation;
+import io.redlink.sdk.impl.analysis.model.TextAnnotation;
+import io.redlink.sdk.impl.analysis.model.TopicAnnotation;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,6 +31,28 @@ import java.io.StringReader;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map.Entry;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Assume;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.openrdf.model.vocabulary.DCTERMS;
+import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.model.vocabulary.RDFS;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.InputSource;
+
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Multimap;
 
 public class AnalysisTest extends GenericTest {
 
@@ -112,9 +123,13 @@ public class AnalysisTest extends GenericTest {
      */
     @Test
     public void testDemoEnhancement() {
+        log.debug("> test annotations: ");
+        log.debug(" - app: {}", TEST_ANALYSIS);
+        String content = PARIS_TEXT_TO_ENHANCE + ".\n\n"+STANBOL_TEXT_TO_ENHANCE;
+        log.debug(" - content: \n{}", content);
         AnalysisRequest request = AnalysisRequest.builder()
                 .setAnalysis(TEST_ANALYSIS)
-                .setContent(PARIS_TEXT_TO_ENHANCE + ".\n\n"+STANBOL_TEXT_TO_ENHANCE)
+                .setContent(content)
                 .setOutputFormat(OutputFormat.RDFXML).build();
         Enhancements enhancements = redlink.enhance(request);
         Assert.assertNotNull(enhancements);
@@ -138,13 +153,21 @@ public class AnalysisTest extends GenericTest {
         for(TopicAnnotation ta : enhancements.getTopicAnnotations()){
             testTopicAnnotationProperties(ta);
         }
+        
         int sizeSentiAnno = enhancements.getSentimentAnnotations().size();
         Assert.assertNotEquals(0, sizeSentiAnno);
         for(SentimentAnnotation sa : enhancements.getSentimentAnnotations()){
             testSentimentAnnotationProperties(sa);
         }
         
-        Assert.assertEquals(sizeEnh, sizeTextAnno + sizeEntityAnno + sizeTopicAnno + sizeSentiAnno);
+        int sizeKeywordAnno = enhancements.getKeywordAnnotations().size();
+        Assert.assertNotEquals(0, sizeKeywordAnno);
+        log.debug("> Keyword Annotations: ");
+        for(KeywordAnnotation ka : enhancements.getKeywordAnnotations()){
+            testKeywordAnnotationProperties(ka);
+        }
+        
+        Assert.assertEquals(sizeEnh, sizeTextAnno + sizeEntityAnno + sizeKeywordAnno + sizeTopicAnno + sizeSentiAnno);
 
         //Best Annotation
         testEnhancementBestAnnotations(enhancements);
@@ -152,6 +175,9 @@ public class AnalysisTest extends GenericTest {
         // Filter By Confidence
         testGetEntityAnnotationByConfidenceValue(enhancements);
 
+        //filterKeywords by Metric and count
+        testGetKeywordsByCountMetric(enhancements);
+        
         // Entity Properties
         testEntityProperties(enhancements);
         
@@ -162,6 +188,19 @@ public class AnalysisTest extends GenericTest {
         //Document Sentiment
         log.debug("Document Sentiment: {}", enhancements.getDocumentSentiment());
         Assert.assertNotNull(enhancements.getDocumentSentiment());
+    }
+
+    private void testGetKeywordsByCountMetric(Enhancements enhancements) {
+        Collection<KeywordAnnotation> kas = enhancements.getKeywordAnnotationsByCountMetric(null, null);
+        Assert.assertEquals(enhancements.getKeywordAnnotations().size(), kas.size());
+        //TODO: the current results are not suitable to wirte a count test
+//        kas = enhancements.getKeywordAnnotationsByCountMetric(2, null);
+//        Assert.assertEquals(2, kas.size());
+        kas = enhancements.getKeywordAnnotationsByCountMetric(null, 0.5d);
+        Assert.assertEquals(1, kas.size());
+//        kas = enhancements.getKeywordAnnotationsByCountMetric(2, 0.5d);
+//        Assert.assertEquals(1, kas.size());
+        
     }
 
     /**
@@ -221,6 +260,19 @@ public class AnalysisTest extends GenericTest {
         if(ea.getDataset() != null) {
             Assert.assertTrue(StringUtils.isNotBlank(ea.getDataset()));
         } //else not all EntityAnnotation have a dataset
+    }
+    /**
+     * <p>Tests the {@code EntityAnnotation} properties</p>
+     *
+     * @param ea
+     */
+    private void testKeywordAnnotationProperties(KeywordAnnotation ka) {
+        log.debug("  - {} [count: {}, metric: {}]", ka.getKeyword(), ka.getCount(), ka.getMetric());
+        Assert.assertNotNull(ka.getKeyword());
+        Assert.assertTrue(StringUtils.isNotBlank(ka.getKeyword()));
+        Assert.assertNotNull(ka.getMetric());
+        Assert.assertTrue(ka.getMetric() > 0 && ka.getMetric() <= 1.0);
+        Assert.assertTrue(ka.getCount() >= 1);
     }
 
     /**
@@ -431,10 +483,10 @@ public class AnalysisTest extends GenericTest {
         Enhancements enhancements = redlink.enhance(request);
         Collection<TextAnnotation> tas = enhancements.getTextAnnotations();
         logTextAnnotations(tas);
-        Assert.assertEquals(7, tas.size());
+        Assert.assertEquals(8, tas.size());
         Multimap<TextAnnotation,EntityAnnotation> beas = enhancements.getBestAnnotations();
         logBestAnnotations(beas);
-        Assert.assertEquals(10, beas.size());
+        Assert.assertEquals(12, beas.size());
     }
 
     /**

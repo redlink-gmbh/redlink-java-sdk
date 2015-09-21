@@ -16,15 +16,17 @@ package io.redlink.sdk.impl;
 import io.redlink.sdk.Credentials;
 import io.redlink.sdk.util.ApiHelper;
 import io.redlink.sdk.util.RedLinkClientBuilder;
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.net.MalformedURLException;
+import java.net.URI;
 
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriBuilderException;
-import java.net.MalformedURLException;
-import java.net.URI;
+
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Public API {@link Credentials} implementation. This implementation should

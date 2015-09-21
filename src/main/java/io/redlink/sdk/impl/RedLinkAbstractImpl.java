@@ -16,8 +16,9 @@ package io.redlink.sdk.impl;
 import io.redlink.sdk.Credentials;
 import io.redlink.sdk.RedLink;
 
-import javax.ws.rs.core.UriBuilder;
 import java.net.MalformedURLException;
+
+import javax.ws.rs.core.UriBuilder;
 
 /**
  * RedLink Client API (abstract) template implementation. Any RedLink client concrete implementation must extend this class and use a

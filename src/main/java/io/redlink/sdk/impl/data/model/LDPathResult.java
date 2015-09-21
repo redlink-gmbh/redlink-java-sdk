@@ -13,9 +13,13 @@
  */
 package io.redlink.sdk.impl.data.model;
 
-import org.apache.marmotta.client.model.rdf.RDFNode;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import java.util.*;
+import org.apache.marmotta.client.model.rdf.RDFNode;
 
 /**
  * LDPath Result Set implementation, internally similar to a

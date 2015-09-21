@@ -15,10 +15,11 @@ package io.redlink.sdk;
 
 import io.redlink.sdk.impl.Status;
 
+import java.net.MalformedURLException;
+
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriBuilderException;
-import java.net.MalformedURLException;
 
 /**
  * RedLink SDK Credentials. A Credential object must be used in any request to the RedLink services

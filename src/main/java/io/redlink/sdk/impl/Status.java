@@ -13,11 +13,11 @@
  */
 package io.redlink.sdk.impl;
 
-import org.codehaus.jackson.JsonNode;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import org.codehaus.jackson.JsonNode;
 
 
 /**

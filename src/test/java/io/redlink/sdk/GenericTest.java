@@ -15,14 +15,16 @@ package io.redlink.sdk;
 
 import io.redlink.sdk.impl.DefaultCredentials;
 import io.redlink.sdk.util.ApiHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.UriBuilder;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+
+import javax.ws.rs.core.UriBuilder;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Generic tests and utilities shared by other tests in the suite

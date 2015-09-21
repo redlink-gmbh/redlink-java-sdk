@@ -15,11 +15,12 @@ package io.redlink.sdk.impl;
 
 import io.redlink.sdk.Credentials;
 
+import java.net.MalformedURLException;
+
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
-import java.net.MalformedURLException;
 
 /**
  * {@link Credentials} template implementation. The verify method and getters are invariant

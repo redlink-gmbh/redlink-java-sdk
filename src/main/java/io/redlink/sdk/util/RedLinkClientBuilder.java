@@ -13,10 +13,6 @@
  */
 package io.redlink.sdk.util;
 
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyManagementException;
@@ -27,6 +23,11 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
+
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 
 /**
  * Extended implementation of the ResteasyClientBuilder

@@ -14,13 +14,15 @@
 package io.redlink.sdk.impl;
 
 import io.redlink.sdk.Credentials;
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+
+import java.net.MalformedURLException;
+import java.net.URI;
 
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriBuilderException;
-import java.net.MalformedURLException;
-import java.net.URI;
+
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 
 /**
  * On-Premise {@link Credentials} implementation. This implementation should be used as the most simple way to access to a RedLink On-Premise platform

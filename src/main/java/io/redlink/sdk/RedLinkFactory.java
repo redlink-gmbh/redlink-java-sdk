@@ -16,6 +16,7 @@ package io.redlink.sdk;
 import io.redlink.sdk.impl.DefaultCredentials;
 import io.redlink.sdk.impl.analysis.RedLinkAnalysisImpl;
 import io.redlink.sdk.impl.data.RedLinkDataImpl;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
