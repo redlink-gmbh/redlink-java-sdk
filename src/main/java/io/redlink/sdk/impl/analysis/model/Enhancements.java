@@ -13,12 +13,25 @@
  */
 package io.redlink.sdk.impl.analysis.model;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.*;
+import com.google.common.base.Predicates;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Ordering;
+import com.google.common.collect.Sets;
 import com.google.common.primitives.Doubles;
-
-import java.util.*;
 
 /**
  * Analysis Result API. This class eases the management of the RedLink analysis service results, providing
@@ -212,7 +225,7 @@ public class Enhancements implements Iterable<Enhancement> {
                         return e.confidence.doubleValue() >= confidenceValue
                                 .doubleValue();
                     }
-                }).toImmutableList();
+                }).toList();
     }
 
     /**
@@ -231,7 +244,7 @@ public class Enhancements implements Iterable<Enhancement> {
                         return e.confidence.doubleValue() >= confidenceValue
                                 .doubleValue();
                     }
-                }).toImmutableList();
+                }).toList();
     }
 
     public Multimap<TextAnnotation, EntityAnnotation> getEntityAnnotationsByTextAnnotation() {
@@ -369,5 +382,53 @@ public class Enhancements implements Iterable<Enhancement> {
                 }
         );
     }
+    
+    /**
+     * Returns the {@link Collection} of extracted {@link EntityAnnotation}s
+     *
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public Collection<KeywordAnnotation> getKeywordAnnotations() {
+        Collection<? extends Enhancement> result = enhancements.get(KeywordAnnotation.class);
+        return result == null ? Collections.<KeywordAnnotation>emptySet() : 
+            Collections.unmodifiableCollection((Collection<KeywordAnnotation>) result);
+    }
+
+    /**
+     * Returns a {@link Collection} of {@link KeywordAnnotation}s which 
+     * a <ul>
+     * <li> count greater than or equal the required count
+     * <li> metric greater than or equals the required metric
+     * </ul>y
+     *
+     * @param minCount Threshold count value or <code>null</code> for no threshold
+     * @param minMetric Threshold metric value or <code>null</code> for no threshold
+     * @return the {@link KeywordAnnotation}s fulfilling the parsed requirements.
+     */
+    public Collection<KeywordAnnotation> getKeywordAnnotationsByCountMetric(
+            Integer minCount, Double minMetric) {
+        final Integer count = minCount == null || minCount < 1 ? null : minCount;
+        final Double metric = minMetric == null || minMetric <= 0 ? null : minMetric;
+        if(count == null && metric == null){
+            return getKeywordAnnotations();
+        } else {
+            return FluentIterable.from(getKeywordAnnotations())
+                    .filter(new Predicate<KeywordAnnotation>() {
+                        @Override
+                        public boolean apply(KeywordAnnotation e) {
+                            boolean apply = true;
+                            if(metric != null && (e.getMetric() == null || metric > e.getMetric())){
+                                apply = false; //filter because metric is to small
+                            }
+                            if(count != null && (count > e.getCount())){
+                                apply = false; //filter because count is to low
+                            }
+                            return apply;
+                        }
+                    }).toList();
+        }
+    }
+
 
 }

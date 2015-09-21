@@ -13,23 +13,37 @@
  */
 package io.redlink.sdk.impl.analysis.model;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.*;
-
 import io.redlink.sdk.util.ModelRepository;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
 
 import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
 import org.openrdf.model.Value;
 import org.openrdf.model.impl.LiteralImpl;
 import org.openrdf.model.vocabulary.DCTERMS;
-import org.openrdf.query.*;
+import org.openrdf.query.Binding;
+import org.openrdf.query.BindingSet;
+import org.openrdf.query.MalformedQueryException;
+import org.openrdf.query.QueryEvaluationException;
+import org.openrdf.query.QueryLanguage;
+import org.openrdf.query.TupleQueryResult;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 
-import java.util.*;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 
 /**
  * RDF Structure SPARQL Parser
@@ -127,6 +141,7 @@ final class RDFStructureParser extends EnhancementsParser {
                 parseEntityAnnotations(conn, relations, enhancementsByUri);
                 parseTopicAnnotations(conn, relations, enhancementsByUri);
                 parseSentimentAnnotations(conn, relations, enhancementsByUri);
+                parseKeywordAnnotations(conn, relations, enhancementsByUri);
 
                 for (Enhancement e : relations.keys()) {
                     Collection<String> relationsUris = relations.get(e);
@@ -142,9 +157,7 @@ final class RDFStructureParser extends EnhancementsParser {
                 conn.close();
             }
         } catch (RepositoryException e) {
-            throw new EnhancementParserException(
-                    "Error querying the RDF Model obtained as Service Response",
-                    e);
+            throw new EnhancementParserException("Error querying the RDF Model obtained as Service Response", e);
         }
 
         return enhancementsByUri.values();
@@ -975,4 +988,111 @@ final class RDFStructureParser extends EnhancementsParser {
         }
     }
     
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * io.redlink.sdk.impl.analysis.model.EnhancementsParser#parseTextAnnotations
+     * ()
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public Collection<KeywordAnnotation> parseKeywordAnnotations()
+            throws EnhancementParserException {
+        Multimap<Enhancement, String> relations = ArrayListMultimap.create();
+        Map<String, Enhancement> enhancementsByUri = Maps.newHashMap();
+
+        try {
+            RepositoryConnection conn = repository.getConnection();
+            conn.begin();
+            Collection<KeywordAnnotation> kas = parseKeywordAnnotations(conn,
+                    relations, enhancementsByUri);
+            Collection<KeywordAnnotation> result = (Collection) resolveRelations(
+                    relations, conn); // Safe Casting
+            for (KeywordAnnotation ka : kas)
+                if (!result.contains(ka))
+                    result.add(ka);
+            conn.close();
+            return result;
+        } catch (RepositoryException e) {
+            throw new EnhancementParserException("Error querying the RDF Model obtained as Service Response", e);
+        }
+    }
+
+    private Collection<KeywordAnnotation> parseKeywordAnnotations(
+            RepositoryConnection conn,
+            Multimap<Enhancement, String> relations,
+            Map<String, Enhancement> enhancementsByUri)
+            throws EnhancementParserException {
+
+        Collection<KeywordAnnotation> kas = Sets.newHashSet();
+
+        String keywordAnnotationsQuery = "PREFIX fise: <http://fise.iks-project.eu/ontology/> \n"
+                + "PREFIX dct: <http://purl.org/dc/terms/> \n"
+                + "SELECT * { \n"
+                + "  ?annotation a fise:KeywordAnnotation . \n"
+                + "  OPTIONAL { ?annotation fise:confidence ?metric } \n"
+                + "  OPTIONAL { ?annotation fise:count ?count} \n"
+                + "  OPTIONAL { ?annotation fise:keyword ?keyword } \n"
+                + "  OPTIONAL { ?annotation dct:relation ?relation } \n"
+                + "} \n";
+
+        try {
+            TupleQueryResult textAnnotationsResults = conn.prepareTupleQuery(
+                    QueryLanguage.SPARQL, keywordAnnotationsQuery).evaluate();
+            while (textAnnotationsResults.hasNext()) {
+                BindingSet result = textAnnotationsResults.next();
+                final String uri = result.getBinding("annotation")
+                        .getValue().stringValue();
+
+                Enhancement keywordAnnotation = enhancementsByUri.get(uri);
+                if (keywordAnnotation == null) {
+                    keywordAnnotation = new KeywordAnnotation();
+                    enhancementsByUri.put(uri, keywordAnnotation);
+                }
+
+                setKeywordAnnotationData((KeywordAnnotation) keywordAnnotation,
+                        result, relations);
+                if (!kas.contains(keywordAnnotation))
+                    kas.add((KeywordAnnotation) keywordAnnotation);
+            }
+        } catch (QueryEvaluationException | MalformedQueryException e) {
+            throw new EnhancementParserException("Error parsing text annotations", e);
+        } catch (RepositoryException e) {
+            throw new EnhancementParserException("Error querying the RDF Model obtained as Service Response", e);
+        }
+
+        return kas;
+    }
+
+    private void setKeywordAnnotationData(KeywordAnnotation keywordAnnotation,
+                                       BindingSet result, Multimap<Enhancement, String> relations)
+            throws RepositoryException {
+        if (!relations.containsKey(keywordAnnotation)) {
+            setEnhancementData(keywordAnnotation, result);
+            if (result.hasBinding("count")) {
+                keywordAnnotation.setCount(Integer.parseInt(result
+                        .getBinding("count").getValue().stringValue()));
+            }
+            if (result.hasBinding("metric")) {
+                keywordAnnotation.setMetric(Double.parseDouble(result
+                        .getBinding("metric").getValue().stringValue()));
+            }
+            if (result.hasBinding("relation")) {
+                String nextRelationUri = result.getBinding("relation")
+                        .getValue().stringValue();
+                relations.put(keywordAnnotation, nextRelationUri);
+            }
+            if (result.hasBinding("keyword")) {
+                Value value = result.getBinding("keyword").getValue();
+                keywordAnnotation.setKeyword(value.stringValue(),
+                    value instanceof Literal ? ((Literal)value).getLanguage() : null);
+            }
+        } else {
+            if (result.hasBinding("relation")) {
+                String nextRelationUri = result.getBinding("relation")
+                        .getValue().stringValue();
+                relations.put(keywordAnnotation, nextRelationUri);
+            }
+        }
+    }
 }
