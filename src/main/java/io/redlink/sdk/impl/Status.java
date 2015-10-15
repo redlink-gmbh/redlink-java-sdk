@@ -93,10 +93,6 @@ public class Status {
         return limit;
     }
 
-    void setLimit(int limit) {
-        this.limit = limit;
-    }
-
     void setLimit(String str) {
         try {
             limit = Integer.parseInt(str);
