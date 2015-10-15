@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 
 import org.apache.marmotta.client.model.sparql.SPARQLResult;
 import org.openrdf.model.Model;
@@ -65,7 +66,7 @@ public interface RedLink {
          * @param request {@link AnalysisRequest} containing the request parameters and the content to be enhanced
          * @return Simplified RedLink Enhancement Structure
          */
-        Enhancements enhance(AnalysisRequest request);
+        Enhancements enhance(AnalysisRequest request) throws IOException;
         
         /**
          * Performs an analysis of the content included in the request getting as response an instance of the {@link Class}
@@ -78,7 +79,7 @@ public interface RedLink {
          * @param responseType {@link Class} of the response. Only {@link Enhancements} and {@link String} are supported
          * @return An instance of the class passed by parameter wrapping the Analysis Service response
          */
-        <T> T enhance(AnalysisRequest request, Class<T> responseType);
+        <T> T enhance(AnalysisRequest request, Class<T> responseType) throws IOException;
 
     }
 
@@ -202,7 +203,7 @@ public interface RedLink {
          * @param resource URI (identifier) of the resource
          * @return {@link Model} representing the resource and all its properties or null if the resource is not found
          */
-        Model getResource(String resource);
+        Model getResource(String resource) throws URISyntaxException;
 
         /**
          * Get resource data by its URI as RDF {@link Model} from the user dataset passed by parameter. The Dataset must exist at the user RedLink account and
@@ -212,7 +213,7 @@ public interface RedLink {
          * @param dataset  Name of the dataset at user's RedLink application where the resource will be lookup
          * @return
          */
-        Model getResource(String resource, String dataset);
+        Model getResource(String resource, String dataset) throws URISyntaxException;
 
         /**
          * Import a resource represented by an RDF {@link Model} into the selected Dataset. The Dataset must exist at the user RedLink account and

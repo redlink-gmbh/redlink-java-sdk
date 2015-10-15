@@ -25,7 +25,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 
 /**
- * Represent a Dereferenced Entity from a RedLink Dataset. Encapsulates all the entity properties
+ * Represent a Dereferenced Entity from a RedLink Dataset.
+ * Encapsulates all the entity properties
  *
  * @author rafa.haro@redlink.co
  */

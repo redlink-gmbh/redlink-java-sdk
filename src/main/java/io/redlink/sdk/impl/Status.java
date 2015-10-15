@@ -17,9 +17,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.codehaus.jackson.JsonNode;
-
-
 /**
  * RedLink's user Application Status data
  *
@@ -96,8 +93,11 @@ public class Status {
         return limit;
     }
 
-    void setLimit(JsonNode node) {
-        final String str = node.toString();
+    void setLimit(int limit) {
+        this.limit = limit;
+    }
+
+    void setLimit(String str) {
         try {
             limit = Integer.parseInt(str);
         } catch (Exception e) {

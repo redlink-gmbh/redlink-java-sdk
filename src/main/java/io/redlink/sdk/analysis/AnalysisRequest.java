@@ -13,21 +13,14 @@
  */
 package io.redlink.sdk.analysis;
 
-import io.redlink.sdk.RedLink.Analysis;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collection;
-
-import javax.ws.rs.core.MediaType;
-
-import org.apache.commons.io.IOUtils;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
+import com.google.common.net.MediaType;
+import io.redlink.sdk.RedLink.Analysis;
+import org.apache.commons.io.IOUtils;
+
+import java.io.*;
+import java.util.Collection;
 
 /**
  * Represent a Request Object necessary to perform {@link Analysis} services' requests. An instance of this class contains
@@ -43,10 +36,11 @@ public class AnalysisRequest {
      * Accepted Input Formats
      */
     public static enum InputFormat {
-        TEXT(MediaType.TEXT_PLAIN_TYPE),
-        HTML(MediaType.TEXT_HTML_TYPE),
-        PDF(new MediaType("application", "pdf")),
-        OFFICE(new MediaType("application", "doc"));
+        TEXT(MediaType.create("text", "plain")),
+        HTML(MediaType.create("text", "html")),
+        PDF(MediaType.create("application", "pdf")),
+        OFFICE(MediaType.create("application", "doc")),
+        OCTETSTREAM(MediaType.create("application", "octet-stream"));
 
         private final MediaType type;
 
@@ -65,13 +59,13 @@ public class AnalysisRequest {
      */
     public static enum OutputFormat {
 
-        XML(MediaType.APPLICATION_ATOM_XML_TYPE),
-        JSON(MediaType.APPLICATION_JSON_TYPE),
-        JSONLD(new MediaType("application", "ld+json")),
-        RDFXML(new MediaType("application", "rdf+xml")),
-        RDFJSON(new MediaType("application", "rdf+json")),
-        TURTLE(new MediaType("text", "turtle")),
-        NT(new MediaType("text", "rdf+n3"));
+        XML(MediaType.create("application", "xml")),
+        JSON(MediaType.create("application", "json")),
+        JSONLD(MediaType.create("application", "ld+json")),
+        RDFXML(MediaType.create("application", "rdf+xml")),
+        RDFJSON(MediaType.create("application", "rdf+json")),
+        TURTLE(MediaType.create("text", "turtle")),
+        NT(MediaType.create("text", "rdf+n3"));
 
         private final MediaType type;
 

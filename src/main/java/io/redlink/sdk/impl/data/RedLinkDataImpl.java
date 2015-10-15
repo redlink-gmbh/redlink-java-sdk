@@ -13,9 +13,11 @@
  */
 package io.redlink.sdk.impl.data;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.redlink.sdk.Credentials;
 import io.redlink.sdk.RedLink;
 import io.redlink.sdk.impl.RedLinkAbstractImpl;
+import io.redlink.sdk.impl.analysis.model.Entity;
 import io.redlink.sdk.impl.data.model.LDPathResult;
 
 import java.io.ByteArrayInputStream;
@@ -27,20 +29,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriBuilderException;
-
+import io.redlink.sdk.util.UriBuilder;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.util.EntityUtils;
 import org.apache.marmotta.client.model.rdf.BNode;
 import org.apache.marmotta.client.model.rdf.Literal;
 import org.apache.marmotta.client.model.rdf.RDFNode;
@@ -50,7 +48,6 @@ import org.apache.marmotta.client.util.RDFJSONParser;
 import org.openrdf.model.Model;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.TreeModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
@@ -70,6 +67,8 @@ import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.ParseErrorLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.xml.ws.Response;
 
 /**
  * RedLink's {@link Data} services implementation. To be instantiated, this implementation needs a valid {@link Credentials} object that
@@ -115,25 +114,23 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
 
     @Override
     public boolean importDataset(InputStream in, RDFFormat format, String dataset, boolean cleanBefore) {
+        log.debug("Importing {} data into dataset {}", format.getName(), dataset);
         try {
-            WebTarget target = credentials.buildUrl(getDatasetUriBuilder(dataset));
-            Invocation.Builder request = target.request();
-            log.debug("Importing {} data into dataset {}", format.getName(), dataset);
-            //this is not safe for handling large content...
-            //but anyway with API-211 we're gonna provide an alternative to the rest api
-            Response response;
+            java.net.URI target = credentials.buildUrl(getDatasetUriBuilder(dataset));
+            CloseableHttpResponse response;
             if (cleanBefore) {
-                response = request.put(Entity.entity(in, MediaType.valueOf(format.getDefaultMIMEType())));
+                response = client.put(target, in, format);
             } else {
-                response = request.post(Entity.entity(in, MediaType.valueOf(format.getDefaultMIMEType())));
+                response = client.post(target, in, format);
             }
             try {
-                log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
-                return (response.getStatus() == 200);
+                log.debug("Request resolved with {} status code: {}", response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+                return (response.getStatusLine().getStatusCode() == 200);
             } finally {
                 response.close();
             }
-        } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
+        } catch (IllegalArgumentException | URISyntaxException | IOException e) {
+            log.error("Error importing dataset: {}", e.getMessage(), e);
             throw new RuntimeException(e);
         }
     }
@@ -142,25 +139,11 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
     public Model exportDataset(String dataset) {
         RDFFormat format = RDFFormat.TURTLE;
         try {
-            WebTarget target = credentials.buildUrl(getDatasetUriBuilder(dataset));
-            Invocation.Builder request = target.request();
-            request.header("Accept", format.getDefaultMIMEType());
+            java.net.URI target = credentials.buildUrl(getDatasetUriBuilder(dataset));
             log.debug("Exporting {} data from dataset {}", format.getName(), dataset);
-            Response response = request.get();
-            try {
-                log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
-                if (response.getStatus() == 200) {
-                    ParserConfig config = new ParserConfig();
-                    String entity = response.readEntity(String.class);
-                    return Rio.parse(new StringReader(entity), target.getUri().toString(), format, config, ValueFactoryImpl.getInstance(), new ParseErrorLogger());
-                } else {
-                    log.error("Unexpected error exporting dataset {}: request returned with {} status code", dataset, response.getStatus());
-                    throw new RuntimeException("Unexpected error exporting dataset");
-                }
-            } finally {
-                response.close();
-            }
-        } catch (IllegalArgumentException | UriBuilderException | IOException | RDFParseException e) {
+            String entity = client.get(target, format.getDefaultFileExtension());
+            return Rio.parse(new StringReader(entity), target.toString(), format, new ParserConfig(), ValueFactoryImpl.getInstance(), new ParseErrorLogger());
+        } catch (IllegalArgumentException | URISyntaxException | RDFParseException | IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -168,56 +151,39 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
     @Override
     public boolean cleanDataset(String dataset) {
         try {
-            WebTarget target = credentials.buildUrl(getDatasetUriBuilder(dataset));
-            Invocation.Builder request = target.request();
+            java.net.URI target = credentials.buildUrl(getDatasetUriBuilder(dataset));
             log.debug("Cleaning data from dataset {}", dataset);
-            Response response = request.delete();
+            CloseableHttpResponse response = client.delete(target);
+            log.debug("Request resolved with {} status code: {}", response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
             try {
-                log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
-                return (response.getStatus() == 200);
+                final int status = response.getStatusLine().getStatusCode();
+                return (status >= 200 && status < 300);
             } finally {
                 response.close();
             }
-        } catch (IllegalArgumentException | UriBuilderException | IOException e) {
+        } catch (IllegalArgumentException | URISyntaxException | IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public Model getResource(String resource) {
+    public Model getResource(String resource) throws URISyntaxException {
         return getResource(getResourceUriBuilder(resource));
     }
 
     @Override
-    public Model getResource(String resource, String dataset) {
+    public Model getResource(String resource, String dataset) throws URISyntaxException {
         return getResource(getResourceUriBuilder(dataset, resource));
     }
 
     private Model getResource(UriBuilder uriBuilder) {
         RDFFormat format = RDFFormat.TURTLE;
         try {
-            WebTarget target = credentials.buildUrl(uriBuilder);
-            Invocation.Builder request = target.request();
-            request.header("Accept", format.getDefaultMIMEType());
-            log.debug("Retrieving resource as {}", format.getName());
-            Response response = request.get();
-            try {
-                log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
-                if (response.getStatus() == 200) {
-                    ParserConfig config = new ParserConfig();
-                    String entity = response.readEntity(String.class);
-                    return Rio.parse(new StringReader(entity), target.getUri().toString(), format, config, ValueFactoryImpl.getInstance(), new ParseErrorLogger());
-                } else if (response.getStatus() == 404) {
-                    log.error("resource not found");
-                    return new TreeModel();
-                } else {
-                    log.error("Unexpected error retrieving resource: request returned with {} status code", response.getStatus());
-                    throw new RuntimeException("Unexpected error retrieving resource");
-                }
-            } finally {
-                response.close();
-            }
-        } catch (IllegalArgumentException | UriBuilderException | IOException | RDFParseException e) {
+            java.net.URI target = credentials.buildUrl(uriBuilder);
+            log.debug("Exporting {} data from resource {}", format.getName(), target.toString());
+            String entity = client.get(target, format.getDefaultFileExtension());
+            return Rio.parse(new StringReader(entity), target.toString(), format, new ParserConfig(), ValueFactoryImpl.getInstance(), new ParseErrorLogger());
+        } catch (IllegalArgumentException | URISyntaxException | RDFParseException | IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -230,27 +196,26 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
     @Override
     public boolean importResource(String resource, Model data, String dataset, boolean cleanBefore) {
         RDFFormat format = RDFFormat.TURTLE;
+        log.debug("Importing {} data for resource {} in {}", format.getName(), resource, dataset);
         try {
-            WebTarget target = credentials.buildUrl(getResourceUriBuilder(dataset, resource));
-            Invocation.Builder request = target.request();
-            log.debug("Importing resource {} into dataset {}", resource, dataset);
+            java.net.URI target = credentials.buildUrl(getDatasetUriBuilder(dataset));
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             Rio.write(data, out, format);
             InputStream in = new ByteArrayInputStream(out.toByteArray());
-            Response response;
+            CloseableHttpResponse response;
             if (cleanBefore) {
-                response = request.put(Entity.entity(in, MediaType.valueOf(format.getDefaultMIMEType())));
+                response = client.put(target, in, format);
             } else {
-                response = request.post(Entity.entity(in, MediaType.valueOf(format.getDefaultMIMEType())));
+                response = client.post(target, in, format);
             }
             try {
-                log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
-                return (response.getStatus() == 200);
+                log.debug("Request resolved with {} status code: {}", response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+                return (response.getStatusLine().getStatusCode() == 200);
             } finally {
                 response.close();
             }
-        } catch (IllegalArgumentException | UriBuilderException | RDFHandlerException | IOException e) {
-            log.error("Error importing resource: {}", e.getMessage());
+        } catch (IllegalArgumentException | URISyntaxException | RDFHandlerException | IOException e) {
+            log.error("Error importing resource: {}", e.getMessage(), e);
             throw new RuntimeException(e);
         }
     }
@@ -258,17 +223,17 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
     @Override
     public boolean deleteResource(String resource, String dataset) {
         try {
-            WebTarget target = credentials.buildUrl(getResourceUriBuilder(dataset, resource));
-            Invocation.Builder request = target.request();
-            log.debug("Deleting resource {} from datataset {}", resource, dataset);
-            Response response = request.delete();
+            java.net.URI target = credentials.buildUrl(getResourceUriBuilder(dataset, resource));
+            log.debug("Cleaning data from resource {} in {}", resource, dataset);
+            CloseableHttpResponse response = client.delete(target);
+            log.debug("Request resolved with {} status code: {}", response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
             try {
-                log.debug("Request resolved with {} status code: {}", response.getStatus(), response.getStatusInfo().getReasonPhrase());
-                return (response.getStatus() == 200);
+                final int status = response.getStatusLine().getStatusCode();
+                return (status >= 200 && status < 300);
             } finally {
                 response.close();
             }
-        } catch (IllegalArgumentException | UriBuilderException | IOException e) {
+        } catch (IllegalArgumentException | URISyntaxException | IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -276,9 +241,9 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
     @Override
     public SPARQLResult sparqlTupleQuery(String query) {
         try {
-            WebTarget target = credentials.buildUrl(getSparqlSelectUriBuilder());
+            java.net.URI target = credentials.buildUrl(getSparqlSelectUriBuilder());
             return execTupleQuery(target, query);
-        } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
+        } catch (MalformedURLException | IllegalArgumentException | URISyntaxException e) {
             throw new RuntimeException(e);
         }
     }
@@ -292,9 +257,9 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
     @Override
     public SPARQLResult sparqlTupleQuery(String query, String dataset) {
         try {
-            WebTarget target = credentials.buildUrl(getSparqlSelectUriBuilder(dataset));
+            java.net.URI target = credentials.buildUrl(getSparqlSelectUriBuilder(dataset));
             return execTupleQuery(target, query);
-        } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
+        } catch (MalformedURLException | IllegalArgumentException | URISyntaxException e) {
             throw new RuntimeException(e);
         }
     }
@@ -308,9 +273,9 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
     @Override
     public Model sparqlGraphQuery(String query) {
         try {
-            WebTarget target = credentials.buildUrl(getSparqlSelectUriBuilder());
+            java.net.URI target = credentials.buildUrl(getSparqlSelectUriBuilder());
             return execGraphQuery(target, query);
-        } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
+        } catch (MalformedURLException | IllegalArgumentException | URISyntaxException e) {
             throw new RuntimeException(e);
         }
     }
@@ -318,9 +283,9 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
     @Override
     public Model sparqlGraphQuery(String query, String dataset) {
         try {
-            WebTarget target = credentials.buildUrl(getSparqlSelectUriBuilder(dataset));
+            java.net.URI target = credentials.buildUrl(getSparqlSelectUriBuilder(dataset));
             return execGraphQuery(target, query);
-        } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
+        } catch (MalformedURLException | IllegalArgumentException | URISyntaxException e) {
             throw new RuntimeException(e);
         }
     }
@@ -328,9 +293,9 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
     @Override
     public boolean sparqlUpdate(String query, String dataset) {
         try {
-            WebTarget target = credentials.buildUrl(getSparqlUpdateUriBuilder(dataset));
+            java.net.URI target = credentials.buildUrl(getSparqlUpdateUriBuilder(dataset));
             return execUpdate(target, query);
-        } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
+        } catch (MalformedURLException | IllegalArgumentException | URISyntaxException e) {
             throw new RuntimeException(e);
         }
     }
@@ -338,9 +303,9 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
     @Override
     public LDPathResult ldpath(String uri, String dataset, String program) {
         try {
-            WebTarget target = credentials.buildUrl(getLDPathUriBuilder(dataset, uri));
+            java.net.URI target = credentials.buildUrl(getLDPathUriBuilder(dataset, uri));
             return execLDPath(target, uri, program);
-        } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
+        } catch (MalformedURLException | IllegalArgumentException | URISyntaxException e) {
             throw new RuntimeException(e);
         }
     }
@@ -348,9 +313,9 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
     @Override
     public LDPathResult ldpath(String uri, String program) {
         try {
-            WebTarget target = credentials.buildUrl(getLDPathUriBuilder(uri));
+            java.net.URI target = credentials.buildUrl(getLDPathUriBuilder(uri));
             return execLDPath(target, uri, program);
-        } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
+        } catch (MalformedURLException | IllegalArgumentException | URISyntaxException e) {
             throw new RuntimeException(e);
         }
     }
@@ -358,77 +323,68 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
     @Override
     public boolean release(String dataset) {
         try {
-            WebTarget target = credentials.buildUrl(getReleaseUriBuilder(dataset));
-            Invocation.Builder request = target.request();
-            request.accept("application/json");
+            java.net.URI target = credentials.buildUrl(getReleaseUriBuilder(dataset));
+            log.debug("Releasing dataset {}", dataset);
+            CloseableHttpResponse response = client.post(target, "application/json");
+            log.debug("Request resolved with {} status code: {}", response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
             try {
-                log.debug("Releasing dataset {}...", dataset);
-                Response response = request.post(Entity.text(dataset)); //FIXME: request.post()
-                try {
-                    log.debug("Request resolved with {} status code", response.getStatus());
-                    return (response.getStatus() == 200);
-                } finally {
-                    response.close();
-                }
-            } catch (Exception e) {
-                throw new RuntimeException("Release execution failed: " + e.getMessage(), e);
+                final int status = response.getStatusLine().getStatusCode();
+                return (status >= 200 && status < 300);
+            } finally {
+                response.close();
             }
-        } catch (MalformedURLException | IllegalArgumentException | UriBuilderException e) {
+        } catch (IllegalArgumentException | URISyntaxException | IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private final UriBuilder getDatasetUriBuilder(String dataset) {
+    private final UriBuilder getDatasetUriBuilder(String dataset) throws URISyntaxException {
         return initiateUriBuilding().path(PATH).path(dataset);
     }
 
-    private final UriBuilder getResourceUriBuilder(String resource) {
+    private final UriBuilder getResourceUriBuilder(String resource) throws URISyntaxException {
         return initiateUriBuilding().path(PATH).path(RESOURCE).queryParam(RedLink.URI, resource);
     }
 
-    private final UriBuilder getResourceUriBuilder(String dataset, String resource) {
+    private final UriBuilder getResourceUriBuilder(String dataset, String resource) throws URISyntaxException {
         return initiateUriBuilding().path(PATH).path(dataset).path(RESOURCE).queryParam(RedLink.URI, resource);
     }
 
-    private final UriBuilder getSparqlSelectUriBuilder() {
+    private final UriBuilder getSparqlSelectUriBuilder() throws URISyntaxException {
         return initiateUriBuilding().path(PATH).path(SPARQL);
     }
 
-    private final UriBuilder getSparqlSelectUriBuilder(String dataset) {
+    private final UriBuilder getSparqlSelectUriBuilder(String dataset) throws URISyntaxException {
         return getDatasetUriBuilder(dataset).path(SPARQL).path(SELECT);
     }
 
-    private final UriBuilder getSparqlUpdateUriBuilder(String dataset) {
+    private final UriBuilder getSparqlUpdateUriBuilder(String dataset) throws URISyntaxException {
         return getDatasetUriBuilder(dataset).path(SPARQL).path(UPDATE);
     }
 
-    private final UriBuilder getLDPathUriBuilder(String uri) {
+    private final UriBuilder getLDPathUriBuilder(String uri) throws URISyntaxException {
         return initiateUriBuilding().path(PATH).path(LDPATH).queryParam(RedLink.URI, uri);
     }
 
-    private final UriBuilder getLDPathUriBuilder(String dataset, String uri) {
+    private final UriBuilder getLDPathUriBuilder(String dataset, String uri) throws URISyntaxException {
         return initiateUriBuilding().path(PATH).path(dataset).path(LDPATH).queryParam(RedLink.URI, uri);
     }
 
-    private final UriBuilder getReleaseUriBuilder(String dataset) {
+    private final UriBuilder getReleaseUriBuilder(String dataset) throws URISyntaxException {
         return initiateUriBuilding().path(PATH).path(dataset).path(RELEASE);
     }
 
-    private SPARQLResult execTupleQuery(WebTarget target, String query) {
-        Invocation.Builder request = target.request();
-        TupleQueryResultFormat format = TupleQueryResultFormat.JSON;
-        request.accept(format.getDefaultMIMEType());
+    private SPARQLResult execTupleQuery(java.net.URI target, String query) {
         try {
             log.debug("Executing SPARQL tuple query: {}", query.replaceAll("\\s*[\\r\\n]+\\s*", " ").trim());
-            Response response = request.post(Entity.text(query));
+            TupleQueryResultFormat format = TupleQueryResultFormat.JSON;
+            CloseableHttpResponse response = client.post(target, query, format.getDefaultMIMEType());
+            final int status = response.getStatusLine().getStatusCode();
+            log.debug("Request resolved with {} status code: {}", status, response.getStatusLine().getReasonPhrase());
             try {
-                log.debug("Request resolved with {} status code", response.getStatus());
-                if (response.getStatus() != 200) {
-                    // TODO: improve this feedback from the sdk (400, 500, etc)
-                    throw new RuntimeException("Query failed: HTTP error code " + response.getStatus());
-                } else {
+                if (status >= 200 && status < 300) {
                     QueryResultCollector results = new QueryResultCollector();
-                    parse(response.readEntity(String.class), format, results, ValueFactoryImpl.getInstance());
+                    parse(EntityUtils.toString(response.getEntity()), format, results, ValueFactoryImpl.getInstance());
                     if (!results.getHandledTuple() || results.getBindingSets().isEmpty()) {
                         return new SPARQLResult(new LinkedHashSet<String>());
                     } else {
@@ -469,87 +425,90 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
                         }
                         return result;
                     }
-                }
-            } finally {
-                response.close();
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Query execution failed: " + e.getMessage(), e);
-        }
-    }
-
-    private Model execGraphQuery(WebTarget target, String query) {
-        Invocation.Builder request = target.request();
-        RDFFormat format = RDFFormat.TURTLE;
-        request.accept(format.getDefaultMIMEType());
-        try {
-            log.debug("Executing SPARQL graph query: {}", query.replaceAll("\\s*[\\r\\n]+\\s*", " ").trim());
-            Response response = request.post(Entity.text(query));
-            try {
-                log.debug("Request resolved with {} status code", response.getStatus());
-                //log.trace("Worker: {}", response.getHeaderString("X-Redlink-Worker"));
-                if (response.getStatus() != 200) {
-                    // TODO: improve this feedback from the sdk (400, 500, etc)
-                    throw new RuntimeException("Query failed: HTTP error code " + response.getStatus());
                 } else {
-                    ParserConfig config = new ParserConfig();
-                    String entity = response.readEntity(String.class);
-                    return Rio.parse(new StringReader(entity), target.getUri().toString(), format, config, ValueFactoryImpl.getInstance(), new ParseErrorLogger());
+                    // TODO: improve this feedback from the sdk (400, 500, etc)
+                    throw new RuntimeException("Query failed: HTTP error code " + status + ": " + response.getStatusLine().getReasonPhrase());
                 }
+            } catch (QueryResultParseException | QueryResultHandlerException e) {
+                log.error("Error parsing query results: {}", e.getMessage(), e);
+                throw new RuntimeException(e);
             } finally {
                 response.close();
             }
-        } catch (Exception e) {
-            throw new RuntimeException("Query execution failed: " + e.getMessage(), e);
+        } catch (IllegalArgumentException | IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    private boolean execUpdate(WebTarget target, String query) {
-        Invocation.Builder request = target.request();
+    private Model execGraphQuery(java.net.URI target, String query) {
+        try {
+            log.debug("Executing SPARQL tuple query: {}", query.replaceAll("\\s*[\\r\\n]+\\s*", " ").trim());
+            TupleQueryResultFormat format = TupleQueryResultFormat.JSON;
+            CloseableHttpResponse response = client.post(target, query, format.getDefaultMIMEType());
+            final int status = response.getStatusLine().getStatusCode();
+            log.debug("Request resolved with {} status code: {}", status, response.getStatusLine().getReasonPhrase());
+            try {
+                if (status >= 200 && status < 300) {
+                    String entity = EntityUtils.toString(response.getEntity());
+                    return Rio.parse(new StringReader(entity), target.toString(), RDFFormat.TURTLE, new ParserConfig(), ValueFactoryImpl.getInstance(), new ParseErrorLogger());
+                } else {
+                    // TODO: improve this feedback from the sdk (400, 500, etc)
+                    throw new RuntimeException("Query failed: HTTP error code " + status + ": " + response.getStatusLine().getReasonPhrase());
+                }
+            } catch (RDFParseException e) {
+                log.error("Error parsing query results: {}", e.getMessage(), e);
+                throw new RuntimeException(e);
+            } finally {
+                response.close();
+            }
+        } catch (IllegalArgumentException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private boolean execUpdate(java.net.URI target, String query) {
         try {
             log.debug("Executing SPARQL update query: {}", query.replaceAll("\\s*[\\r\\n]+\\s*", " ").trim());
-            Response response = request.post(Entity.entity(query, new MediaType("application", "sparql-update")));
+            CloseableHttpResponse response = client.post(target, query, "application/json", "application/sparql-update");
+            log.debug("Request resolved with {} status code: {}", response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
             try {
-                log.debug("Request resolved with {} status code", response.getStatus());
-                return (response.getStatus() == 200);
+                final int status = response.getStatusLine().getStatusCode();
+                return (status >= 200 && status < 300);
             } finally {
                 response.close();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Query execution failed: " + e.getMessage(), e);
+        } catch (IllegalArgumentException | IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    private LDPathResult execLDPath(WebTarget target, String uri, String program) {
-        Invocation.Builder request = target.request();
-        request.accept(MediaType.APPLICATION_JSON);
+    private LDPathResult execLDPath(java.net.URI target, String uri, String program) {
         try {
             log.debug("Executing LDpath program over resource {}", uri);
-            Response response = request.post(Entity.text(program));
+            CloseableHttpResponse response = client.post(target, program, "application/json");
+            final int status = response.getStatusLine().getStatusCode();
+            log.debug("Request resolved with {} status code: {}", status, response.getStatusLine().getReasonPhrase());
             try {
-                log.debug("Request resolved with {} status code", response.getStatus());
-                if (response.getStatus() != 200) {
-                    // TODO: improve this feedback from the sdk (400, 500, etc)
-                    throw new RuntimeException("Query failed: HTTP error code " + response.getStatus());
-                } else {
+                if (status >= 200 && status < 300) {
                     LDPathResult result = new LDPathResult();
-                    final Map<String, List<Map<String, String>>> fields = response.readEntity(Map.class);
+                    final Map<String, List<Map<String, String>>> fields = (new ObjectMapper()).readValue(response.getEntity().getContent(), Map.class);
                     for (Map.Entry<String, List<Map<String, String>>> field : fields.entrySet()) {
-                        List<RDFNode> row = new ArrayList<RDFNode>();
+                        List<RDFNode> row = new ArrayList<>();
                         for (Map<String, String> node : field.getValue()) {
                             row.add(RDFJSONParser.parseRDFJSONNode(node));
                         }
                         result.add(field.getKey(), row);
                     }
                     return result;
+                } else {
+                    // TODO: improve this feedback from the sdk (400, 500, etc)
+                    throw new RuntimeException("Query failed: HTTP error code " + status);
                 }
             } finally {
                 response.close();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Query execution failed: " + e.getMessage(), e);
+        } catch (IllegalArgumentException | IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

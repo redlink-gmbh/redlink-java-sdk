@@ -14,16 +14,12 @@
 package io.redlink.sdk.impl;
 
 import io.redlink.sdk.util.ApiHelper;
-import io.redlink.sdk.util.RedLinkClientBuilder;
 
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriBuilderException;
-
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+import io.redlink.sdk.util.UriBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,23 +41,19 @@ public final class StagingCredentials extends AbstractCredentials {
 
     private static Logger log = LoggerFactory.getLogger(StagingCredentials.class);
 
-    private final ResteasyClientBuilder clientBuilder;
-
     public StagingCredentials(String apiKey) {
         this(apiKey, ApiHelper.getApiVersion());
     }
 
     public StagingCredentials(String apiKey, String version) {
         super(ENDPOINT, version, apiKey, DATAHUB);
-        this.clientBuilder = new RedLinkClientBuilder();
         log.debug("created credentials over {}/{}", ENDPOINT, version);
     }
 
     @Override
-    public WebTarget buildUrl(UriBuilder builder) throws MalformedURLException, IllegalArgumentException, UriBuilderException {
-        URI uri = builder.queryParam(KEY_PARAM, apiKey).build();
-        synchronized (clientBuilder) {
-            return clientBuilder.build().target(uri.toString());
+    public URI buildUrl(UriBuilder builder) throws MalformedURLException, IllegalArgumentException, URISyntaxException {
+        synchronized (builder) {
+            return builder.addParameter(KEY_PARAM, apiKey).build();
         }
     }
 
