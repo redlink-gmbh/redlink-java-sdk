@@ -20,7 +20,9 @@ import org.junit.Test;
 import java.net.URISyntaxException;
 
 /**
- * Some test to warranty the completeness of UriBuiler
+ * Some test to warranty the completeness of UriBuilder
+ *
+ * @author sergio.fernandez@redlink.co
  */
 public class UriBuilderTest {
 
@@ -38,13 +40,13 @@ public class UriBuilderTest {
         final UriBuilder uriBuilder1 = new UriBuilder(uri);
         final URIBuilder uriBuilder2 = new URIBuilder(uri);
         Assert.assertEquals(uriBuilder2.build(), uriBuilder1.build());
-        Assert.assertEquals(uri, uriBuilder1.build());
+        Assert.assertEquals(uri, uriBuilder1.build().toString());
     }
 
     @Test
     public void testPath() throws URISyntaxException {
         final UriBuilder uriBuilder = new UriBuilder("https://example.org/test");
         uriBuilder.path("2nd");
-        Assert.assertEquals("https://example.org/test/2nd", uriBuilder.build());
+        Assert.assertEquals("https://example.org/test/2nd", uriBuilder.build().toString());
     }
 }
