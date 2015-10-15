@@ -41,6 +41,10 @@ public class UriBuilder extends URIBuilder {
         this(builder.build());
     }
 
+    public static UriBuilder fromUri(String uri) throws URISyntaxException {
+        return new UriBuilder(uri);
+    }
+
     /**
      * Appends a path to the current one
      *

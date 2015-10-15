@@ -15,16 +15,15 @@ package io.redlink.sdk;
 
 import io.redlink.sdk.impl.DefaultCredentials;
 import io.redlink.sdk.util.ApiHelper;
+import io.redlink.sdk.util.UriBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
-import javax.ws.rs.core.UriBuilder;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.net.URISyntaxException;
 
 /**
  * Generic tests and utilities shared by other tests in the suite
@@ -50,11 +49,11 @@ public class GenericTest {
         return buildCredentials(GenericTest.class);
     }
 
-    protected static final String buildDatasetsBaseUri(Credentials credentials, int user) {
+    protected static final String buildDatasetsBaseUri(Credentials credentials, int user) throws URISyntaxException {
         return UriBuilder.fromUri(credentials.getDataHub()).path(String.valueOf(user)).build().toString() + "/";
     }
 
-    protected static final String buildDatasetBaseUri(Credentials credentials, int user, String dataset) {
+    protected static final String buildDatasetBaseUri(Credentials credentials, int user, String dataset) throws URISyntaxException {
         return UriBuilder.fromUri(credentials.getDataHub()).path(String.valueOf(user)).path(dataset).build().toString() + "/";
     }
 

@@ -93,7 +93,7 @@ public class AnalysisTest extends GenericTest {
      * <p>Tests the empty enhancements when an empty string is sent to the API</p>
      */
     //@Test
-    public void testEmptyEnhancement() {
+    public void testEmptyEnhancement() throws IOException {
         AnalysisRequest request = AnalysisRequest.builder()
                 .setAnalysis(TEST_ANALYSIS)
                 .setContent("  ")
@@ -107,7 +107,7 @@ public class AnalysisTest extends GenericTest {
     }
 
     @Test
-    public void testFile() {
+    public void testFile() throws IOException {
         InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
         AnalysisRequest request = AnalysisRequest.builder()
                 .setAnalysis(TEST_ANALYSIS)
@@ -122,7 +122,7 @@ public class AnalysisTest extends GenericTest {
      * <p>Tests the size of the obtained enhancements</p>
      */
     @Test
-    public void testDemoEnhancement() {
+    public void testDemoEnhancement() throws IOException {
         log.debug("> test annotations: ");
         log.debug(" - app: {}", TEST_ANALYSIS);
         String content = PARIS_TEXT_TO_ENHANCE + ". "+STANBOL_TEXT_TO_ENHANCE;
@@ -208,7 +208,7 @@ public class AnalysisTest extends GenericTest {
      * <p>Tests the properties of the enhancements</p>
      */
     @Test
-    public void testEnhancementProperties() {
+    public void testEnhancementProperties() throws IOException {
         AnalysisRequest request = AnalysisRequest.builder()
                 .setAnalysis(TEST_ANALYSIS)
                 .setContent(STANBOL_TEXT_TO_ENHANCE)
@@ -269,7 +269,7 @@ public class AnalysisTest extends GenericTest {
     /**
      * <p>Tests the {@code EntityAnnotation} properties</p>
      *
-     * @param ea
+     * @param ka
      */
     private void testKeywordAnnotationProperties(KeywordAnnotation ka) {
         log.debug("  - {} [count: {}, metric: {}]", ka.getKeyword(), ka.getCount(), ka.getMetric());
@@ -344,7 +344,7 @@ public class AnalysisTest extends GenericTest {
      * <p>Tests the getTextAnnotationByConfidenceValue method</p>
      */
     @Test
-    public void testFilterEntitiesByConfidenceValue() {
+    public void testFilterEntitiesByConfidenceValue() throws IOException {
         AnalysisRequest request = AnalysisRequest.builder()
                 .setAnalysis(TEST_ANALYSIS)
                 .setContent(STANBOL_TEXT_TO_ENHANCE)
@@ -355,7 +355,7 @@ public class AnalysisTest extends GenericTest {
     }
 
     @Test
-    public void testRdfFormatResponse() {
+    public void testRdfFormatResponse() throws IOException {
         AnalysisRequestBuilder builder = AnalysisRequest.builder()
                 .setAnalysis(TEST_ANALYSIS)
                 .setContent(PARIS_TEXT_TO_ENHANCE);
@@ -365,7 +365,7 @@ public class AnalysisTest extends GenericTest {
     }
 
     @Test
-    public void testJsonFormatResponse() {
+    public void testJsonFormatResponse() throws IOException {
         AnalysisRequestBuilder builder = AnalysisRequest.builder()
                 .setAnalysis(TEST_ANALYSIS)
                 .setContent(PARIS_TEXT_TO_ENHANCE);
@@ -380,7 +380,7 @@ public class AnalysisTest extends GenericTest {
     }
 
     @Test
-    public void testXmlFormatResponse() {
+    public void testXmlFormatResponse() throws IOException {
         AnalysisRequestBuilder builder = AnalysisRequest.builder()
                 .setAnalysis(TEST_ANALYSIS)
                 .setContent(PARIS_TEXT_TO_ENHANCE);
@@ -398,7 +398,7 @@ public class AnalysisTest extends GenericTest {
     }
 
     @Test
-    public void testDereferencing() {
+    public void testDereferencing() throws IOException {
 
         // Dereferencing Fields
         AnalysisRequest request = AnalysisRequest.builder()

@@ -66,7 +66,7 @@ public class DataTest extends GenericTest {
     private static RedLink.Data redlink;
 
     @BeforeClass
-    public static void beforeClass() throws MalformedURLException {
+    public static void beforeClass() throws IOException, URISyntaxException {
         credentials = buildCredentials(DataTest.class);
         Assume.assumeNotNull(credentials);
         Assume.assumeNotNull(credentials.getVersion());
@@ -84,7 +84,7 @@ public class DataTest extends GenericTest {
     }
 
     @Test
-    public void testVerifyKey() throws MalformedURLException {
+    public void testVerifyKey() throws IOException, URISyntaxException {
         Credentials credentials = buildCredentials();
         Assert.assertNotNull(credentials);
         Assert.assertNotNull(credentials.getVersion());
@@ -100,7 +100,7 @@ public class DataTest extends GenericTest {
     }
 
     @Test
-    public void testImport() throws IOException, RDFParseException, RDFHandlerException {
+    public void testImport() throws IOException, RDFParseException, RDFHandlerException, URISyntaxException {
         InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
         Assume.assumeNotNull(in);
         String base = buildDatasetBaseUri(credentials, status.getOwner(), TEST_DATASET);
@@ -113,7 +113,7 @@ public class DataTest extends GenericTest {
     }
 
     @Test
-    public void testImportCheckDataHub() throws IOException, RDFParseException, RDFHandlerException {
+    public void testImportCheckDataHub() throws IOException, RDFParseException, RDFHandlerException, URISyntaxException {
         InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
         Assume.assumeNotNull(in);
         String base = buildDatasetBaseUri(credentials, status.getOwner(), TEST_DATASET);
@@ -226,7 +226,7 @@ public class DataTest extends GenericTest {
     }
 
     @Test
-    public void testResourceImported() throws IOException, RDFParseException, RDFHandlerException {
+    public void testResourceImported() throws IOException, RDFParseException, RDFHandlerException, URISyntaxException {
         //first import data
         InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
         Assume.assumeNotNull(in);
@@ -245,7 +245,7 @@ public class DataTest extends GenericTest {
     }
 
     @Test
-    public void testCleanGetResourceFail() {
+    public void testCleanGetResourceFail() throws URISyntaxException {
         Assert.assertTrue(redlink.cleanDataset(TEST_DATASET));
         String resource = buildDatasetBaseUri(credentials, status.getOwner(), TEST_DATASET) + TEST_RESOURCE;
         Assert.assertEquals(0, redlink.getResource(resource, TEST_DATASET).size());
@@ -296,7 +296,7 @@ public class DataTest extends GenericTest {
     }
 
     @Test
-    public void testDatasetCleanImportDescribe() throws IOException, RDFParseException, RDFHandlerException {
+    public void testDatasetCleanImportDescribe() throws IOException, RDFParseException, RDFHandlerException, URISyntaxException {
         Assume.assumeTrue(redlink.sparqlUpdate(QUERY_CLEAN, TEST_DATASET));
         Assert.assertEquals(0, getCurrentSize(TEST_DATASET));
         InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
@@ -314,7 +314,7 @@ public class DataTest extends GenericTest {
     }
 
     @Test
-    public void testLDPath() throws IOException, RDFParseException, RDFHandlerException {
+    public void testLDPath() throws IOException, RDFParseException, RDFHandlerException, URISyntaxException {
         InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
         Assume.assumeNotNull(in);
         final Model model = Rio.parse(in, buildDatasetBaseUri(credentials, status.getOwner(), TEST_DATASET), TEST_FILE_FORMAT);
@@ -329,7 +329,7 @@ public class DataTest extends GenericTest {
     }
 
     @Test
-    public void testLDPathNoDataset() throws IOException, RDFParseException, RDFHandlerException {
+    public void testLDPathNoDataset() throws IOException, RDFParseException, RDFHandlerException, URISyntaxException {
         InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
         Assume.assumeNotNull(in);
         final Model model = Rio.parse(in, buildDatasetBaseUri(credentials, status.getOwner(), TEST_DATASET), TEST_FILE_FORMAT);
