@@ -49,4 +49,25 @@ public class UriBuilderTest {
         uriBuilder.path("2nd");
         Assert.assertEquals("https://example.org/test/2nd", uriBuilder.build().toString());
     }
+
+    @Test
+    public void testRootPath() throws URISyntaxException {
+        final String host = "https://example.org";
+        final UriBuilder uriBuilder1 = new UriBuilder(host);
+        uriBuilder1.setPath("foo");
+        final UriBuilder uriBuilder2 = new UriBuilder(host);
+        uriBuilder2.path("foo");
+        Assert.assertEquals(uriBuilder2.build(), uriBuilder1.build());
+    }
+
+    @Test
+    public void testRootSetPath() throws URISyntaxException {
+        final String host = "https://example.org";
+        final UriBuilder uriBuilder1 = new UriBuilder(host);
+        uriBuilder1.setPath("/foo");
+        final UriBuilder uriBuilder2 = new UriBuilder(host);
+        uriBuilder2.setPath("foo");
+        Assert.assertEquals(uriBuilder2.build(), uriBuilder1.build());
+    }
+
 }

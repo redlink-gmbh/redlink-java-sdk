@@ -61,6 +61,15 @@ public class UriBuilder extends URIBuilder {
         }
     }
 
+    @Override
+    public URIBuilder setPath(String path) {
+        if (path.startsWith("/")) {
+            return super.setPath(path);
+        } else {
+            return super.setPath("/" + path);
+        }
+    }
+
     /**
      * Wrapper to addParameter()
      *

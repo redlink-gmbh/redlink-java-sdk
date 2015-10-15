@@ -31,7 +31,7 @@ import java.net.URISyntaxException;
  * @author sergio.fernandez@redlink.co
  *
  */
-public class GenericTest {
+public abstract class GenericTest {
 
     private static Logger log = LoggerFactory.getLogger(GenericTest.class);
 
