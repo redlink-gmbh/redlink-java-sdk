@@ -83,6 +83,12 @@ public class DataTest extends GenericTest {
         redlink = null;
     }
 
+    @Before
+    public void setUp() throws Exception {
+        Assume.assumeTrue(redlink.cleanDataset(TEST_DATASET));
+    }
+
+
     @Test
     public void testVerifyKey() throws IOException, URISyntaxException {
         Credentials credentials = buildCredentials();
@@ -92,11 +98,6 @@ public class DataTest extends GenericTest {
         status = credentials.getStatus();
         Assert.assertNotNull(status);
         Assert.assertTrue(TEST_DATASET + " not found", status.getDatasets().contains(TEST_DATASET));
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        Assume.assumeTrue(redlink.cleanDataset(TEST_DATASET));
     }
 
     @Test
