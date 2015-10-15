@@ -84,7 +84,7 @@ abstract class AbstractCredentials implements Credentials {
     @Override
     public synchronized Status getStatus()  {
         try {
-            final URI target = new UriBuilder(endpoint).setPath(version).build();
+            final URI target = buildUrl(new UriBuilder(endpoint).path(version));
             return client.get(target, Status.class, "application/json");
         } catch (Exception e) {
             throw new RuntimeException("Status check failed: " + e.getMessage(), e);
