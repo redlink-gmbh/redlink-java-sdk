@@ -53,7 +53,12 @@ public class UriBuilder extends URIBuilder {
      * @throws URISyntaxException
      */
     public UriBuilder path(String path) throws URISyntaxException {
-        return new UriBuilder(setPath(String.format("%s/%s", getPath(), path)));
+        path = path.trim();
+        if (getPath().endsWith("/")) {
+            return new UriBuilder(setPath(String.format("%s%s", getPath(), path)));
+        } else {
+            return new UriBuilder(setPath(String.format("%s/%s", getPath(), path)));
+        }
     }
 
     /**
