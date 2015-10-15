@@ -32,6 +32,7 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.util.EntityUtils;
@@ -61,7 +62,7 @@ import java.util.zip.GZIPInputStream;
  */
 public class RedLinkClient {
 
-    public static final int REQUEST_TIMEOUT = 10000;  //TODO: configuration
+    public static final int REQUEST_TIMEOUT = 60;  //TODO: configuration
 
     public static final Map<String,InputStreamFactory> decoderRegistry;
 
@@ -101,11 +102,13 @@ public class RedLinkClient {
     public RedLinkClient() {
         mapper = new ObjectMapper();
 
-        final org.apache.http.impl.client.HttpClientBuilder builder = HttpClients.custom();
-        RequestConfig.Builder requestBuilder = RequestConfig.custom();
-        requestBuilder = requestBuilder.setConnectTimeout(REQUEST_TIMEOUT);
-        requestBuilder = requestBuilder.setConnectionRequestTimeout(REQUEST_TIMEOUT);
-        builder.setDefaultRequestConfig(requestBuilder.build());
+        final HttpClientBuilder builder = HttpClientBuilder.create();
+
+        RequestConfig config = RequestConfig.custom()
+                .setConnectTimeout(REQUEST_TIMEOUT * 1000)
+                .setConnectionRequestTimeout(REQUEST_TIMEOUT * 1000)
+                .setSocketTimeout(REQUEST_TIMEOUT * 1000).build();
+        builder.setDefaultRequestConfig(config);
 
         builder.setUserAgent("RedlinkSDK/1.0");
 
