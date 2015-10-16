@@ -13,6 +13,7 @@
  */
 package io.redlink.sdk.util;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 
 import java.net.URI;
@@ -79,7 +80,11 @@ public class UriBuilder extends URIBuilder {
      * @throws URISyntaxException
      */
     public UriBuilder queryParam(String param, String value) throws URISyntaxException {
-        return new UriBuilder(addParameter(param, value));
+        if (StringUtils.isNotBlank(param) && StringUtils.isNotBlank(value)) {
+            return new UriBuilder(addParameter(param, value));
+        } else {
+            return this;
+        }
     }
 
 }
