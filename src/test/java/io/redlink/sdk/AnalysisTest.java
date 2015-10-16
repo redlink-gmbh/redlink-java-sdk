@@ -25,9 +25,12 @@ import io.redlink.sdk.impl.analysis.model.SentimentAnnotation;
 import io.redlink.sdk.impl.analysis.model.TextAnnotation;
 import io.redlink.sdk.impl.analysis.model.TopicAnnotation;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map.Entry;
@@ -107,11 +110,11 @@ public class AnalysisTest extends GenericTest {
     }
 
     @Test
-    public void testFile() throws IOException {
-        InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
+    public void testFile() throws IOException, URISyntaxException {
+        File file = new File(this.getClass().getResource(TEST_FILE).toURI());
         AnalysisRequest request = AnalysisRequest.builder()
                 .setAnalysis(TEST_ANALYSIS)
-                .setContent(in)
+                .setContent(file)
                 .setOutputFormat(OutputFormat.TURTLE).build();
         Enhancements enhancements = redlink.enhance(request);
         Assert.assertNotNull(enhancements);
