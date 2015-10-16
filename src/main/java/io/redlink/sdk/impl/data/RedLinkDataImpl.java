@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.redlink.sdk.util.UriBuilder;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.util.EntityUtils;
 import org.apache.marmotta.client.model.rdf.BNode;
@@ -48,6 +49,7 @@ import org.apache.marmotta.client.util.RDFJSONParser;
 import org.openrdf.model.Model;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
@@ -184,7 +186,12 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
             String entity = client.get(target, format.getDefaultMIMEType());
             return Rio.parse(new StringReader(entity), target.toString(), format, new ParserConfig(), ValueFactoryImpl.getInstance(), new ParseErrorLogger());
         } catch (IllegalArgumentException | URISyntaxException | RDFParseException | IOException e) {
-            throw new RuntimeException(e);
+            if (e instanceof ClientProtocolException && "Unexpected response status: 404".compareTo(e.getMessage())==0) {
+                //keeping old behavior, should not be silently fail (i.e. return empty model)?
+                return new LinkedHashModel();
+            } else {
+                throw new RuntimeException(e);
+            }
         }
     }
 
