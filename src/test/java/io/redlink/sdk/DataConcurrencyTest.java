@@ -49,9 +49,9 @@ import com.google.code.tempusfugit.concurrency.annotations.Concurrent;
 import com.google.code.tempusfugit.concurrency.annotations.Repeating;
 
 /**
- * Add file description here!
+ * Data concurrency tests
  *
- * @author Sebastian Schaffert (sschaffert@apache.org)
+ * @author Sebastian Schaffert (sebastian.schaffert@redlink.co)
  */
 public class DataConcurrencyTest extends GenericTest {
 
