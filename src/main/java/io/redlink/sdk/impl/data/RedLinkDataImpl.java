@@ -139,9 +139,9 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
     public Model exportDataset(String dataset) {
         RDFFormat format = RDFFormat.TURTLE;
         try {
-            java.net.URI target = credentials.buildUrl(getDatasetUriBuilder(dataset));
+            final java.net.URI target = credentials.buildUrl(getDatasetUriBuilder(dataset));
             log.debug("Exporting {} data from dataset {}", format.getName(), dataset);
-            String entity = client.get(target, format.getDefaultFileExtension());
+            final String entity = client.get(target, format.getDefaultMIMEType());
             return Rio.parse(new StringReader(entity), target.toString(), format, new ParserConfig(), ValueFactoryImpl.getInstance(), new ParseErrorLogger());
         } catch (IllegalArgumentException | URISyntaxException | RDFParseException | IOException e) {
             throw new RuntimeException(e);
