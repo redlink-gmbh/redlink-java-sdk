@@ -181,7 +181,7 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
         try {
             java.net.URI target = credentials.buildUrl(uriBuilder);
             log.debug("Exporting {} data from resource {}", format.getName(), target.toString());
-            String entity = client.get(target, format.getDefaultFileExtension());
+            String entity = client.get(target, format.getDefaultMIMEType());
             return Rio.parse(new StringReader(entity), target.toString(), format, new ParserConfig(), ValueFactoryImpl.getInstance(), new ParseErrorLogger());
         } catch (IllegalArgumentException | URISyntaxException | RDFParseException | IOException e) {
             throw new RuntimeException(e);
@@ -443,7 +443,7 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
     private Model execGraphQuery(java.net.URI target, String query) {
         try {
             log.debug("Executing SPARQL tuple query: {}", query.replaceAll("\\s*[\\r\\n]+\\s*", " ").trim());
-            TupleQueryResultFormat format = TupleQueryResultFormat.JSON;
+            RDFFormat format = RDFFormat.TURTLE;
             CloseableHttpResponse response = client.post(target, query, format.getDefaultMIMEType());
             final int status = response.getStatusLine().getStatusCode();
             log.debug("Request resolved with {} status code: {}", status, response.getStatusLine().getReasonPhrase());
