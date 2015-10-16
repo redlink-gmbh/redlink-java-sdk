@@ -20,10 +20,10 @@ import java.util.Collection;
  *
  * @author sergio.fernandez@redlink.co
  * @author rafa.haro@redlink.co
- * @see https://stanbol.apache.org/docs/trunk/components/enhancer/enhancementstructure
+ * @see <a href="https://stanbol.apache.org/docs/trunk/components/enhancer/enhancementstructure">Stanbol's enhancement structure</a>
  */
 public abstract class Enhancement implements Comparable<Enhancement> {
-    // properties
+
     protected Double confidence = null; // http://fise.iks-project.eu/ontology/confidence
     protected Collection<Enhancement> relations = null; // http://purl.org/dc/terms/relation
 
@@ -64,7 +64,7 @@ public abstract class Enhancement implements Comparable<Enhancement> {
      * Enhancements do not have a language. 
      *
      * @return <code>null</code>
-     * @deprecated use {label}Lanugage methods of subclasses. This will allways
+     * @deprecated use {label}Language methods of subclasses. This will always
      * return <code>null</code> (if not overridden by subclasses).
      */
     public String getLanguage() {
@@ -87,4 +87,5 @@ public abstract class Enhancement implements Comparable<Enhancement> {
         else
             return 0;
     }
+
 }

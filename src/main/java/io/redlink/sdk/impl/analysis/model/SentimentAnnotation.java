@@ -14,7 +14,9 @@
 package io.redlink.sdk.impl.analysis.model;
 
 /**
- * The Sentiment of a part of the Document (usually on Sentence level) <ul>
+ * The Sentiment of a part of the Document (usually on Sentence level)
+ *
+ * <ul>
  * <li><code>-1</code> (very negative)
  * <li><code>0</code> (neutral)
  * <li><code>1</code> (very positive)
@@ -67,5 +69,4 @@ public class SentimentAnnotation extends Enhancement{
         this.ends = ends;
     }
 
-    
 }

@@ -13,40 +13,17 @@
  */
 package io.redlink.sdk;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Multimap;
 import io.redlink.sdk.analysis.AnalysisRequest;
 import io.redlink.sdk.analysis.AnalysisRequest.AnalysisRequestBuilder;
 import io.redlink.sdk.analysis.AnalysisRequest.OutputFormat;
-import io.redlink.sdk.impl.analysis.model.Enhancement;
-import io.redlink.sdk.impl.analysis.model.Enhancements;
-import io.redlink.sdk.impl.analysis.model.Entity;
-import io.redlink.sdk.impl.analysis.model.EntityAnnotation;
-import io.redlink.sdk.impl.analysis.model.KeywordAnnotation;
-import io.redlink.sdk.impl.analysis.model.SentimentAnnotation;
-import io.redlink.sdk.impl.analysis.model.TextAnnotation;
-import io.redlink.sdk.impl.analysis.model.TopicAnnotation;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map.Entry;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
+import io.redlink.sdk.impl.analysis.model.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
@@ -54,8 +31,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Multimap;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.URISyntaxException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map.Entry;
 
 public class AnalysisTest extends GenericTest {
 
@@ -96,6 +80,7 @@ public class AnalysisTest extends GenericTest {
      * <p>Tests the empty enhancements when an empty string is sent to the API</p>
      */
     //@Test
+    //FIXME: server-side issue (to be solved by Rupert)
     public void testEmptyEnhancement() throws IOException {
         AnalysisRequest request = AnalysisRequest.builder()
                 .setAnalysis(TEST_ANALYSIS)
@@ -112,11 +97,15 @@ public class AnalysisTest extends GenericTest {
     @Test
     public void testFile() throws IOException, URISyntaxException {
         File file = new File(this.getClass().getResource(TEST_FILE).toURI());
+        Assume.assumeTrue(file.exists());
+        Assume.assumeTrue(file.canRead());
+
         AnalysisRequest request = AnalysisRequest.builder()
                 .setAnalysis(TEST_ANALYSIS)
                 .setContent(file)
                 .setOutputFormat(OutputFormat.TURTLE).build();
         Enhancements enhancements = redlink.enhance(request);
+
         Assert.assertNotNull(enhancements);
         Assert.assertFalse(enhancements.getEnhancements().isEmpty());
     }
@@ -204,7 +193,6 @@ public class AnalysisTest extends GenericTest {
         Assert.assertEquals(0, kas.size());
         kas = enhancements.getKeywordAnnotationsByCountMetric(null, 0.5d);
         Assert.assertEquals(1, kas.size());
-        
     }
 
     /**
