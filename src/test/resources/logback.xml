@@ -6,7 +6,7 @@
         </encoder>
     </appender>
 
-    <logger name="io.redlink.sdk" level="DEBUG" />
+    <logger name="io.redlink.sdk" level="TRACE" />
 
     <root level="${root-level:-WARN}">
         <appender-ref ref="CONSOLE" />
