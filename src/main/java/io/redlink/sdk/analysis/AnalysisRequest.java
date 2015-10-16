@@ -198,36 +198,36 @@ public class AnalysisRequest {
      */
     public InputStream getContent() {
         switch(contentType){
-        case EMPTY:
-            throw new RuntimeException("There is not Content available to analyze");
-        case FILE:
-            if(consumed)
-                try {
-                    contentStream = Optional.of((InputStream) new FileInputStream(contentFile.get()));
-                } catch (FileNotFoundException e) {
-                    throw new RuntimeException(e);
-                }
-            break;
-            case STRING:
-                if (consumed) {
-                    if (contentEncoding.isPresent()) {
-                        try {
-                            contentStream = Optional.of(IOUtils.toInputStream(contentString.get(), contentEncoding.get()));
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    } else {
-                        contentStream = Optional.of(IOUtils.toInputStream(contentString.get()));
+            case EMPTY:
+                throw new RuntimeException("There is not Content available to analyze");
+            case FILE:
+                if(consumed)
+                    try {
+                        contentStream = Optional.of((InputStream) new FileInputStream(contentFile.get()));
+                    } catch (FileNotFoundException e) {
+                        throw new RuntimeException(e);
                     }
-                }
                 break;
-            case INPUTSTREAM:
-                if (consumed) {
-                    throw new RuntimeException("The Content Stream to be analyzed has been already consumed");
-                }
-                break;
-            default:
-                break;
+                case STRING:
+                    if (consumed) {
+                        if (contentEncoding.isPresent()) {
+                            try {
+                                contentStream = Optional.of(IOUtils.toInputStream(contentString.get(), contentEncoding.get()));
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        } else {
+                            contentStream = Optional.of(IOUtils.toInputStream(contentString.get()));
+                        }
+                    }
+                    break;
+                case INPUTSTREAM:
+                    if (consumed) {
+                        throw new RuntimeException("The Content Stream to be analyzed has been already consumed");
+                    }
+                    break;
+                default:
+                    break;
         }
         
         consumed = true;

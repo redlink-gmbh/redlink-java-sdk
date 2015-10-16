@@ -23,14 +23,6 @@ import io.redlink.sdk.impl.analysis.model.EnhancementParserException;
 import io.redlink.sdk.impl.analysis.model.Enhancements;
 import io.redlink.sdk.impl.analysis.model.EnhancementsParser;
 import io.redlink.sdk.impl.analysis.model.EnhancementsParserFactory;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Iterator;
-import java.util.List;
-
 import io.redlink.sdk.util.UriBuilder;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -38,7 +30,10 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.ws.Response;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
 
 /**
  * RedLink's {@link Analysis} Service Client implementation. The implementation follows a basic workflow: using the user
@@ -114,34 +109,29 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
             }
 
             // Build uri
-            UriBuilder uriBuilder = getEnhanceUriBuilder(analysis)// Change URI based on the analysis name
-                    .queryParam(RedLink.IN, request.getInputFormat()) // InputFormat parameter
-                    .queryParam(RedLink.OUT, request.getOutputFormat()) // OutputFormat parameter
-                    .queryParam(SUMMARY, Boolean.toString(request.getSummary())) // Entities' summaries parameter;
+            UriBuilder uriBuilder = getEnhanceUriBuilder(analysis)                   // Change URI based on the analysis name
+                    .queryParam(RedLink.IN, request.getInputFormat())                // InputFormat parameter
+                    .queryParam(RedLink.OUT, request.getOutputFormat())              // OutputFormat parameter
+                    .queryParam(SUMMARY, Boolean.toString(request.getSummary()))     // Entities' summaries parameter;
                     .queryParam(THUMBNAIL, Boolean.toString(request.getThumbnail())) // Entities' thumbnails parameter
-                    .queryParam(LDPATH, request.getLDPathProgram());// LDPath program for dereferencing
-            if (!request.getFieldsToDereference().isEmpty()) {
-                Iterator<String> it = request.getFieldsToDereference().iterator();
-                while (it.hasNext()) {
-                    uriBuilder = uriBuilder.queryParam(DEREF_FIELDS, it.next()); // Fields to be dereferenced
-                }
+                    .queryParam(LDPATH, request.getLDPathProgram());                 // LDPath program for dereferencing
+            for (String field: request.getFieldsToDereference()) {
+                uriBuilder = uriBuilder.queryParam(DEREF_FIELDS, field);             // Fields to be dereferenced
             }
 
-            if (log.isDebugEnabled()) {
-                log.debug("Making Request to User Endpoint " + uriBuilder.build().toString());
-            }
+            log.debug("Making analysis request to " + uriBuilder.build().toString());
 
             final URI target = credentials.buildUrl(uriBuilder);
 
             final String format = request.getInputMediaType().is(InputFormat.TEXT.value())
-                    ? InputFormat.TEXT.value().toString()
-                    : InputFormat.OCTETSTREAM.value().toString();
+                                            ? InputFormat.TEXT.value().toString()
+                                            : InputFormat.OCTETSTREAM.value().toString();
 
-            long pre = System.currentTimeMillis();
+            final long pre = System.currentTimeMillis();
             final CloseableHttpResponse res = client.post(target, request.getContent(), request.getOutputMediaType().toString(), format);
-            long time = System.currentTimeMillis() - pre;
             final int status = res.getStatusLine().getStatusCode();
-            log.debug("Server Response Time {} ms (status={})", time, status);
+            final long time = System.currentTimeMillis() - pre;
+            log.debug("Server response time {} ms (status={})", time, status);
 
             if (status >= 200 && status < 300) {
                 return res;
