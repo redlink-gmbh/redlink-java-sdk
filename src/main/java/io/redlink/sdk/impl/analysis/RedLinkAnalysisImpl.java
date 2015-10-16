@@ -130,8 +130,8 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
             final long pre = System.currentTimeMillis();
             final CloseableHttpResponse res = client.post(target, request.getContent(), request.getOutputMediaType().toString(), format);
             final int status = res.getStatusLine().getStatusCode();
-            final long time = System.currentTimeMillis() - pre;
-            log.debug("Server response time {} ms (status={})", time, status);
+            final String time = String.format("%,d", System.currentTimeMillis() - pre);
+            log.debug("Server response time was {} ms (status={})", time, status);
 
             if (status >= 200 && status < 300) {
                 return res;
