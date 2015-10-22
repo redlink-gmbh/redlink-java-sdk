@@ -62,6 +62,18 @@ public class DataConcurrencyTest extends GenericTest {
     @Rule
     public RepeatingRule rrule = new RepeatingRule();
 
+    protected static Random rnd;
+
+    private static long runs = 0;
+
+    private static Logger log = LoggerFactory.getLogger(DataConcurrencyTest.class);
+
+    private List<URI> resources = new ArrayList<>();
+
+    private List<Value> objects = new ArrayList<>();
+
+    private Set<Statement> allAddedTriples = new HashSet<>();
+
     @Rule
     public TestWatcher watchman = new TestWatcher() {
         /**
@@ -80,6 +92,14 @@ public class DataConcurrencyTest extends GenericTest {
             log.info("{}: {} added triples, {} removed triples, {} resources reused, {} objects reused", new Object[] { description.getMethodName(), tripleAddCount, tripleRemoveCount, resourcesReused, objectsReused});
         }
     };
+
+    long tripleAddCount = 0;
+    long tripleRemoveCount = 0;
+
+    long resourcesReused = 0;
+    long objectsReused = 0;
+
+    private ValueFactory valueFactory;
 
     @Before
     public void setupTest() throws MalformedURLException {
@@ -101,6 +121,8 @@ public class DataConcurrencyTest extends GenericTest {
         RedLink.Data redlink = RedLinkFactory.createDataClient(credentials);
         Assume.assumeTrue(redlink.cleanDataset(TEST_DATASET));
     }
+
+
 
     @Test
     @Concurrent(count = 5)
@@ -134,6 +156,7 @@ public class DataConcurrencyTest extends GenericTest {
 
             for(Statement stmt : model) {
                 Assert.assertFalse("triple "+stmt+" still contained in exported data", deleted.contains(stmt));
+                Assert.assertFalse("triple "+stmt+" still containrnded in exported data", deleted.contains(stmt));
             }
         } catch (RuntimeException ex) {
             log.error("exception: ",ex);
@@ -141,6 +164,7 @@ public class DataConcurrencyTest extends GenericTest {
             Assert.fail(ex.getMessage());
         }
     }
+
 
     /**
      * Return a random URI, with a 10% chance of returning a URI that has already been used.
@@ -178,5 +202,4 @@ public class DataConcurrencyTest extends GenericTest {
     protected ValueFactory getValueFactory() {
         return valueFactory;
     }
-    
 }

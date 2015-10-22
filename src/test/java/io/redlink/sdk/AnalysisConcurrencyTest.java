@@ -28,11 +28,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.Random;
 
 /**
  * Concurrency test on Analysis
  *
- * @author sergio.fernandez@redlink.co
+ * @author sergio.fernandez@redlinkAnalysis.co
  */
 public class AnalysisConcurrencyTest extends GenericTest {
 
@@ -40,9 +41,17 @@ public class AnalysisConcurrencyTest extends GenericTest {
 
     private static final String TEST_ANALYSIS = "test";
 
+    private static final String TEST_DATASET = "test";
+
     private static String TEXT_TO_ENHANCE = "Paris is the capital of France";
 
-    private RedLink.Analysis redlink;
+    private static final String QUERY_UPDATE_TPL = "INSERT DATA { <http://example.org/test%d> <http://www.w3.org/1999/02/22-rdf-syntax-ns#label> 'test %d' }";
+
+    private RedLink.Analysis redlinkAnalysis;
+
+    private RedLink.Data redlinkData;
+
+    private Random rnd;
 
     @Rule
     public ConcurrentRule crule = new ConcurrentRule();
@@ -72,12 +81,9 @@ public class AnalysisConcurrencyTest extends GenericTest {
     @Before
     public void setup() throws MalformedURLException {
         Credentials credentials = buildCredentials(AnalysisConcurrencyTest.class);
-        redlink = RedLinkFactory.createAnalysisClient(credentials);
-    }
-
-    @After
-    public void destroy() {
-        redlink = null;
+        redlinkAnalysis = RedLinkFactory.createAnalysisClient(credentials);
+        redlinkData = RedLinkFactory.createDataClient(credentials);
+        rnd = new Random();
     }
 
     @BeforeClass
@@ -97,7 +103,34 @@ public class AnalysisConcurrencyTest extends GenericTest {
                     .setAnalysis(TEST_ANALYSIS)
                     .setContent(TEXT_TO_ENHANCE)
                     .setOutputFormat(AnalysisRequest.OutputFormat.TURTLE).build();
-            Enhancements enhancements = redlink.enhance(request);
+            Enhancements enhancements = redlinkAnalysis.enhance(request);
+            Assert.assertNotNull(enhancements);
+            log.debug("returned {} enhancements", enhancements.getEnhancements().size());
+        } catch (RuntimeException ex) {
+            log.error("exception: ",ex);
+            Assert.fail(ex.getMessage());
+        }
+    }
+
+    @Test
+    @Concurrent(count = 4)
+    @Repeating(repetition = 64)
+    public void testConcurrentlyOnReleasing() throws IOException, RDFHandlerException, InterruptedException {
+        try {
+            // 1. insert some data
+            final int randonNumber = rnd.nextInt(256);
+            final String queryUpdate = String.format(QUERY_UPDATE_TPL, randonNumber, randonNumber);
+            Assert.assertTrue(redlinkData.sparqlUpdate(queryUpdate, TEST_DATASET));
+
+            // 2. release the dataset
+            redlinkData.release(TEST_DATASET);
+
+            //3. analyse
+            AnalysisRequest request = AnalysisRequest.builder()
+                    .setAnalysis(TEST_ANALYSIS)
+                    .setContent(TEXT_TO_ENHANCE)
+                    .setOutputFormat(AnalysisRequest.OutputFormat.TURTLE).build();
+            Enhancements enhancements = redlinkAnalysis.enhance(request);
             Assert.assertNotNull(enhancements);
         } catch (RuntimeException ex) {
             log.error("exception: ",ex);
