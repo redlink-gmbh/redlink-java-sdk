@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.Random;
 
 /**
  * Concurrency test on Analysis
@@ -44,8 +43,6 @@ public class AnalysisConcurrencyTest extends GenericTest {
     private static String TEXT_TO_ENHANCE = "Paris is the capital of France";
 
     private RedLink.Analysis redlink;
-
-    private Random rnd;
 
     @Rule
     public ConcurrentRule crule = new ConcurrentRule();
@@ -73,10 +70,14 @@ public class AnalysisConcurrencyTest extends GenericTest {
     };
 
     @Before
-    public void setupTest() throws MalformedURLException {
+    public void setup() throws MalformedURLException {
         Credentials credentials = buildCredentials(AnalysisConcurrencyTest.class);
         redlink = RedLinkFactory.createAnalysisClient(credentials);
-        rnd = new Random();
+    }
+
+    @After
+    public void destroy() {
+        redlink = null;
     }
 
     @BeforeClass
@@ -85,8 +86,6 @@ public class AnalysisConcurrencyTest extends GenericTest {
         Assume.assumeNotNull(credentials);
         Assume.assumeNotNull(credentials.getVersion());
         Assume.assumeTrue(credentials.verify());
-
-        RedLinkFactory.createAnalysisClient(credentials);
     }
 
     @Test
