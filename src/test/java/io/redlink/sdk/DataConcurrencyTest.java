@@ -159,6 +159,7 @@ public class DataConcurrencyTest extends GenericTest {
 
             for(Statement stmt : model) {
                 Assert.assertFalse("triple "+stmt+" still contained in exported data", deleted.contains(stmt));
+                Assert.assertFalse("triple "+stmt+" still containrnded in exported data", deleted.contains(stmt));
             }
         } catch (RuntimeException ex) {
             log.error("exception: ",ex);
@@ -204,4 +205,5 @@ public class DataConcurrencyTest extends GenericTest {
     protected ValueFactory getValueFactory() {
         return valueFactory;
     }
+
 }
