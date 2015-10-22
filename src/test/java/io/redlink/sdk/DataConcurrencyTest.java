@@ -13,29 +13,15 @@
  */
 package io.redlink.sdk;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-
+import com.google.code.tempusfugit.concurrency.ConcurrentRule;
+import com.google.code.tempusfugit.concurrency.RepeatingRule;
+import com.google.code.tempusfugit.concurrency.annotations.Concurrent;
+import com.google.code.tempusfugit.concurrency.annotations.Repeating;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
-import org.openrdf.model.Model;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
+import org.openrdf.model.*;
 import org.openrdf.model.impl.StatementImpl;
 import org.openrdf.model.impl.TreeModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
@@ -43,10 +29,9 @@ import org.openrdf.rio.RDFHandlerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.code.tempusfugit.concurrency.ConcurrentRule;
-import com.google.code.tempusfugit.concurrency.RepeatingRule;
-import com.google.code.tempusfugit.concurrency.annotations.Concurrent;
-import com.google.code.tempusfugit.concurrency.annotations.Repeating;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.Random;
 
 /**
  * Data concurrency tests
@@ -55,27 +40,27 @@ import com.google.code.tempusfugit.concurrency.annotations.Repeating;
  */
 public class DataConcurrencyTest extends GenericTest {
 
+    private static Logger log = LoggerFactory.getLogger(DataConcurrencyTest.class);
+
     private static final String TEST_DATASET = "test";
 
     private RedLink.Data redlink;
+
+    private Random rnd;
+
+    long tripleAddCount = 0;
+    long tripleRemoveCount = 0;
+
+    long resourcesReused = 0;
+    long objectsReused = 0;
+
+    private ValueFactory valueFactory;
 
     @Rule
     public ConcurrentRule crule = new ConcurrentRule();
 
     @Rule
     public RepeatingRule rrule = new RepeatingRule();
-
-    protected static Random rnd;
-
-    private static long runs = 0;
-
-    private static Logger log = LoggerFactory.getLogger(DataConcurrencyTest.class);
-
-    private List<URI> resources = new ArrayList<>();
-
-    private List<Value> objects = new ArrayList<>();
-
-    private Set<Statement> allAddedTriples = new HashSet<>();
 
     @Rule
     public TestWatcher watchman = new TestWatcher() {
@@ -95,14 +80,6 @@ public class DataConcurrencyTest extends GenericTest {
             log.info("{}: {} added triples, {} removed triples, {} resources reused, {} objects reused", new Object[] { description.getMethodName(), tripleAddCount, tripleRemoveCount, resourcesReused, objectsReused});
         }
     };
-
-    long tripleAddCount = 0;
-    long tripleRemoveCount = 0;
-
-    long resourcesReused = 0;
-    long objectsReused = 0;
-
-    private ValueFactory valueFactory;
 
     @Before
     public void setupTest() throws MalformedURLException {
@@ -124,8 +101,6 @@ public class DataConcurrencyTest extends GenericTest {
         RedLink.Data redlink = RedLinkFactory.createDataClient(credentials);
         Assume.assumeTrue(redlink.cleanDataset(TEST_DATASET));
     }
-
-
 
     @Test
     @Concurrent(count = 5)
@@ -167,7 +142,6 @@ public class DataConcurrencyTest extends GenericTest {
         }
     }
 
-
     /**
      * Return a random URI, with a 10% chance of returning a URI that has already been used.
      * @return
@@ -204,4 +178,5 @@ public class DataConcurrencyTest extends GenericTest {
     protected ValueFactory getValueFactory() {
         return valueFactory;
     }
+    
 }
