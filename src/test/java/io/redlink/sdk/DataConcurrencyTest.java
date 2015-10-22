@@ -31,30 +31,18 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.Random;
+import java.util.*;
 
 /**
- * Data concurrency tests
+ * Add file description here!
  *
- * @author Sebastian Schaffert (sebastian.schaffert@redlink.co)
+ * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 public class DataConcurrencyTest extends GenericTest {
-
-    private static Logger log = LoggerFactory.getLogger(DataConcurrencyTest.class);
 
     private static final String TEST_DATASET = "test";
 
     private RedLink.Data redlink;
-
-    private Random rnd;
-
-    long tripleAddCount = 0;
-    long tripleRemoveCount = 0;
-
-    long resourcesReused = 0;
-    long objectsReused = 0;
-
-    private ValueFactory valueFactory;
 
     @Rule
     public ConcurrentRule crule = new ConcurrentRule();
@@ -202,4 +190,5 @@ public class DataConcurrencyTest extends GenericTest {
     protected ValueFactory getValueFactory() {
         return valueFactory;
     }
+
 }
