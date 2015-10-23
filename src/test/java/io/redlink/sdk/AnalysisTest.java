@@ -35,6 +35,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.util.Collection;
@@ -535,6 +536,22 @@ public class AnalysisTest extends GenericTest {
         }
     }
 
-
+    @Test
+    public void testEnhancementsAsInputstream() throws IOException {
+        AnalysisRequestBuilder builder = AnalysisRequest.builder()
+                .setAnalysis(TEST_ANALYSIS)
+                .setContent(PARIS_TEXT_TO_ENHANCE);
+        AnalysisRequest request = builder.setOutputFormat(OutputFormat.XML).build();
+        InputStream response = redlink.enhance(request, InputStream.class);
+        Assert.assertNotNull(response);
+        DocumentBuilderFactory domParserFac = DocumentBuilderFactory.newInstance();
+        try {
+            DocumentBuilder db = domParserFac.newDocumentBuilder();
+            db.parse(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assert.fail(e.getMessage());
+        }
+    }
 
 }
