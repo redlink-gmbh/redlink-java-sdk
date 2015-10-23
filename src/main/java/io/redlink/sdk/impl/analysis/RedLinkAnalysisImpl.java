@@ -24,6 +24,7 @@ import io.redlink.sdk.impl.analysis.model.Enhancements;
 import io.redlink.sdk.impl.analysis.model.EnhancementsParser;
 import io.redlink.sdk.impl.analysis.model.EnhancementsParserFactory;
 import io.redlink.sdk.util.UriBuilder;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.util.EntityUtils;
@@ -91,7 +92,7 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
         } else if(responseType.isAssignableFrom(InputStream.class)) {
             CloseableHttpResponse response = execEnhance(request);
             try {
-                result = response.getEntity().getContent();
+                result = IOUtils.toBufferedInputStream(response.getEntity().getContent());
             } finally {
                 response.close();
             }
