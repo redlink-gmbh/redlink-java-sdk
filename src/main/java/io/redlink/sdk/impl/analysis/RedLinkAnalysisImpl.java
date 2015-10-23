@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -87,9 +88,16 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
             } finally {
                 response.close();
             }
-        } else
+        } else if(responseType.isAssignableFrom(InputStream.class)) {
+            CloseableHttpResponse response = execEnhance(request);
+            try {
+                result = response.getEntity().getContent();
+            } finally {
+                response.close();
+            }
+        } else {
             throw new UnsupportedOperationException("Unsupported Response Type " + responseType.getCanonicalName());
-
+        }
         return responseType.cast(result);
     }
 
