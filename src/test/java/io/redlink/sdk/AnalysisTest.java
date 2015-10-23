@@ -544,6 +544,7 @@ public class AnalysisTest extends GenericTest {
         AnalysisRequest request = builder.setOutputFormat(OutputFormat.XML).build();
         InputStream response = redlink.enhance(request, InputStream.class);
         Assert.assertNotNull(response);
+        Assert.assertTrue(response.available() > 0);
         DocumentBuilderFactory domParserFac = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder db = domParserFac.newDocumentBuilder();
