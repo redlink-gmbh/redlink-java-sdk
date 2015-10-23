@@ -69,7 +69,13 @@ public interface RedLink {
         
         /**
          * Performs an analysis of the content included in the request getting as response an instance of the {@link Class}
-         * passed by parameter. Current implementation only support {@link String} and {@link Enhancements} as responseType. 
+         * passed by parameter. Current implementation supports <ul>
+         * <li>{@link String}
+         * <li> {@link InputStream} - make sure to {@link InputStream#close() close} the
+         * stream after reading the contents from the response
+         * <li> {@link Enhancements}
+         * </ul>
+         *  
          * If {@link Enhancements} is passed, the request will assume RDF+XML as response format, and will parse the response
          * to create the {@link Enhancements} object. If {@link String} is passed as response type, the method will return
          * the RAW response in the format specified at the {@link AnalysisRequest} request parameter

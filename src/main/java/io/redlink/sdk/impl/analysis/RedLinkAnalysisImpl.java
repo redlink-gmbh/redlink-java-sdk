@@ -25,10 +25,12 @@ import io.redlink.sdk.impl.analysis.model.Enhancements;
 import io.redlink.sdk.impl.analysis.model.EnhancementsParser;
 import io.redlink.sdk.impl.analysis.model.EnhancementsParserFactory;
 
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
@@ -210,8 +212,17 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
             } finally {
                 response.close();
             }
-        } else
+        } else if(responseType.isAssignableFrom(InputStream.class)){
+            Response response = execEnhance(request);
+            try {
+                result = response.readEntity(InputStream.class);
+            } catch (ProcessingException | IllegalStateException e){
+                response.close(); //ensure the close is called
+                throw e;
+            }
+        } else {
             throw new UnsupportedOperationException("Unsupported Response Type " + responseType.getCanonicalName());
+        }
 
         return responseType.cast(result);
     }
