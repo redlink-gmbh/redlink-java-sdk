@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.redlink.sdk.Credentials;
 import io.redlink.sdk.RedLink;
 import io.redlink.sdk.impl.RedLinkAbstractImpl;
-import io.redlink.sdk.impl.analysis.model.Entity;
 import io.redlink.sdk.impl.data.model.LDPathResult;
 
 import java.io.ByteArrayInputStream;
@@ -87,12 +86,12 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
     }
 
     @Override
-    public boolean importDataset(Model data, String dataset) throws IOException, RDFHandlerException {
+    public boolean importDataset(Model data, String dataset) throws RDFHandlerException {
         return importDataset(data, dataset, false);
     }
 
     @Override
-    public boolean importDataset(Model data, String dataset, boolean cleanBefore) throws RDFHandlerException, IOException {
+    public boolean importDataset(Model data, String dataset, boolean cleanBefore) throws RDFHandlerException {
         RDFFormat format = RDFFormat.TURTLE;
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         Rio.write(data, out, format);

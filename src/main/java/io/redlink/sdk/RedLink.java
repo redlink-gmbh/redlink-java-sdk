@@ -19,7 +19,6 @@ import io.redlink.sdk.impl.data.model.LDPathResult;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 
@@ -66,7 +65,7 @@ public interface RedLink {
          * @param request {@link AnalysisRequest} containing the request parameters and the content to be enhanced
          * @return Simplified RedLink Enhancement Structure
          */
-        Enhancements enhance(AnalysisRequest request) throws IOException;
+        Enhancements enhance(AnalysisRequest request);
         
         /**
          * Performs an analysis of the content included in the request getting as response an instance of the {@link Class}
@@ -85,7 +84,7 @@ public interface RedLink {
          * @param responseType {@link Class} of the response. Only {@link Enhancements} and {@link String} are supported
          * @return An instance of the class passed by parameter wrapping the Analysis Service response
          */
-        <T> T enhance(AnalysisRequest request, Class<T> responseType) throws IOException;
+        <T> T enhance(AnalysisRequest request, Class<T> responseType);
 
     }
 
@@ -118,10 +117,9 @@ public interface RedLink {
          * @param data    RDF {@link Model} to be imported
          * @param dataset Name of the dataset where the data will be imported
          * @return Flag indicating if the importation has been performed successfully
-         * @throws IOException
          * @throws RDFHandlerException
          */
-        boolean importDataset(Model data, String dataset) throws IOException, RDFHandlerException;
+        boolean importDataset(Model data, String dataset) throws RDFHandlerException;
 
         /**
          * Import an RDF {@link Model} into the selected Dataset. The Dataset must exist at the user RedLink account and
@@ -133,9 +131,8 @@ public interface RedLink {
          * @param cleanBefore Flag indicating if the dataset must be cleaned before
          * @return Flag indicating if the importation has been performed successfully
          * @throws RDFHandlerException
-         * @throws IOException
          */
-        boolean importDataset(Model data, String dataset, boolean cleanBefore) throws RDFHandlerException, IOException;
+        boolean importDataset(Model data, String dataset, boolean cleanBefore) throws RDFHandlerException;
 
         /**
          * Import the Model contained in the passed {@link File} into the selected Dataset. The Dataset must exist at the user RedLink account and

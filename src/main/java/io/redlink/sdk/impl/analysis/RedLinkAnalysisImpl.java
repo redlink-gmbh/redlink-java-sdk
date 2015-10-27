@@ -55,17 +55,22 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
     }
 
     @Override
-    public Enhancements enhance(AnalysisRequest request) throws IOException {
-        CloseableHttpResponse response = execEnhance(request);
+    public Enhancements enhance(AnalysisRequest request) {
         try {
-            return parseResponse(response);
-        } finally {
-            response.close();
+            CloseableHttpResponse response = execEnhance(request);
+            try {
+                return parseResponse(response);
+            } finally {
+                response.close();
+            }
+        } catch (IOException e) {
+            //TODO: to be remove in version 2.0
+            throw new RuntimeException(e);
         }
     }
 
     @Override
-    public <T> T enhance(AnalysisRequest request, Class<T> responseType) throws IOException {
+    public <T> T enhance(AnalysisRequest request, Class<T> responseType) {
         Object result = null;
         if (responseType.isAssignableFrom(Enhancements.class)) {
             AnalysisRequest finalRequest = request;
@@ -83,18 +88,28 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
             }
             result = enhance(finalRequest);
         } else if (responseType.isAssignableFrom((String.class))) {
-            CloseableHttpResponse response = execEnhance(request);
             try {
-                result = EntityUtils.toString(response.getEntity());
-            } finally {
-                response.close();
+                CloseableHttpResponse response = execEnhance(request);
+                try {
+                    result = EntityUtils.toString(response.getEntity());
+                } finally {
+                    response.close();
+                }
+            } catch (IOException e) {
+                //TODO: to be remove in version 2.0
+                throw new RuntimeException(e);
             }
         } else if(responseType.isAssignableFrom(InputStream.class)) {
-            CloseableHttpResponse response = execEnhance(request);
             try {
-                result = IOUtils.toBufferedInputStream(response.getEntity().getContent());
-            } finally {
-                response.close();
+                CloseableHttpResponse response = execEnhance(request);
+                try {
+                    result = IOUtils.toBufferedInputStream(response.getEntity().getContent());
+                } finally {
+                    response.close();
+                }
+            } catch (IOException e) {
+                //TODO: to be remove in version 2.0
+                throw new RuntimeException(e);
             }
         } else {
             throw new UnsupportedOperationException("Unsupported Response Type " + responseType.getCanonicalName());
