@@ -69,8 +69,6 @@ import org.openrdf.rio.helpers.ParseErrorLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.ws.Response;
-
 /**
  * RedLink's {@link Data} services implementation. To be instantiated, this implementation needs a valid {@link Credentials} object that
  * must contain a RedLink API key which will be used in each request to the server.
