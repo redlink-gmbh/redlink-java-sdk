@@ -13,37 +13,17 @@
  */
 package io.redlink.sdk;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Multimap;
 import io.redlink.sdk.analysis.AnalysisRequest;
 import io.redlink.sdk.analysis.AnalysisRequest.AnalysisRequestBuilder;
 import io.redlink.sdk.analysis.AnalysisRequest.OutputFormat;
-import io.redlink.sdk.impl.analysis.model.Enhancement;
-import io.redlink.sdk.impl.analysis.model.Enhancements;
-import io.redlink.sdk.impl.analysis.model.Entity;
-import io.redlink.sdk.impl.analysis.model.EntityAnnotation;
-import io.redlink.sdk.impl.analysis.model.KeywordAnnotation;
-import io.redlink.sdk.impl.analysis.model.SentimentAnnotation;
-import io.redlink.sdk.impl.analysis.model.TextAnnotation;
-import io.redlink.sdk.impl.analysis.model.TopicAnnotation;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map.Entry;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
+import io.redlink.sdk.impl.analysis.model.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
@@ -51,8 +31,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Multimap;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.net.URISyntaxException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map.Entry;
 
 public class AnalysisTest extends GenericTest {
 
@@ -93,7 +81,8 @@ public class AnalysisTest extends GenericTest {
      * <p>Tests the empty enhancements when an empty string is sent to the API</p>
      */
     //@Test
-    public void testEmptyEnhancement() {
+    //FIXME: server-side issue (to be solved by Rupert)
+    public void testEmptyEnhancement() throws IOException {
         AnalysisRequest request = AnalysisRequest.builder()
                 .setAnalysis(TEST_ANALYSIS)
                 .setContent("  ")
@@ -107,13 +96,17 @@ public class AnalysisTest extends GenericTest {
     }
 
     @Test
-    public void testFile() {
-        InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
+    public void testFile() throws IOException, URISyntaxException {
+        File file = new File(this.getClass().getResource(TEST_FILE).toURI());
+        Assume.assumeTrue(file.exists());
+        Assume.assumeTrue(file.canRead());
+
         AnalysisRequest request = AnalysisRequest.builder()
                 .setAnalysis(TEST_ANALYSIS)
-                .setContent(in)
+                .setContent(file)
                 .setOutputFormat(OutputFormat.TURTLE).build();
         Enhancements enhancements = redlink.enhance(request);
+
         Assert.assertNotNull(enhancements);
         Assert.assertFalse(enhancements.getEnhancements().isEmpty());
     }
@@ -122,7 +115,7 @@ public class AnalysisTest extends GenericTest {
      * <p>Tests the size of the obtained enhancements</p>
      */
     @Test
-    public void testDemoEnhancement() {
+    public void testDemoEnhancement() throws IOException {
         log.debug("> test annotations: ");
         log.debug(" - app: {}", TEST_ANALYSIS);
         String content = PARIS_TEXT_TO_ENHANCE + ". "+STANBOL_TEXT_TO_ENHANCE;
@@ -201,14 +194,13 @@ public class AnalysisTest extends GenericTest {
         Assert.assertEquals(0, kas.size());
         kas = enhancements.getKeywordAnnotationsByCountMetric(null, 0.5d);
         Assert.assertEquals(1, kas.size());
-        
     }
 
     /**
      * <p>Tests the properties of the enhancements</p>
      */
     @Test
-    public void testEnhancementProperties() {
+    public void testEnhancementProperties() throws IOException {
         AnalysisRequest request = AnalysisRequest.builder()
                 .setAnalysis(TEST_ANALYSIS)
                 .setContent(STANBOL_TEXT_TO_ENHANCE)
@@ -269,7 +261,7 @@ public class AnalysisTest extends GenericTest {
     /**
      * <p>Tests the {@code EntityAnnotation} properties</p>
      *
-     * @param ea
+     * @param ka
      */
     private void testKeywordAnnotationProperties(KeywordAnnotation ka) {
         log.debug("  - {} [count: {}, metric: {}]", ka.getKeyword(), ka.getCount(), ka.getMetric());
@@ -344,7 +336,7 @@ public class AnalysisTest extends GenericTest {
      * <p>Tests the getTextAnnotationByConfidenceValue method</p>
      */
     @Test
-    public void testFilterEntitiesByConfidenceValue() {
+    public void testFilterEntitiesByConfidenceValue() throws IOException {
         AnalysisRequest request = AnalysisRequest.builder()
                 .setAnalysis(TEST_ANALYSIS)
                 .setContent(STANBOL_TEXT_TO_ENHANCE)
@@ -355,7 +347,7 @@ public class AnalysisTest extends GenericTest {
     }
 
     @Test
-    public void testRdfFormatResponse() {
+    public void testRdfFormatResponse() throws IOException {
         AnalysisRequestBuilder builder = AnalysisRequest.builder()
                 .setAnalysis(TEST_ANALYSIS)
                 .setContent(PARIS_TEXT_TO_ENHANCE);
@@ -365,7 +357,7 @@ public class AnalysisTest extends GenericTest {
     }
 
     @Test
-    public void testJsonFormatResponse() {
+    public void testJsonFormatResponse() throws IOException {
         AnalysisRequestBuilder builder = AnalysisRequest.builder()
                 .setAnalysis(TEST_ANALYSIS)
                 .setContent(PARIS_TEXT_TO_ENHANCE);
@@ -380,7 +372,7 @@ public class AnalysisTest extends GenericTest {
     }
 
     @Test
-    public void testXmlFormatResponse() {
+    public void testXmlFormatResponse() throws IOException {
         AnalysisRequestBuilder builder = AnalysisRequest.builder()
                 .setAnalysis(TEST_ANALYSIS)
                 .setContent(PARIS_TEXT_TO_ENHANCE);
@@ -398,7 +390,7 @@ public class AnalysisTest extends GenericTest {
     }
 
     @Test
-    public void testDereferencing() {
+    public void testDereferencing() throws IOException {
 
         // Dereferencing Fields
         AnalysisRequest request = AnalysisRequest.builder()
@@ -544,6 +536,23 @@ public class AnalysisTest extends GenericTest {
         }
     }
 
-
+    @Test
+    public void testEnhancementsAsInputstream() throws IOException {
+        AnalysisRequestBuilder builder = AnalysisRequest.builder()
+                .setAnalysis(TEST_ANALYSIS)
+                .setContent(PARIS_TEXT_TO_ENHANCE);
+        AnalysisRequest request = builder.setOutputFormat(OutputFormat.XML).build();
+        InputStream response = redlink.enhance(request, InputStream.class);
+        Assert.assertNotNull(response);
+        Assert.assertTrue(response.available() > 0);
+        DocumentBuilderFactory domParserFac = DocumentBuilderFactory.newInstance();
+        try {
+            DocumentBuilder db = domParserFac.newDocumentBuilder();
+            db.parse(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assert.fail(e.getMessage());
+        }
+    }
 
 }

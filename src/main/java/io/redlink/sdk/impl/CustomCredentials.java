@@ -14,15 +14,11 @@
 package io.redlink.sdk.impl;
 
 import io.redlink.sdk.Credentials;
+import io.redlink.sdk.util.UriBuilder;
 
 import java.net.MalformedURLException;
 import java.net.URI;
-
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriBuilderException;
-
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+import java.net.URISyntaxException;
 
 /**
  * On-Premise {@link Credentials} implementation. This implementation should be used as the most simple way to access to a RedLink On-Premise platform
@@ -49,10 +45,10 @@ public class CustomCredentials extends AbstractCredentials {
      * @see io.redlink.sdk.Credentials#buildUrl(javax.ws.rs.core.UriBuilder)
      */
     @Override
-    public WebTarget buildUrl(UriBuilder builder) throws MalformedURLException, IllegalArgumentException, UriBuilderException {
-        ResteasyClientBuilder clientBuilder = new ResteasyClientBuilder();
-        URI uri = builder.build();
-        return clientBuilder.build().target(uri.toString());
+    public URI buildUrl(UriBuilder builder) throws MalformedURLException, IllegalArgumentException, URISyntaxException {
+        synchronized (builder) {
+            return builder.build();
+        }
     }
 
 }

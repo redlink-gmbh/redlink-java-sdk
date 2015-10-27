@@ -14,12 +14,12 @@
 package io.redlink.sdk;
 
 import io.redlink.sdk.impl.Status;
+import io.redlink.sdk.util.UriBuilder;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
-
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriBuilderException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * RedLink SDK Credentials. A Credential object must be used in any request to the RedLink services
@@ -70,18 +70,17 @@ public interface Credentials {
      * @return fresh status
      * @throws MalformedURLException
      */
-    Status getStatus() throws MalformedURLException;
+    Status getStatus() throws IOException, URISyntaxException;
 
     /**
-     * JAX-RS Endpoint Builder for RedLink. This method uses the credential information to build an
+     * URI Builder for RedLink. This method uses the credential information to build an
      * endpoint client ready for performing requests bound to the user RedLink application services
      *
      * @param builder base uri builder
-     * @return {@link javax.ws.rs.client.WebTarget}
+     * @return {@link java.net.URI}
      * @throws MalformedURLException
      * @throws IllegalArgumentException
-     * @throws UriBuilderException
      */
-    WebTarget buildUrl(UriBuilder builder) throws MalformedURLException, IllegalArgumentException, UriBuilderException;
+    URI buildUrl(UriBuilder builder) throws MalformedURLException, IllegalArgumentException, URISyntaxException;
 
 }

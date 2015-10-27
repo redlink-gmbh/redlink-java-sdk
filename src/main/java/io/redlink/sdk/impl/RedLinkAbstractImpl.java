@@ -15,10 +15,12 @@ package io.redlink.sdk.impl;
 
 import io.redlink.sdk.Credentials;
 import io.redlink.sdk.RedLink;
+import io.redlink.sdk.util.RedLinkClient;
+import io.redlink.sdk.util.UriBuilder;
+import org.apache.http.client.utils.URIBuilder;
 
-import java.net.MalformedURLException;
-
-import javax.ws.rs.core.UriBuilder;
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 /**
  * RedLink Client API (abstract) template implementation. Any RedLink client concrete implementation must extend this class and use a
@@ -30,6 +32,7 @@ public abstract class RedLinkAbstractImpl implements RedLink {
 
     protected final Credentials credentials;
     protected final Status status;
+    protected final RedLinkClient client;
 
     public RedLinkAbstractImpl(Credentials credentials) {
         this.credentials = credentials;
@@ -38,20 +41,21 @@ public abstract class RedLinkAbstractImpl implements RedLink {
             if (!this.status.isAccessible()) {
                 throw new IllegalArgumentException("invalid credentials: not accessible api key");
             }
-        } catch (MalformedURLException e) {
+        } catch (URISyntaxException | IOException e) {
             throw new IllegalArgumentException("invalid credentials: " + e.getMessage(), e);
         }
+        this.client = new RedLinkClient();
     }
 
     /**
-     * Create an {@link UriBuilder} for RedLink services endpoints URIs based on the current {@link Credentials}.
-     * The resultant {@link UriBuilder} will contain the common endpoint prefix for all the services. The rest
+     * Create an {@link URIBuilder} for RedLink services endpoints URIs based on the current {@link Credentials}.
+     * The resultant {@link URIBuilder} will contain the common endpoint prefix for all the services. The rest
      * of the URI will depend on the requested service and the passed parameters
      *
      * @return RedLink API Endpoint URI prefix builder
      */
-    protected final UriBuilder initiateUriBuilding() {
-        return UriBuilder.fromUri(credentials.getEndpoint()).path(credentials.getVersion());
+    protected final UriBuilder initiateUriBuilding() throws URISyntaxException {
+        return (UriBuilder) new UriBuilder(credentials.getEndpoint()).setPath(credentials.getVersion());
     }
 
 }

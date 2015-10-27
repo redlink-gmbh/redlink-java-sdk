@@ -48,9 +48,9 @@ import com.google.code.tempusfugit.concurrency.annotations.Concurrent;
 import com.google.code.tempusfugit.concurrency.annotations.Repeating;
 
 /**
- * Add file description here!
+ * Repeated update tests
  *
- * @author Sebastian Schaffert (sschaffert@apache.org)
+ * @author Sebastian Schaffert (sebastian.schaffert@redlink.co)
  */
 public class RepeatedUpdateTest extends GenericTest {
 
@@ -64,18 +64,10 @@ public class RepeatedUpdateTest extends GenericTest {
     @Rule
     public RepeatingRule rrule = new RepeatingRule();
 
-
     protected static Random rnd;
-
-    private static long runs = 0;
 
     private static Logger log = LoggerFactory.getLogger(DataConcurrencyTest.class);
 
-    private List<URI> resources = new ArrayList<>();
-
-    private List<Value> objects = new ArrayList<>();
-
-    private Set<Statement> allAddedTriples = new HashSet<>();
 
     @Rule
     public TestWatcher watchman = new TestWatcher() {
@@ -220,6 +212,5 @@ public class RepeatedUpdateTest extends GenericTest {
     protected ValueFactory getValueFactory() {
         return valueFactory;
     }
-
 
 }

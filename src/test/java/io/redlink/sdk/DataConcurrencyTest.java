@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Add file description here!
@@ -40,19 +40,27 @@ import java.util.Random;
  */
 public class DataConcurrencyTest extends GenericTest {
 
-    private static Logger log = LoggerFactory.getLogger(DataConcurrencyTest.class);
-
     private static final String TEST_DATASET = "test";
 
     private RedLink.Data redlink;
-
-    protected static Random rnd;
 
     @Rule
     public ConcurrentRule crule = new ConcurrentRule();
 
     @Rule
     public RepeatingRule rrule = new RepeatingRule();
+
+    protected static Random rnd;
+
+    private static long runs = 0;
+
+    private static Logger log = LoggerFactory.getLogger(DataConcurrencyTest.class);
+
+    private List<URI> resources = new ArrayList<>();
+
+    private List<Value> objects = new ArrayList<>();
+
+    private Set<Statement> allAddedTriples = new HashSet<>();
 
     @Rule
     public TestWatcher watchman = new TestWatcher() {
