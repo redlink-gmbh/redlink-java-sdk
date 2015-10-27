@@ -9,6 +9,7 @@ The SDKs are provided for a limited set of languages; so if it does not covers y
 needs, please contact us for further information.
 
 [![Build Status](https://secure.travis-ci.org/redlink-gmbh/redlink-java-sdk.svg?branch=master)](https://travis-ci.org/redlink-gmbh/redlink-java-sdk)
+[![Dependency Status](https://www.versioneye.com/user/projects/562fae2936d0ab00210015b9/badge.svg?style=flat)](https://www.versioneye.com/user/projects/562fae2936d0ab00210015b9)
 
 Further details at [dev.redlink.io][dev].
 
