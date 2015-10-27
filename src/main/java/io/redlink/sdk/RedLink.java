@@ -206,7 +206,7 @@ public interface RedLink {
          * @param resource URI (identifier) of the resource
          * @return {@link Model} representing the resource and all its properties or null if the resource is not found
          */
-        Model getResource(String resource) throws URISyntaxException;
+        Model getResource(String resource);
 
         /**
          * Get resource data by its URI as RDF {@link Model} from the user dataset passed by parameter. The Dataset must exist at the user RedLink account and
@@ -216,7 +216,7 @@ public interface RedLink {
          * @param dataset  Name of the dataset at user's RedLink application where the resource will be lookup
          * @return
          */
-        Model getResource(String resource, String dataset) throws URISyntaxException;
+        Model getResource(String resource, String dataset);
 
         /**
          * Import a resource represented by an RDF {@link Model} into the selected Dataset. The Dataset must exist at the user RedLink account and

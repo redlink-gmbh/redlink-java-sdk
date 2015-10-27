@@ -168,13 +168,21 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
     }
 
     @Override
-    public Model getResource(String resource) throws URISyntaxException {
-        return getResource(getResourceUriBuilder(resource));
+    public Model getResource(String resource) {
+        try {
+            return getResource(getResourceUriBuilder(resource));
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public Model getResource(String resource, String dataset) throws URISyntaxException {
-        return getResource(getResourceUriBuilder(dataset, resource));
+    public Model getResource(String resource, String dataset) {
+        try {
+            return getResource(getResourceUriBuilder(dataset, resource));
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private Model getResource(UriBuilder uriBuilder) {
