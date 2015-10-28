@@ -64,4 +64,5 @@ public class StatusError {
     public int getError() {
         return error;
     }
+
 }

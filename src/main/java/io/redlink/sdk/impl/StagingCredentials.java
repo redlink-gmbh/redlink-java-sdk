@@ -33,6 +33,8 @@ import org.slf4j.LoggerFactory;
  */
 public final class StagingCredentials extends AbstractCredentials {
 
+    private static final long serialVersionUID = 6763770459425653864L;
+
     public static final String ENDPOINT = "https://api.staging.redlink.io";
 
     public static final String KEY_PARAM = "key";
