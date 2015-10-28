@@ -17,6 +17,7 @@ import io.redlink.sdk.impl.Status;
 import io.redlink.sdk.util.UriBuilder;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -25,9 +26,9 @@ import java.net.URISyntaxException;
  * RedLink SDK Credentials. A Credential object must be used in any request to the RedLink services
  *
  * @author sergio.fernandez@redlink.co
- * @author rafa.haro@redlink.co
+ * @author rharo@zaizi.com
  */
-public interface Credentials {
+public interface Credentials extends Serializable {
 
     /**
      * Get the API endpoint

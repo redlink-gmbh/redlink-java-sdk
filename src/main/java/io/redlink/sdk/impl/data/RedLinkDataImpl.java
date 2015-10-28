@@ -77,6 +77,8 @@ import org.slf4j.LoggerFactory;
  */
 public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data {
 
+    private static final long serialVersionUID = 4326250513301297236L;
+
     private static Logger log = LoggerFactory.getLogger(RedLinkDataImpl.class);
 
     public RedLinkDataImpl(Credentials credentials) {

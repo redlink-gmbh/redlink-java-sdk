@@ -20,6 +20,7 @@ import io.redlink.sdk.impl.data.model.LDPathResult;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.Serializable;
 
 import org.apache.marmotta.client.model.sparql.SPARQLResult;
 import org.openrdf.model.Model;
@@ -31,7 +32,7 @@ import org.openrdf.rio.RDFHandlerException;
  *
  * @author sergio.fernandez@redlink.co
  */
-public interface RedLink {
+public interface RedLink extends Serializable {
 
     String URI = "uri";
 
@@ -43,7 +44,7 @@ public interface RedLink {
      * RedLink Analysis API. Any implementation of this interface must have a constructor that receives a {@link Credentials}
      * object which will be used for each service request
      */
-    interface Analysis {
+    interface Analysis extends Serializable {
 
         String PATH = "analysis";
 
@@ -91,7 +92,7 @@ public interface RedLink {
      * RedLink LinkedData API. Any implementation of this interface must have a constructor that receives a {@link Credentials}
      * object which will be used for each service request
      */
-    interface Data {
+    interface Data extends Serializable {
 
         String PATH = "data";
 

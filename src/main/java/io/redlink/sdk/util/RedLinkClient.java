@@ -33,7 +33,6 @@ import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.util.EntityUtils;
 import org.openrdf.rio.RDFFormat;
@@ -42,6 +41,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.net.URI;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
@@ -60,7 +60,9 @@ import java.util.zip.GZIPInputStream;
  *
  * @author sergio.fernandez@redlink.co
  */
-public class RedLinkClient {
+public class RedLinkClient implements Serializable {
+
+    private static final long serialVersionUID = -6399964450824289653L;
 
     public static final int REQUEST_TIMEOUT = 60;  //TODO: configuration
 

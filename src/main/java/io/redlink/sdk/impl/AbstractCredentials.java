@@ -29,6 +29,8 @@ import java.net.URI;
  */
 abstract class AbstractCredentials implements Credentials {
 
+    private static final long serialVersionUID = -3107180751543637209L;
+    
     protected final String endpoint;
 
     protected final String version;

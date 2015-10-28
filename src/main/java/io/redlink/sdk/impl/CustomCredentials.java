@@ -28,6 +28,8 @@ import java.net.URISyntaxException;
  */
 public class CustomCredentials extends AbstractCredentials {
 
+    private static final long serialVersionUID = 4957232346739548073L;
+
     public static final String CUSTOM_ENDPOINT = "http://api.redlink.localhost";
 
     public static final String CUSTOM_DATAHUB = "http://api.redlink.localhost";

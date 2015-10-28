@@ -48,6 +48,8 @@ import java.util.List;
  */
 public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.Analysis {
 
+    private static final long serialVersionUID = 7226835583815170412L;
+
     private static final Logger log = LoggerFactory.getLogger(RedLinkAnalysisImpl.class);
 
     public RedLinkAnalysisImpl(Credentials credentials) {

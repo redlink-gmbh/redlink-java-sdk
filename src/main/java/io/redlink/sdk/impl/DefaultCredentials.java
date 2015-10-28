@@ -15,7 +15,6 @@ package io.redlink.sdk.impl;
 
 import io.redlink.sdk.Credentials;
 import io.redlink.sdk.util.ApiHelper;
-import io.redlink.sdk.util.RedLinkClient;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -34,6 +33,8 @@ import org.slf4j.LoggerFactory;
  * @author jakob.frank@redlink.co
  */
 public final class DefaultCredentials extends AbstractCredentials {
+
+    private static final long serialVersionUID = -8862731620622077059L;
 
     public static final String ENDPOINT = "https://api.redlink.io";
 

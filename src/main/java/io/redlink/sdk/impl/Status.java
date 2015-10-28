@@ -13,6 +13,7 @@
  */
 package io.redlink.sdk.impl;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -23,7 +24,7 @@ import java.util.List;
  * @author Rafa Haro
  * @author Sergio Fernández
  */
-public class Status {
+public class Status implements Serializable {
 
     private int owner;
     private boolean accessible;

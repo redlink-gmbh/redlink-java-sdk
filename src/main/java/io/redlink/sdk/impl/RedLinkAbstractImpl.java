@@ -30,6 +30,8 @@ import java.net.URISyntaxException;
  */
 public abstract class RedLinkAbstractImpl implements RedLink {
 
+    private static final long serialVersionUID = -2644378258418145067L;
+
     protected final Credentials credentials;
     protected final Status status;
     protected final RedLinkClient client;
