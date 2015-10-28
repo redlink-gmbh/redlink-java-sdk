@@ -9,14 +9,16 @@ The SDKs are provided for a limited set of languages; so if it does not covers y
 needs, please contact us for further information.
 
 [![Build Status](https://secure.travis-ci.org/redlink-gmbh/redlink-java-sdk.svg?branch=master)](https://travis-ci.org/redlink-gmbh/redlink-java-sdk)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.redlink/redlink-sdk-java/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.redlink/redlink-sdk-java/)
 [![Dependency Status](https://www.versioneye.com/user/projects/562fae2936d0ab00210015b9/badge.svg?style=flat)](https://www.versioneye.com/user/projects/562fae2936d0ab00210015b9)
+[![License](http://img.shields.io/:license-apache-blue.svg)][ASL2]
 
 Further details at [dev.redlink.io][dev].
 
 ## License
 
 This SDK is available under the business-friendly license [Apache License, Version 2.0][ASL2]. 
-Therefore, you are completelly free to use the software for any purpose, to distribute it, 
+Therefore, you are completely free to use the software for any purpose, to distribute it, 
 to modify it, and to distribute modified versions of the software, including closed-source, 
 under the terms of the license, without concern for royalties.
 
