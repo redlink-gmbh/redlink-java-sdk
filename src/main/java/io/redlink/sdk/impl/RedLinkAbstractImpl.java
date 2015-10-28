@@ -15,7 +15,6 @@ package io.redlink.sdk.impl;
 
 import io.redlink.sdk.Credentials;
 import io.redlink.sdk.RedLink;
-import io.redlink.sdk.util.RedLinkClient;
 import io.redlink.sdk.util.UriBuilder;
 import org.apache.http.client.utils.URIBuilder;
 

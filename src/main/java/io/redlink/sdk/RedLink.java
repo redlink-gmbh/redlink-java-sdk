@@ -13,7 +13,7 @@
  */
 package io.redlink.sdk;
 
-import io.redlink.sdk.analysis.AnalysisRequest;
+import io.redlink.sdk.impl.analysis.AnalysisRequest;
 import io.redlink.sdk.impl.analysis.model.Enhancements;
 import io.redlink.sdk.impl.data.model.LDPathResult;
 

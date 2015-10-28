@@ -15,9 +15,8 @@ package io.redlink.sdk.impl.analysis;
 
 import io.redlink.sdk.Credentials;
 import io.redlink.sdk.RedLink;
-import io.redlink.sdk.analysis.AnalysisRequest;
-import io.redlink.sdk.analysis.AnalysisRequest.InputFormat;
-import io.redlink.sdk.analysis.AnalysisRequest.OutputFormat;
+import io.redlink.sdk.impl.analysis.AnalysisRequest.InputFormat;
+import io.redlink.sdk.impl.analysis.AnalysisRequest.OutputFormat;
 import io.redlink.sdk.impl.RedLinkAbstractImpl;
 import io.redlink.sdk.impl.analysis.model.EnhancementParserException;
 import io.redlink.sdk.impl.analysis.model.Enhancements;

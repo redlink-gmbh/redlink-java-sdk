@@ -17,7 +17,7 @@ import com.google.code.tempusfugit.concurrency.ConcurrentRule;
 import com.google.code.tempusfugit.concurrency.RepeatingRule;
 import com.google.code.tempusfugit.concurrency.annotations.Concurrent;
 import com.google.code.tempusfugit.concurrency.annotations.Repeating;
-import io.redlink.sdk.analysis.AnalysisRequest;
+import io.redlink.sdk.impl.analysis.AnalysisRequest;
 import io.redlink.sdk.impl.analysis.model.Enhancements;
 import org.junit.*;
 import org.junit.rules.TestWatcher;

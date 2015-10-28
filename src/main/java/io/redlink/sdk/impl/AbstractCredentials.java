@@ -14,7 +14,6 @@
 package io.redlink.sdk.impl;
 
 import io.redlink.sdk.Credentials;
-import io.redlink.sdk.util.RedLinkClient;
 import io.redlink.sdk.util.UriBuilder;
 
 import java.net.MalformedURLException;
@@ -30,7 +29,7 @@ import java.net.URI;
 abstract class AbstractCredentials implements Credentials {
 
     private static final long serialVersionUID = -3107180751543637209L;
-    
+
     protected final String endpoint;
 
     protected final String version;

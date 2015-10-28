@@ -14,7 +14,7 @@
 package io.redlink.sdk.impl.analysis.model;
 
 import com.google.common.net.MediaType;
-import io.redlink.sdk.analysis.AnalysisRequest.OutputFormat;
+import io.redlink.sdk.impl.analysis.AnalysisRequest.OutputFormat;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.entity.ContentType;

@@ -15,9 +15,9 @@ package io.redlink.sdk;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
-import io.redlink.sdk.analysis.AnalysisRequest;
-import io.redlink.sdk.analysis.AnalysisRequest.AnalysisRequestBuilder;
-import io.redlink.sdk.analysis.AnalysisRequest.OutputFormat;
+import io.redlink.sdk.impl.analysis.AnalysisRequest;
+import io.redlink.sdk.impl.analysis.AnalysisRequest.AnalysisRequestBuilder;
+import io.redlink.sdk.impl.analysis.AnalysisRequest.OutputFormat;
 import io.redlink.sdk.impl.analysis.model.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
