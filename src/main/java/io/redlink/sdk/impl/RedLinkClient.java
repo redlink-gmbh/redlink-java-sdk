@@ -112,7 +112,7 @@ public class RedLinkClient implements Serializable {
                 .setSocketTimeout(REQUEST_TIMEOUT * 1000).build();
         builder.setDefaultRequestConfig(config);
 
-        builder.setUserAgent("RedlinkSDK/1.0");
+        builder.setUserAgent("RedlinkJavaSDK/1.0");
 
         //see http://hc.apache.org/httpcomponents-client-ga/tutorial/html/connmgmt.html
         try {
