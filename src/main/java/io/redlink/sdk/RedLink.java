@@ -102,8 +102,6 @@ public interface RedLink extends Serializable {
 
         String SELECT = "select";
 
-        String QUERY = "query";
-
         String UPDATE = "update";
 
         String LDPATH = "ldpath";
