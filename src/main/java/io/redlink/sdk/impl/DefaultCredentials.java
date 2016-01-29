@@ -14,7 +14,7 @@
 package io.redlink.sdk.impl;
 
 import io.redlink.sdk.Credentials;
-import io.redlink.sdk.util.ApiHelper;
+import io.redlink.sdk.util.VersionHelper;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -45,7 +45,7 @@ public final class DefaultCredentials extends AbstractCredentials {
     private static Logger log = LoggerFactory.getLogger(DefaultCredentials.class);
 
     public DefaultCredentials(String apiKey) {
-        this(apiKey, ApiHelper.getApiVersion());
+        this(apiKey, VersionHelper.getApiVersion());
     }
 
     public DefaultCredentials(String apiKey, String version) {

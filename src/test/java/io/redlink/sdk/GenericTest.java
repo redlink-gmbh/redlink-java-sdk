@@ -14,7 +14,7 @@
 package io.redlink.sdk;
 
 import io.redlink.sdk.impl.DefaultCredentials;
-import io.redlink.sdk.util.ApiHelper;
+import io.redlink.sdk.util.VersionHelper;
 import io.redlink.sdk.util.UriBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,8 +86,7 @@ public abstract class GenericTest {
     }
 
     private static String getVersion() {
-        //FIXME: this does not work
-        return ApiHelper.getApiVersion(System.getProperty("projectVersion"));
+        return VersionHelper.getApiVersion();
     }
 
 }

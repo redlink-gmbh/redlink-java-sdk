@@ -13,7 +13,7 @@
  */
 package io.redlink.sdk.impl;
 
-import io.redlink.sdk.util.ApiHelper;
+import io.redlink.sdk.util.VersionHelper;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -44,7 +44,7 @@ public final class StagingCredentials extends AbstractCredentials {
     private static Logger log = LoggerFactory.getLogger(StagingCredentials.class);
 
     public StagingCredentials(String apiKey) {
-        this(apiKey, ApiHelper.getApiVersion());
+        this(apiKey, VersionHelper.getApiVersion());
     }
 
     public StagingCredentials(String apiKey, String version) {
