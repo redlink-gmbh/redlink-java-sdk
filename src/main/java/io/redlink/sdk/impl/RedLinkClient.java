@@ -14,6 +14,7 @@
 package io.redlink.sdk.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.redlink.sdk.util.VersionHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -112,7 +113,7 @@ public class RedLinkClient implements Serializable {
                 .setSocketTimeout(REQUEST_TIMEOUT * 1000).build();
         builder.setDefaultRequestConfig(config);
 
-        builder.setUserAgent("RedlinkJavaSDK/1.0");
+        builder.setUserAgent(String.format("RedlinkJavaSDK/%s", VersionHelper.getVersion()));
 
         //see http://hc.apache.org/httpcomponents-client-ga/tutorial/html/connmgmt.html
         try {
