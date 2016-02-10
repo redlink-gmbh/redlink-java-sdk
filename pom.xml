@@ -76,7 +76,7 @@
         <skipTests>false</skipTests>
         <sesame.version>2.7.16</sesame.version>
         <http.client.version>4.5.1</http.client.version>
-        <jackson.version>2.7.0</jackson.version>
+        <jackson.version>2.7.1-1</jackson.version>
         <slf4j.version>1.7.14</slf4j.version>
     </properties>
 
