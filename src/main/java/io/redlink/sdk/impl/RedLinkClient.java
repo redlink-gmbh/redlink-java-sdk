@@ -169,7 +169,7 @@ public class RedLinkClient implements Serializable {
                 }
             }
         };
-        return get(target, String.class, accept, handler);
+        return get(target, accept, handler);
     }
 
     public <T> T get(final URI target, final Class<T> clazz) throws IOException {
@@ -189,10 +189,10 @@ public class RedLinkClient implements Serializable {
                 }
             }
         };
-        return get(target, clazz, accept, handler);
+        return get(target, accept, handler);
     }
 
-    private <T> T get(final URI target, final Class<T> clazz, String accept, ResponseHandler<T> handler) throws IOException {
+    private <T> T get(final URI target, String accept, ResponseHandler<T> handler) throws IOException {
         final HttpGet get = new HttpGet(target);
         if (StringUtils.isNotBlank(accept)) {
             get.setHeader("Accept", accept);
