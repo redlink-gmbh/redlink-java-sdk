@@ -73,6 +73,7 @@
         <maven.compiler.target>1.7</maven.compiler.target>
         <project.build.encoding>UTF-8</project.build.encoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.build.encoding>UTF-8</project.build.encoding>
         <skipTests>false</skipTests>
         <sesame.version>2.7.16</sesame.version>
         <http.client.version>4.5.2</http.client.version>
