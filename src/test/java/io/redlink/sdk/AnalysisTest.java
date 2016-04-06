@@ -440,6 +440,7 @@ public class AnalysisTest extends GenericTest {
         // Dereferencing Fields
         AnalysisRequest request = AnalysisRequest.builder()
                 .setAnalysis(TEST_ANALYSIS)
+                .setConfidence(0.4)
                 .setContent(DEREFERENCING_TEXT)
                 .addDereferencingField("fb:people.person.height_meters")
                 .addDereferencingField("fb:people.person.date_of_birth")

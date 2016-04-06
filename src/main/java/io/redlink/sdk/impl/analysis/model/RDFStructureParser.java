@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
 import org.openrdf.model.Value;
@@ -54,9 +55,6 @@ import com.google.common.collect.Sets;
  */
 final class RDFStructureParser extends EnhancementsParser {
 
-    /**
-     *
-     */
     private Repository repository;
 
     public RDFStructureParser(Model model)
@@ -233,63 +231,64 @@ final class RDFStructureParser extends EnhancementsParser {
                 final String uri = result.getBinding("annotation")
                         .getValue().stringValue();
 
-                Enhancement textAnnotation = enhancementsByUri.get(uri);
+                Enhancement textAnnotation = enhancementsByUri.get(uri); //TODO: DefaultedMap
                 if (textAnnotation == null) {
                     textAnnotation = new TextAnnotation();
-                    enhancementsByUri.put(uri, textAnnotation);
                 }
 
-                setTextAnnotationData((TextAnnotation) textAnnotation,
-                        result, relations);
-                if (!tas.contains(textAnnotation))
+                textAnnotation = setTextAnnotationData((TextAnnotation) textAnnotation, result, relations);
+                if (textAnnotation != null && !tas.contains(textAnnotation)) {
+                    enhancementsByUri.put(uri, textAnnotation);
                     tas.add((TextAnnotation) textAnnotation);
+                }
             }
         } catch (QueryEvaluationException | MalformedQueryException e) {
-            throw new EnhancementParserException(
-                    "Error parsing text annotations", e);
+            throw new EnhancementParserException("Error parsing text annotations", e);
         } catch (RepositoryException e) {
-            throw new EnhancementParserException(
-                    "Error querying the RDF Model obtained as Service Response",
-                    e);
+            throw new EnhancementParserException("Error querying the RDF Model obtained as Service Response", e);
         }
 
         return tas;
     }
 
-    private void setTextAnnotationData(TextAnnotation textAnnotation,
+    private TextAnnotation setTextAnnotationData(TextAnnotation textAnnotation,
                                        BindingSet result, Multimap<Enhancement, String> relations)
             throws RepositoryException {
         if (!relations.containsKey(textAnnotation)) {
-            setEnhancementData(textAnnotation, result);
-            if (result.hasBinding("start")) {
-                textAnnotation.setStarts(Integer.parseInt(result
-                        .getBinding("start").getValue().stringValue()));
-                textAnnotation.setEnds(Integer.parseInt(result
-                        .getBinding("end").getValue().stringValue()));
-            }
-            if (result.hasBinding("prefix") && result.hasBinding("suffix")) {
-                textAnnotation.setSelectionPrefixSuffix(
-                    result.getBinding("prefix").getValue().stringValue(),
-                    result.getBinding("suffix").getValue().stringValue());
-            }
-            if (result.hasBinding("relation")) {
-                String nextRelationUri = result.getBinding("relation")
-                        .getValue().stringValue();
-                relations.put(textAnnotation, nextRelationUri);
-            }
-            if (result.hasBinding("selectionContext")) {
-                textAnnotation.setSelectionContext(result
-                        .getBinding("selectionContext").getValue()
-                        .stringValue());
-            }
             if (result.hasBinding("selectedText")) {
                 Value selectedText = result.getBinding("selectedText").getValue();
-                String language = selectedText instanceof Literal ? ((Literal)selectedText).getLanguage() : null;
+                String language = selectedText instanceof Literal ? ((Literal) selectedText).getLanguage() : null;
                 textAnnotation.setSelectedText(selectedText.stringValue(), language);
-            }
-            if (result.hasBinding("type")) {
-                Binding type = result.getBinding("type");
-                textAnnotation.setType(type.getValue().stringValue());
+
+                setEnhancementData(textAnnotation, result);
+                if (result.hasBinding("start")) {
+                    textAnnotation.setStarts(Integer.parseInt(result
+                            .getBinding("start").getValue().stringValue()));
+                    textAnnotation.setEnds(Integer.parseInt(result
+                            .getBinding("end").getValue().stringValue()));
+                }
+                if (result.hasBinding("prefix") && result.hasBinding("suffix")) {
+                    textAnnotation.setSelectionPrefixSuffix(
+                            result.getBinding("prefix").getValue().stringValue(),
+                            result.getBinding("suffix").getValue().stringValue());
+                }
+                if (result.hasBinding("relation")) {
+                    String nextRelationUri = result.getBinding("relation")
+                            .getValue().stringValue();
+                    relations.put(textAnnotation, nextRelationUri);
+                }
+                if (result.hasBinding("selectionContext")) {
+                    textAnnotation.setSelectionContext(result
+                            .getBinding("selectionContext").getValue()
+                            .stringValue());
+                }
+                if (result.hasBinding("type")) {
+                    Binding type = result.getBinding("type");
+                    textAnnotation.setType(type.getValue().stringValue());
+                }
+                return textAnnotation;
+            } else {
+                return null;
             }
         } else {
             if (result.hasBinding("relation")) {
@@ -297,6 +296,7 @@ final class RDFStructureParser extends EnhancementsParser {
                         .getValue().stringValue();
                 relations.put(textAnnotation, nextRelationUri);
             }
+            return textAnnotation;
         }
     }
 
