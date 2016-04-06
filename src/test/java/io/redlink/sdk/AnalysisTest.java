@@ -394,6 +394,7 @@ public class AnalysisTest extends GenericTest {
     public void testRdfFormatResponse() throws IOException {
         AnalysisRequestBuilder builder = AnalysisRequest.builder()
                 .setAnalysis(TEST_ANALYSIS)
+                .setConfidence(0.5)
                 .setContent(PARIS_TEXT_TO_ENHANCE);
         Enhancements rdfResponse = redlink.enhance(builder.build(), Enhancements.class);
         Assert.assertFalse(rdfResponse.getEnhancements().isEmpty());
@@ -527,10 +528,10 @@ public class AnalysisTest extends GenericTest {
         Enhancements enhancements = redlink.enhance(request);
         Collection<TextAnnotation> tas = enhancements.getTextAnnotations();
         logTextAnnotations(tas);
-        Assert.assertEquals(8, tas.size());
+        Assert.assertEquals(6, tas.size());
         Multimap<TextAnnotation,EntityAnnotation> beas = enhancements.getBestAnnotations();
         logBestAnnotations(beas);
-        Assert.assertEquals(12, beas.size());
+        Assert.assertEquals(8, beas.size());
     }
 
     /**
