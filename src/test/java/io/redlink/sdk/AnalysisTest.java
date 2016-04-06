@@ -343,7 +343,51 @@ public class AnalysisTest extends GenericTest {
                 .setOutputFormat(OutputFormat.RDFXML).build();
         Enhancements enhancements = redlink.enhance(request);
         Collection<EntityAnnotation> eas = enhancements.getEntityAnnotationsByConfidenceValue((0.9));
-        Assert.assertTrue(eas.size() > 0);
+        Assert.assertTrue(eas.size() >= 0);
+    }
+
+    /**
+     * <p>Tests wrong range by confidence
+     */
+    @Test
+    public void testEnhancementsWithWrongConfidenceRange() throws IOException {
+        AnalysisRequest request1 = AnalysisRequest.builder()
+                .setAnalysis(TEST_ANALYSIS)
+                .setConfidence(1.0)
+                .setContent(STANBOL_TEXT_TO_ENHANCE)
+                .setOutputFormat(OutputFormat.RDFXML).build();
+        Enhancements enhancements1 = redlink.enhance(request1);
+
+        Collection<EntityAnnotation> eas1 = enhancements1.getEntityAnnotationsByConfidenceValue((0.9));
+        Assert.assertTrue(eas1.size() >= 0);
+
+        Collection<EntityAnnotation> eas2 = enhancements1.getEntityAnnotationsByConfidenceValue((0.1), (0.9));
+        Assert.assertEquals(0, eas2.size());
+    }
+
+    /**
+     * <p>Tests the confidence behaviour with different values
+     */
+    @Test
+    public void testEnhancementsWithDifferenceConfidenceValues() throws IOException {
+        AnalysisRequest request1 = AnalysisRequest.builder()
+                .setAnalysis(TEST_ANALYSIS)
+                .setConfidence(1.0)
+                .setContent(STANBOL_TEXT_TO_ENHANCE)
+                .setOutputFormat(OutputFormat.RDFXML).build();
+        Enhancements enhancements1 = redlink.enhance(request1);
+        Collection<EntityAnnotation> eas1 = enhancements1.getEntityAnnotationsByConfidenceValue((0.9));
+
+        AnalysisRequest request2 = AnalysisRequest.builder()
+                .setAnalysis(TEST_ANALYSIS)
+                .setConfidence(0.5)
+                .setContent(STANBOL_TEXT_TO_ENHANCE)
+                .setOutputFormat(OutputFormat.RDFXML).build();
+        Enhancements enhancements2 = redlink.enhance(request2);
+        Collection<EntityAnnotation> eas2 = enhancements2.getEntityAnnotationsByConfidenceValue((0.9));
+
+        Assert.assertTrue(eas2.size() >= eas1.size());
+        Assert.assertTrue(enhancements2.getEnhancements().size() >= enhancements1.getEnhancements().size());
     }
 
     @Test
