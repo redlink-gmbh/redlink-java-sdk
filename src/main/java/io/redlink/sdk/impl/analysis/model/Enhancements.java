@@ -247,6 +247,28 @@ public class Enhancements implements Iterable<Enhancement> {
                 }).toList();
     }
 
+    /**
+     * Returns a {@link Collection} of {@link EntityAnnotation}s which confidences values are greater than or equal
+     * to the value passed by parameter
+     *
+     * @param minConfidenceValue Minimum threshold confidence value
+     * @param maxConfidenceValue Maximum threshold confidence value
+     * @return
+     */
+    public Collection<EntityAnnotation> getEntityAnnotationsByConfidenceValue(
+            final Double minConfidenceValue, final Double maxConfidenceValue) {
+        return FluentIterable.from(getEntityAnnotations())
+                .filter(new Predicate<EntityAnnotation>() {
+                    @Override
+                    public boolean apply(EntityAnnotation e) {
+                        final double value = e.confidence.doubleValue();
+                        final boolean b = minConfidenceValue.doubleValue() <= value
+                                && value <= maxConfidenceValue.doubleValue();
+                        return b;
+                    }
+                }).toList();
+    }
+
     public Multimap<TextAnnotation, EntityAnnotation> getEntityAnnotationsByTextAnnotation() {
         Multimap<TextAnnotation, EntityAnnotation> map = ArrayListMultimap.create();
 

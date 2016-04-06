@@ -84,6 +84,7 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
                         setContent(request.getContent()).
                         setInputFormat(InputFormat.valueOf(request.getInputFormat())).
                         setOutputFormat(OutputFormat.TURTLE).
+                        setConfidence(request.getConfidence()).
                         setSummaries(request.getSummary()).
                         setThumbnails(request.getThumbnail()).build();
             }
@@ -133,15 +134,16 @@ public class RedLinkAnalysisImpl extends RedLinkAbstractImpl implements RedLink.
                 }
             }
 
-            // Build uri
-            UriBuilder uriBuilder = getEnhanceUriBuilder(analysis)                   // Change URI based on the analysis name
-                    .queryParam(RedLink.IN, request.getInputFormat())                // InputFormat parameter
-                    .queryParam(RedLink.OUT, request.getOutputFormat())              // OutputFormat parameter
-                    .queryParam(SUMMARY, Boolean.toString(request.getSummary()))     // Entities' summaries parameter;
-                    .queryParam(THUMBNAIL, Boolean.toString(request.getThumbnail())) // Entities' thumbnails parameter
-                    .queryParam(LDPATH, request.getLDPathProgram());                 // LDPath program for dereferencing
+            // Build URI
+            UriBuilder uriBuilder = getEnhanceUriBuilder(analysis)                    // Change URI based on the analysis name
+                    .queryParam(RedLink.IN, request.getInputFormat())                 // InputFormat parameter
+                    .queryParam(RedLink.OUT, request.getOutputFormat())               // OutputFormat parameter
+                    .queryParam(CONFIDENCE, Double.toString(request.getConfidence())) // Confidence parameter;
+                    .queryParam(SUMMARY, Boolean.toString(request.getSummary()))      // Entities' summaries parameter;
+                    .queryParam(THUMBNAIL, Boolean.toString(request.getThumbnail()))  // Entities' thumbnails parameter
+                    .queryParam(LDPATH, request.getLDPathProgram());                  // LDPath program for de-referencing
             for (String field: request.getFieldsToDereference()) {
-                uriBuilder = uriBuilder.queryParam(DEREF_FIELDS, field);             // Fields to be dereferenced
+                uriBuilder = uriBuilder.queryParam(DEREF_FIELDS, field);              // Fields to be de-referenced
             }
 
             log.debug("Making analysis request to " + uriBuilder.build().toString());

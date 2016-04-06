@@ -127,6 +127,11 @@ public class AnalysisRequest {
     private Optional<String> analysis = Optional.absent();
 
     /**
+     * Custom confidence (relevance) threshold
+     */
+    private double confidence = 0.85;
+
+    /**
      * Request Content Summary
      */
     private boolean summary = true;
@@ -253,6 +258,13 @@ public class AnalysisRequest {
     }
 
     /**
+     * Get current request confidence parameter
+     *
+     * @return Current request confidence parameter
+     */
+    public double getConfidence() { return confidence; }
+
+    /**
      * Get current request thumbnail parameter
      *
      * @return Flag indicating if current request will ask analysis service to return entities's thumbnails
@@ -309,6 +321,17 @@ public class AnalysisRequest {
          */
         public AnalysisRequestBuilder setAnalysis(String analysis) {
             this.request.analysis = Optional.of(analysis);
+            return this;
+        }
+
+        /**
+         * Set Request confidence parameter
+         *
+         * @param confidence Request Confidence Parameter
+         * @return Current Request Builder
+         */
+        public AnalysisRequestBuilder setConfidence(double confidence) {
+            this.request.confidence = confidence;
             return this;
         }
 

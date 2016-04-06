@@ -50,6 +50,8 @@ public interface RedLink extends Serializable {
 
         String ENHANCE = "enhance";
 
+        String CONFIDENCE = "confidence";
+
         String SUMMARY = "summary";
 
         String THUMBNAIL = "thumbnail";
