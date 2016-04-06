@@ -262,9 +262,8 @@ public class Enhancements implements Iterable<Enhancement> {
                     @Override
                     public boolean apply(EntityAnnotation e) {
                         final double value = e.confidence.doubleValue();
-                        final boolean b = minConfidenceValue.doubleValue() <= value
+                        return minConfidenceValue.doubleValue() <= value
                                 && value <= maxConfidenceValue.doubleValue();
-                        return b;
                     }
                 }).toList();
     }
