@@ -530,10 +530,10 @@ public class AnalysisTest extends GenericTest {
         Enhancements enhancements = redlink.enhance(request);
         Collection<TextAnnotation> tas = enhancements.getTextAnnotations();
         logTextAnnotations(tas);
-        Assert.assertEquals(6, tas.size());
+        Assert.assertEquals(8, tas.size());
         Multimap<TextAnnotation,EntityAnnotation> beas = enhancements.getBestAnnotations();
         logBestAnnotations(beas);
-        Assert.assertEquals(8, beas.size());
+        Assert.assertEquals(12, beas.size());
     }
 
     /**
