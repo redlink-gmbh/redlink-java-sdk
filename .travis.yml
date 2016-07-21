@@ -22,3 +22,7 @@ install:
 after_success:
   - mvn coveralls:report
 
+matrix:
+  allow_failures:
+    - jdk: oraclejdk9
+
