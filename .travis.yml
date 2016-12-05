@@ -15,7 +15,6 @@ before_install:
   -in src/test/resources/travis.key.enc -out src/test/resources/api.key -d
 - echo "MAVEN_OPTS='-Xmx1g'" > ~/.mavenrc
 - sudo update-ca-certificates -f
-- source /opt/jdk_switcher/jdk_switcher.sh
 
 install:
 - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dgpg.skip=true -B -V
