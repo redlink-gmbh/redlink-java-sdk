@@ -1,7 +1,7 @@
 language: java
 sudo: required
 dist: trusty
-group: edge
+group: stable
 
 jdk:
 - openjdk7
