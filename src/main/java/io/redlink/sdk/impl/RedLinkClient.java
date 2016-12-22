@@ -99,12 +99,15 @@ public class RedLinkClient implements Serializable {
         decoderRegistry = Collections.unmodifiableMap(dr);
     }
 
-    private final CloseableHttpClient client;
+    private transient CloseableHttpClient client;
     private final ObjectMapper mapper;
 
     public RedLinkClient() {
         mapper = new ObjectMapper();
+        client = buildHttpClient();
+    }
 
+    private CloseableHttpClient buildHttpClient() {
         final HttpClientBuilder builder = HttpClientBuilder.create();
 
         RequestConfig config = RequestConfig.custom()
@@ -149,7 +152,7 @@ public class RedLinkClient implements Serializable {
         // Workaround for SEARCH-230: we use our own Content-Encoding decoder registry.
         builder.setContentDecoderRegistry(decoderRegistry);
 
-        client = builder.build();
+        return builder.build();
     }
 
     public String get(final URI target) throws IOException {
@@ -197,6 +200,9 @@ public class RedLinkClient implements Serializable {
         if (StringUtils.isNotBlank(accept)) {
             get.setHeader("Accept", accept);
         }
+        if (client == null) {
+            client = buildHttpClient();
+        }
         return client.execute(get, handler);
     }
 
@@ -216,6 +222,9 @@ public class RedLinkClient implements Serializable {
         final HttpPost post = new HttpPost(target);
         if (StringUtils.isNotBlank(accept)) {
             post.setHeader("Accept", accept);
+        }
+        if (client == null) {
+            client = buildHttpClient();
         }
         return client.execute(post);
     }
@@ -240,6 +249,9 @@ public class RedLinkClient implements Serializable {
         if (StringUtils.isNotBlank(format)) {
             req.setHeader("Content-Type", format);
         }
+        if (client == null) {
+            client = buildHttpClient();
+        }
         return client.execute(req);
     }
 
@@ -250,11 +262,17 @@ public class RedLinkClient implements Serializable {
     private CloseableHttpResponse exec(HttpEntityEnclosingRequestBase req, HttpEntity entity, RDFFormat format) throws IOException {
         req.setEntity(entity);
         req.setHeader("Content-Type", format.getDefaultMIMEType());
+        if (client == null) {
+            client = buildHttpClient();
+        }
         return client.execute(req);
     }
 
     public CloseableHttpResponse delete(URI target) throws IOException {
         final HttpDelete delete = new HttpDelete(target);
+        if (client == null) {
+            client = buildHttpClient();
+        }
         return client.execute(delete);
     }
 
