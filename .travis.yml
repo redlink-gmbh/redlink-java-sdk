@@ -17,7 +17,7 @@ before_install:
 - sudo update-ca-certificates -f
 
 install:
-- mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dgpg.skip=true -B -V
+- mvn verify -Dmaven.javadoc.skip=true -Dgpg.skip=true -B -V
 
 after_success:
   - mvn coveralls:report
