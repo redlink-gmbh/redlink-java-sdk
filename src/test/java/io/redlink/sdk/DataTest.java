@@ -267,7 +267,7 @@ public class DataTest extends GenericTest {
         Assert.assertTrue(redlink.importResource(resource, model, TEST_DATASET, true));
         final Model resourceModelFromApi = redlink.getResource(resource, TEST_DATASET);
         Assert.assertNotNull(resourceModelFromApi);
-        Assert.assertEquals(2, resourceModelFromApi.size());
+        Assert.assertEquals(resouceModel.size(), resourceModelFromApi.size());
     }
 
     @Test
