@@ -225,7 +225,7 @@ public class DataTest extends GenericTest {
     }
 
     @Test
-    public void testResourceImportedInDataset() throws IOException, RDFParseException, RDFHandlerException, URISyntaxException {
+    public void testResourceImported() throws IOException, RDFParseException, RDFHandlerException, URISyntaxException {
         //first import data
         InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
         Assume.assumeNotNull(in);
@@ -245,7 +245,7 @@ public class DataTest extends GenericTest {
 
     @Test
     @Ignore
-    public void testResourceImported() throws IOException, RDFParseException, RDFHandlerException, URISyntaxException {
+    public void testResourceReImported() throws IOException, RDFParseException, RDFHandlerException, URISyntaxException {
         //first import data
         InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
         Assume.assumeNotNull(in);
