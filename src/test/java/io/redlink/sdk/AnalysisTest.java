@@ -96,6 +96,7 @@ public class AnalysisTest extends GenericTest {
     }
 
     @Test
+    @Ignore
     public void testFile() throws IOException, URISyntaxException {
         File file = new File(this.getClass().getResource(TEST_FILE).toURI());
         Assume.assumeTrue(file.exists());
