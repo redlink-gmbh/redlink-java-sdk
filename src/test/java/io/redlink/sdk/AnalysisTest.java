@@ -80,8 +80,8 @@ public class AnalysisTest extends GenericTest {
     /**
      * <p>Tests the empty enhancements when an empty string is sent to the API</p>
      */
-    //@Test
-    //FIXME: server-side issue (to be solved by Rupert)
+    @Test
+    @Ignore("server-side issue (to be solved by Rupert)")
     public void testEmptyEnhancement() throws IOException {
         AnalysisRequest request = AnalysisRequest.builder()
                 .setAnalysis(TEST_ANALYSIS)
@@ -96,7 +96,7 @@ public class AnalysisTest extends GenericTest {
     }
 
     @Test
-    @Ignore
+    @Ignore("server-side issue (to be solved by Rupert)")
     public void testFile() throws IOException, URISyntaxException {
         File file = new File(this.getClass().getResource(TEST_FILE).toURI());
         Assume.assumeTrue(file.exists());
