@@ -32,6 +32,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openrdf.model.Model;
+import org.openrdf.model.Resource;
+import org.openrdf.model.impl.EmptyModel;
+import org.openrdf.model.impl.LinkedHashModel;
+import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
@@ -227,7 +231,7 @@ public class DataTest extends GenericTest {
     }
 
     @Test
-    public void testResourceImported() throws IOException, RDFParseException, RDFHandlerException, URISyntaxException {
+    public void testResourceImportedInDataset() throws IOException, RDFParseException, RDFHandlerException, URISyntaxException {
         //first import data
         InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
         Assume.assumeNotNull(in);
@@ -243,6 +247,29 @@ public class DataTest extends GenericTest {
         Assert.assertNotNull(resourceModel);
         Assert.assertTrue(resourceModel.size() < triples.size());
         Assert.assertEquals(TEST_RESOUCE_TRIPLES, resourceModel.size());
+    }
+
+    @Test
+    public void testResourceImported() throws IOException, RDFParseException, RDFHandlerException, URISyntaxException {
+        //first import data
+        InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
+        Assume.assumeNotNull(in);
+        final Model model = Rio.parse(in, buildDatasetBaseUri(credentials, status.getOwner(), TEST_DATASET), TEST_FILE_FORMAT);
+        Assert.assertTrue(redlink.importDataset(model, TEST_DATASET, true));
+        final SPARQLResult triples = redlink.sparqlTupleQuery(QUERY_SELECT, TEST_DATASET);
+        Assert.assertNotNull(triples);
+        Assert.assertEquals(TEST_FILE_TRIPLES, triples.size());
+
+        //and then the actual test
+        final String resource = buildDatasetBaseUri(credentials, status.getOwner(), TEST_DATASET) + TEST_RESOURCE;
+        final ValueFactoryImpl vf = new ValueFactoryImpl();
+        final Resource sesameResource = vf.createURI(resource);
+        final Model resouceModel = new LinkedHashModel();
+        resouceModel.add(sesameResource, vf.createURI("http://example.org/foo"), vf.createLiteral("foo"));
+        Assert.assertTrue(redlink.importResource(resource, model, TEST_DATASET, true));
+        final Model resourceModelFromApi = redlink.getResource(resource, TEST_DATASET);
+        Assert.assertNotNull(resourceModelFromApi);
+        Assert.assertEquals(2, resourceModelFromApi.size());
     }
 
     @Test
