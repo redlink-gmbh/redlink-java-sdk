@@ -24,12 +24,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.apache.marmotta.client.model.sparql.SPARQLResult;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.impl.LinkedHashModel;
@@ -151,7 +146,8 @@ public class DataTest extends GenericTest {
         //TODO: more specific testing
     }
 
-    //@Test
+    @Test
+    @Ignore
     public void testImportCleaningFile() throws FileNotFoundException {
         URL url = this.getClass().getResource(TEST_FILE);
         Assume.assumeNotNull(url);
@@ -248,6 +244,7 @@ public class DataTest extends GenericTest {
     }
 
     @Test
+    @Ignore
     public void testResourceImported() throws IOException, RDFParseException, RDFHandlerException, URISyntaxException {
         //first import data
         InputStream in = this.getClass().getResourceAsStream(TEST_FILE);
