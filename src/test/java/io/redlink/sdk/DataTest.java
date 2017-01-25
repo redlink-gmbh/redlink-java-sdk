@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -33,7 +32,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
-import org.openrdf.model.impl.EmptyModel;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.rio.RDFFormat;
