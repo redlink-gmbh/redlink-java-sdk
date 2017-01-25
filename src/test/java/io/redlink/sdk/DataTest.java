@@ -262,12 +262,12 @@ public class DataTest extends GenericTest {
         final String resource = buildDatasetBaseUri(credentials, status.getOwner(), TEST_DATASET) + TEST_RESOURCE;
         final ValueFactoryImpl vf = new ValueFactoryImpl();
         final Resource sesameResource = vf.createURI(resource);
-        final Model resouceModel = new LinkedHashModel();
-        resouceModel.add(sesameResource, vf.createURI("http://example.org/foo"), vf.createLiteral("foo"));
+        final Model resourceModel = new LinkedHashModel();
+        resourceModel.add(sesameResource, vf.createURI("http://example.org/foo"), vf.createLiteral("foo"));
         Assert.assertTrue(redlink.importResource(resource, model, TEST_DATASET, true));
         final Model resourceModelFromApi = redlink.getResource(resource, TEST_DATASET);
         Assert.assertNotNull(resourceModelFromApi);
-        Assert.assertEquals(resouceModel.size(), resourceModelFromApi.size());
+        Assert.assertEquals(resourceModel.size(), resourceModelFromApi.size());
     }
 
     @Test
