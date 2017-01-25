@@ -212,7 +212,7 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
         RDFFormat format = RDFFormat.TURTLE;
         log.debug("Importing {} data for resource {} in {}", format.getName(), resource, dataset);
         try {
-            java.net.URI target = credentials.buildUrl(getDatasetUriBuilder(dataset));
+            java.net.URI target = credentials.buildUrl(getResourceUriBuilder(dataset, resource));
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             Rio.write(data, out, format);
             InputStream in = new ByteArrayInputStream(out.toByteArray());
