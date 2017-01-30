@@ -30,7 +30,7 @@ public class VersionHelperTest {
         System.out.println(new File("pom.xml").getAbsolutePath());
         final String version = VersionHelper.getVersion();
         Assert.assertNotNull(version);
-        Assert.assertEquals("1.0.3", version);
+        Assert.assertEquals("1.0.4-SNAPSHOT", version);
     }
 
     @Test
