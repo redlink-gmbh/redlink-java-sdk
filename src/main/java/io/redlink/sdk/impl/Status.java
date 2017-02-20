@@ -28,10 +28,10 @@ public class Status implements Serializable {
 
     private int owner;
     private boolean accessible;
-    private int bytes;
-    private int requests;
-    private int limit;
-    private int seconds;
+    private long bytes;
+    private long requests;
+    private long limit;
+    private long seconds;
     private List<String> datasets;
     private List<String> analyses;
 
@@ -72,7 +72,7 @@ public class Status implements Serializable {
      *
      * @return
      */
-    public int getBytes() {
+    public long getBytes() {
         return bytes;
     }
 
@@ -81,7 +81,7 @@ public class Status implements Serializable {
      *
      * @return
      */
-    public int getRequests() {
+    public long getRequests() {
         return requests;
     }
 
@@ -90,7 +90,7 @@ public class Status implements Serializable {
      *
      * @return
      */
-    public int getLimit() {
+    public long getLimit() {
         return limit;
     }
 
@@ -111,7 +111,7 @@ public class Status implements Serializable {
      *
      * @return
      */
-    public int getSeconds() {
+    public long getSeconds() {
         return seconds;
     }
 
