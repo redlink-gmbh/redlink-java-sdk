@@ -21,7 +21,7 @@
     <groupId>io.redlink</groupId>
     <artifactId>redlink-sdk-java</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.0.4</version>
     <name>redlink-sdk-java</name>
     <description>Redlink SDK for Java</description>
     <url>http://dev.redlink.io/sdk</url>
