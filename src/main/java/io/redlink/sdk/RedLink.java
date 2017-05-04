@@ -110,6 +110,8 @@ public interface RedLink extends Serializable {
 
         String RELEASE = "release";
 
+        String SPARQL_QUERY_MIME_TYPE = "application/sparql-query";
+
         /**
          * Import an RDF {@link Model} into the selected Dataset. The Dataset must exist at the user RedLink account and
          * must be configured for the user's RedLink application used in the request.

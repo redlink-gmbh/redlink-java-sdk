@@ -458,7 +458,7 @@ public class RedLinkDataImpl extends RedLinkAbstractImpl implements RedLink.Data
         try {
             log.debug("Executing SPARQL tuple query: {}", query.replaceAll("\\s*[\\r\\n]+\\s*", " ").trim());
             RDFFormat format = RDFFormat.TURTLE;
-            CloseableHttpResponse response = client.post(target, query, format.getDefaultMIMEType());
+            CloseableHttpResponse response = client.post(target, query, format.getDefaultMIMEType(),SPARQL_QUERY_MIME_TYPE);
             final int status = response.getStatusLine().getStatusCode();
             log.debug("Request resolved with {} status code: {}", status, response.getStatusLine().getReasonPhrase());
             try {
