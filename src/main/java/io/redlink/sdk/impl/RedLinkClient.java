@@ -119,35 +119,35 @@ public class RedLinkClient implements Serializable {
         builder.setUserAgent(String.format("RedlinkJavaSDK/%s", VersionHelper.getVersion()));
 
         //see http://hc.apache.org/httpcomponents-client-ga/tutorial/html/connmgmt.html
-        try {
+//        try {
             // load the certificate
-            InputStream fis = RedLinkClient.class.getResourceAsStream("/redlink-CA.crt");
-            CertificateFactory cf = CertificateFactory.getInstance("X.509");
-            Certificate cert = cf.generateCertificate(fis);
+//            InputStream fis = RedLinkClient.class.getResourceAsStream("/redlink-CA.crt");
+//            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+//            Certificate cert = cf.generateCertificate(fis);
 
             // Load the keyStore that includes self-signed cert as a "trusted" entry
-            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            keyStore.load(null, null);
-            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            keyStore.setCertificateEntry("redlink-CA", cert);
-            tmf.init(keyStore);
-            final SSLContext ctx = SSLContext.getInstance("SSLv3");
-            ctx.init(null, tmf.getTrustManagers(), null);
+//            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+//            keyStore.load(null, null);
+//            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+//            keyStore.setCertificateEntry("redlink-CA", cert);
+//            tmf.init(keyStore);
+//            final SSLContext ctx = SSLContext.getInstance("SSLv3");
+//            ctx.init(null, tmf.getTrustManagers(), null);
             //SSLSocketFactory sslFactory = ctx.getSocketFactory();
 
-            final SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(ctx, new NoopHostnameVerifier());
+//            final SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(ctx, new NoopHostnameVerifier());
 
-            final Registry<ConnectionSocketFactory> r = RegistryBuilder.<ConnectionSocketFactory>create()
-                    .register("http", PlainConnectionSocketFactory.getSocketFactory())
-                    .register("https", sslsf)
-                    .build();
+//            final Registry<ConnectionSocketFactory> r = RegistryBuilder.<ConnectionSocketFactory>create()
+//                    .register("http", PlainConnectionSocketFactory.getSocketFactory())
+//                    .register("https", sslsf)
+//                    .build();
 
-            final PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager(r);
-            cm.setMaxTotal(100);
-            builder.setConnectionManager(cm);
-        } catch (NoSuchAlgorithmException | KeyStoreException | KeyManagementException | CertificateException | IOException e) {
-            throw new IllegalArgumentException(e);
-        }
+//            final PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager(r);
+//            cm.setMaxTotal(100);
+//            builder.setConnectionManager(cm);
+//        } catch (NoSuchAlgorithmException | KeyStoreException | KeyManagementException | CertificateException | IOException e) {
+//            throw new IllegalArgumentException(e);
+//        }
 
         // Workaround for SEARCH-230: we use our own Content-Encoding decoder registry.
         builder.setContentDecoderRegistry(decoderRegistry);
