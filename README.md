@@ -11,7 +11,6 @@ needs, please contact us for further information.
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.redlink/redlink-sdk-java/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.redlink/redlink-sdk-java/)
 [![Build Status](https://secure.travis-ci.org/redlink-gmbh/redlink-java-sdk.svg?branch=master)](https://travis-ci.org/redlink-gmbh/redlink-java-sdk)
 [![Coverage Status](https://coveralls.io/repos/redlink-gmbh/redlink-java-sdk/badge.svg?branch=master&service=github)](https://coveralls.io/github/redlink-gmbh/redlink-java-sdk?branch=master)
-[![Dependency Status](https://www.versioneye.com/user/projects/562fae2936d0ab00210015b9/badge.svg?style=flat)](https://www.versioneye.com/java/io.redlink:redlink-sdk-java)
 [![License](http://img.shields.io/:license-apache-blue.svg)][ASL2]
 
 Further details at [dev.redlink.io][dev].
