@@ -28,6 +28,7 @@ import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.util.EntityUtils;
 import org.openrdf.rio.RDFFormat;
 
@@ -50,6 +51,9 @@ public class RedLinkClient implements Serializable {
     private static final long serialVersionUID = -6399964450824289653L;
 
     public static final int REQUEST_TIMEOUT = 60;  //TODO: configuration
+
+    public static final String HTTP_HEADER_ACCEPT = "Accept";
+    public static final String HTTP_HEADER_CONTENT_TYPE = "Content-Type";
 
     public static final Map<String,InputStreamFactory> decoderRegistry;
 
@@ -103,6 +107,10 @@ public class RedLinkClient implements Serializable {
 
         builder.setUserAgent(String.format("RedlinkJavaSDK/%s", VersionHelper.getVersion()));
 
+        final PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
+        cm.setMaxTotal(100);
+        builder.setConnectionManager(cm);
+
         // Workaround for SEARCH-230: we use our own Content-Encoding decoder registry.
         builder.setContentDecoderRegistry(decoderRegistry);
 
@@ -152,7 +160,7 @@ public class RedLinkClient implements Serializable {
     private <T> T get(final URI target, String accept, ResponseHandler<T> handler) throws IOException {
         final HttpGet get = new HttpGet(target);
         if (StringUtils.isNotBlank(accept)) {
-            get.setHeader("Accept", accept);
+            get.setHeader(HTTP_HEADER_ACCEPT, accept);
         }
         if (client == null) {
             client = buildHttpClient();
@@ -175,7 +183,7 @@ public class RedLinkClient implements Serializable {
     public CloseableHttpResponse post(URI target, String accept) throws IOException {
         final HttpPost post = new HttpPost(target);
         if (StringUtils.isNotBlank(accept)) {
-            post.setHeader("Accept", accept);
+            post.setHeader(HTTP_HEADER_ACCEPT, accept);
         }
         if (client == null) {
             client = buildHttpClient();
@@ -198,10 +206,10 @@ public class RedLinkClient implements Serializable {
     private CloseableHttpResponse exec(HttpEntityEnclosingRequestBase req, HttpEntity entity, String accept, String format) throws IOException {
         req.setEntity(entity);
         if (StringUtils.isNotBlank(accept)) {
-            req.setHeader("Accept", accept);
+            req.setHeader(HTTP_HEADER_ACCEPT, accept);
         }
         if (StringUtils.isNotBlank(format)) {
-            req.setHeader("Content-Type", format);
+            req.setHeader(HTTP_HEADER_CONTENT_TYPE, format);
         }
         if (client == null) {
             client = buildHttpClient();
@@ -215,7 +223,7 @@ public class RedLinkClient implements Serializable {
 
     private CloseableHttpResponse exec(HttpEntityEnclosingRequestBase req, HttpEntity entity, RDFFormat format) throws IOException {
         req.setEntity(entity);
-        req.setHeader("Content-Type", format.getDefaultMIMEType());
+        req.setHeader(HTTP_HEADER_CONTENT_TYPE, format.getDefaultMIMEType());
         if (client == null) {
             client = buildHttpClient();
         }

@@ -453,14 +453,10 @@ public class AnalysisTest extends GenericTest {
 
         Entity baggio = enhancements.getEntity("http://rdf.freebase.com/ns/m.06d6f");
         Assert.assertNotNull(baggio);
-        Assert.assertEquals(baggio.getFirstPropertyValue(
-                        "http://rdf.freebase.com/ns/people.person.height_meters"),
-                "1.74"
-        );
-        Assert.assertEquals(baggio.getFirstPropertyValue(
-                        "http://rdf.freebase.com/ns/people.person.date_of_birth"),
-                "1967-02-18"
-        );
+        Assert.assertEquals("1.74", baggio.getFirstPropertyValue(
+                "http://rdf.freebase.com/ns/people.person.height_meters"));
+        Assert.assertEquals("1967-02-18", baggio.getFirstPropertyValue(
+                        "http://rdf.freebase.com/ns/people.person.date_of_birth"));
 
         Entity baggioDBP = enhancements.getEntity("http://dbpedia.org/resource/Roberto_Baggio");
         Assert.assertNotNull(baggioDBP);
