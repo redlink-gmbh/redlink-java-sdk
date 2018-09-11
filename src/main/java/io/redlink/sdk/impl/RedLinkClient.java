@@ -24,33 +24,17 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.DeflateInputStream;
 import org.apache.http.client.entity.InputStreamFactory;
 import org.apache.http.client.methods.*;
-import org.apache.http.config.Registry;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.util.EntityUtils;
 import org.openrdf.rio.RDFFormat;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URI;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -110,44 +94,14 @@ public class RedLinkClient implements Serializable {
     private CloseableHttpClient buildHttpClient() {
         final HttpClientBuilder builder = HttpClientBuilder.create();
 
-        RequestConfig config = RequestConfig.custom()
+        final RequestConfig config = RequestConfig.custom()
                 .setConnectTimeout(REQUEST_TIMEOUT * 1000)
                 .setConnectionRequestTimeout(REQUEST_TIMEOUT * 1000)
-                .setSocketTimeout(REQUEST_TIMEOUT * 1000).build();
+                .setSocketTimeout(REQUEST_TIMEOUT * 1000)
+                .build();
         builder.setDefaultRequestConfig(config);
 
         builder.setUserAgent(String.format("RedlinkJavaSDK/%s", VersionHelper.getVersion()));
-
-        //see http://hc.apache.org/httpcomponents-client-ga/tutorial/html/connmgmt.html
-//        try {
-            // load the certificate
-//            InputStream fis = RedLinkClient.class.getResourceAsStream("/redlink-CA.crt");
-//            CertificateFactory cf = CertificateFactory.getInstance("X.509");
-//            Certificate cert = cf.generateCertificate(fis);
-
-            // Load the keyStore that includes self-signed cert as a "trusted" entry
-//            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-//            keyStore.load(null, null);
-//            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-//            keyStore.setCertificateEntry("redlink-CA", cert);
-//            tmf.init(keyStore);
-//            final SSLContext ctx = SSLContext.getInstance("SSLv3");
-//            ctx.init(null, tmf.getTrustManagers(), null);
-            //SSLSocketFactory sslFactory = ctx.getSocketFactory();
-
-//            final SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(ctx, new NoopHostnameVerifier());
-
-//            final Registry<ConnectionSocketFactory> r = RegistryBuilder.<ConnectionSocketFactory>create()
-//                    .register("http", PlainConnectionSocketFactory.getSocketFactory())
-//                    .register("https", sslsf)
-//                    .build();
-
-//            final PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager(r);
-//            cm.setMaxTotal(100);
-//            builder.setConnectionManager(cm);
-//        } catch (NoSuchAlgorithmException | KeyStoreException | KeyManagementException | CertificateException | IOException e) {
-//            throw new IllegalArgumentException(e);
-//        }
 
         // Workaround for SEARCH-230: we use our own Content-Encoding decoder registry.
         builder.setContentDecoderRegistry(decoderRegistry);
