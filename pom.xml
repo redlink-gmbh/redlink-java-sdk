@@ -155,7 +155,6 @@
                         <exclude>*.md</exclude>
                         <exclude>target/**</exclude>
                         <exclude>src/test/resources/**</exclude>
-                        <exclude>src/main/resources/redlink-CA.crt</exclude>
                     </excludes>
                 </configuration>
                 <executions>

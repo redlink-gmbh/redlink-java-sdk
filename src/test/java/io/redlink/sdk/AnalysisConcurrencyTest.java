@@ -33,7 +33,7 @@ import java.util.Random;
 /**
  * Concurrency test on Analysis
  *
- * @author sergio.fernandez@redlinkAnalysis.co
+ * @author sergio.fernandez@redlink.co
  */
 public class AnalysisConcurrencyTest extends GenericTest {
 
@@ -43,7 +43,7 @@ public class AnalysisConcurrencyTest extends GenericTest {
 
     private static final String TEST_DATASET = "test";
 
-    private static String TEXT_TO_ENHANCE = "Paris is the capital of France";
+    private static final String TEXT_TO_ENHANCE = "Paris is the capital of France";
 
     private static final String QUERY_UPDATE_TPL = "INSERT DATA { <http://example.org/test%d> <http://www.w3.org/1999/02/22-rdf-syntax-ns#label> 'test %d' }";
 
